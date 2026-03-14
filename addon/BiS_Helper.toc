@@ -1,0 +1,48 @@
+## Interface: 120001
+## Title: BiS Helper
+## Notes: Best in Slot gear checker — compares your equipment to class BiS lists
+## Author:
+## Version: 0.1.0
+## X-Curse-Project-ID:
+
+data\dh_devourer.lua
+data\dh_havoc.lua
+data\dh_vengeance.lua
+data\deathknight_blood.lua
+data\deathknight_frost.lua
+data\deathknight_unholy.lua
+data\druid_balance.lua
+data\druid_feral.lua
+data\druid_guardian.lua
+data\druid_restoration.lua
+data\evoker_augmentation.lua
+data\evoker_devastation.lua
+data\evoker_preservation.lua
+data\hunter_beastmastery.lua
+data\hunter_marksmanship.lua
+data\hunter_survival.lua
+data\mage_arcane.lua
+data\mage_fire.lua
+data\mage_frost.lua
+data\monk_brewmaster.lua
+data\monk_mistweaver.lua
+data\monk_windwalker.lua
+data\paladin_holy.lua
+data\paladin_protection.lua
+data\paladin_retribution.lua
+data\priest_discipline.lua
+data\priest_holy.lua
+data\priest_shadow.lua
+data\rogue_assassination.lua
+data\rogue_outlaw.lua
+data\rogue_subtlety.lua
+data\shaman_elemental.lua
+data\shaman_enhancement.lua
+data\shaman_restoration.lua
+data\warlock_affliction.lua
+data\warlock_demonology.lua
+data\warlock_destruction.lua
+data\warrior_arms.lua
+data\warrior_fury.lua
+data\warrior_protection.lua
+BiS_Helper.lua
