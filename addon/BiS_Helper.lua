@@ -69,17 +69,24 @@ local TRACK_COLOR = {
     ["Explorer"]   = "|cff888888",
 }
 
+-- Hidden tooltip used to scan item data (track, etc.)
+local scanTooltip = CreateFrame("GameTooltip", "BiSHelperScanTooltip", nil, "GameTooltipTemplate")
+scanTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
+
 -- Scan tooltip lines for "X Track" pattern
 local function GetItemTrack(itemLink)
     if not itemLink then return nil end
-    if not C_TooltipInfo or not C_TooltipInfo.GetHyperlink then return nil end
-    local ok, data = pcall(C_TooltipInfo.GetHyperlink, itemLink)
-    if not ok or not data or not data.lines then return nil end
-    for _, line in ipairs(data.lines) do
-        local text = line.leftText
-        if text then
-            local track = text:match("^(%a+) Track$")
-            if track then return track end
+    scanTooltip:ClearLines()
+    local ok = pcall(function() scanTooltip:SetHyperlink(itemLink) end)
+    if not ok then return nil end
+    for i = 1, scanTooltip:NumLines() do
+        local line = _G["BiSHelperScanTooltipTextLeft" .. i]
+        if line then
+            local text = line:GetText()
+            if text then
+                local track = text:match("^(%a+) Track$")
+                if track then return track end
+            end
         end
     end
     return nil
@@ -153,8 +160,9 @@ end
 
 -- ============================================================
 -- Content mode: "raid" | "mythicplus"
+-- Default: mythicplus; persisted in BiSHelperDB.mode
 -- ============================================================
-local activeMode = "raid"
+local activeMode = "mythicplus"
 
 -- ============================================================
 -- Spec detection
@@ -312,6 +320,8 @@ local function CreateMainFrame()
 
         btn:SetScript("OnClick", function()
             activeMode = mode
+            BiSHelperDB = BiSHelperDB or {}
+            BiSHelperDB.mode = mode
             -- refresh look of all mode buttons
             for _, b in ipairs(frame.modeButtons) do b.updateLook() end
             BiSHelper_Refresh()
@@ -724,6 +734,8 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
     if event == "ADDON_LOADED" then
         local name = ...
         if name == ADDON_NAME then
+            BiSHelperDB = BiSHelperDB or {}
+            activeMode  = BiSHelperDB.mode or "mythicplus"
             BiSHelperFrame = CreateMainFrame()
             print("|cff00ccff[BiS Helper]|r Loaded. Type |cffffcc00/bis|r to open.")
         end
