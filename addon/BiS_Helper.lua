@@ -1,3 +1,4 @@
+print("|cff00ccff[BiS Helper]|r Loading file...")
 local ADDON_NAME = "BiS_Helper"
 
 -- ============================================================
@@ -79,17 +80,69 @@ local function GetItemTrack(itemLink)
     scanTooltip:ClearLines()
     local ok = pcall(function() scanTooltip:SetHyperlink(itemLink) end)
     if not ok then return nil end
+
     for i = 1, scanTooltip:NumLines() do
         local line = _G["BiSHelperScanTooltipTextLeft" .. i]
         if line then
             local text = line:GetText()
             if text then
-                local track = text:match("^(%a+) Track$")
-                if track then return track end
+                for trackName, _ in pairs(TRACK_COLOR) do
+                    if text:find(trackName) then return trackName end
+                end
             end
         end
     end
     return nil
+end
+
+-- Extracts enchant name and gem icons from item link/tooltip
+local function GetItemEnchantAndGems(slotId)
+    local link = GetInventoryItemLink("player", slotId)
+    if not link then return nil, nil end
+
+    local enchantID = link:match("item:%d+:(%d+)")
+    enchantID = tonumber(enchantID)
+
+    local enchantName = nil
+    local gems = {}
+
+    if enchantID and enchantID > 0 then
+        scanTooltip:ClearLines()
+        pcall(function() scanTooltip:SetHyperlink(link) end)
+        
+        local fmt = _G.ITEM_ENCHANT_FORMAT or "Enchanted: %s"
+        local enchantPrefix = fmt:gsub("%%s", ""):lower()
+
+        for i = 1, scanTooltip:NumLines() do
+            local line = _G["BiSHelperScanTooltipTextLeft" .. i]
+            if line then
+                local r, g, b = line:GetTextColor()
+                local text = line:GetText()
+                if text and r < 0.1 and g > 0.9 and b < 0.1 then
+                    local textLower = text:lower()
+                    if textLower:find(enchantPrefix) or (not text:find("+") and #text < 45 and not text:find("Set:") and not text:find("%(")) then
+                        -- Remove prefix case-insensitively and clean punctuation
+                        local startPos, endPos = textLower:find(enchantPrefix)
+                        if endPos then enchantName = text:sub(endPos + 1) else enchantName = text end
+                        enchantName = enchantName:match("^%s*[:%-]?%s*(.-)%s*$") or enchantName
+                        enchantName = enchantName:gsub("Enchant [^%-]+ %- ", "")
+                        enchantName = enchantName:gsub("Enchant ", "")
+                        break
+                    end
+                end
+            end
+        end
+    end
+
+    for i = 1, 3 do
+        local _, gemLink = _G.GetItemGem(link, i)
+        if gemLink then
+            local _, _, _, _, icon = C_Item.GetItemInfoInstant(gemLink)
+            if icon then table.insert(gems, { icon = icon, link = gemLink }) end
+        end
+    end
+
+    return enchantName, gems
 end
 
 -- ============================================================
@@ -107,61 +160,6 @@ local function GoldLine(parent, thickness)
     return t
 end
 
--- Creates a StatusBar-based neon indicator (bar + glow layer behind it)
-local function NeonBar(parent)
-    local container = CreateFrame("Frame", nil, parent)
-    container:SetSize(52, 8)
-
-    -- Glow (rendered below bar)
-    local glow = Rect(container, "BACKGROUND", -1, 0, 0, 0, 0)
-    glow:SetPoint("TOPLEFT",     container, "TOPLEFT",     -3,  3)
-    glow:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT",  3, -3)
-
-    -- Track (background of the bar)
-    local track = Rect(container, "BACKGROUND", 0,
-        P.neonGrey[1], P.neonGrey[2], P.neonGrey[3], 0.55)
-    track:SetAllPoints()
-
-    -- Filled bar
-    local bar = CreateFrame("StatusBar", nil, container)
-    bar:SetAllPoints()
-    bar:SetMinMaxValues(0, 1)
-    bar:SetValue(0)
-    bar:SetStatusBarTexture(WHITE_TEX)
-    bar:SetStatusBarColor(P.neonGrey[1], P.neonGrey[2], P.neonGrey[3], 0.8)
-
-    -- Thin top-edge highlight for depth
-    local shine = Rect(bar, "OVERLAY", 1, 1, 1, 1, 0.10)
-    shine:SetHeight(2)
-    shine:SetPoint("TOPLEFT")
-    shine:SetPoint("TOPRIGHT")
-
-    container.bar  = bar
-    container.glow = glow
-    return container
-end
-
-local function SetNeonStatus(container, status)
-    local bar  = container.bar
-    local glow = container.glow
-    if status == "bis" then
-        bar:SetValue(1)
-        bar:SetStatusBarColor(P.neonGreen[1], P.neonGreen[2], P.neonGreen[3], 1)
-        glow:SetColorTexture(P.glowGreen[1], P.glowGreen[2], P.glowGreen[3], P.glowGreen[4])
-    elseif status == "missing" then
-        bar:SetValue(1)
-        bar:SetStatusBarColor(P.neonRed[1], P.neonRed[2], P.neonRed[3], 0.75)
-        glow:SetColorTexture(P.glowRed[1], P.glowRed[2], P.glowRed[3], P.glowRed[4])
-    else -- "none"
-        bar:SetValue(0)
-        glow:SetColorTexture(0, 0, 0, 0)
-    end
-end
-
--- ============================================================
--- Content mode: "raid" | "mythicplus"
--- Default: mythicplus; persisted in BiSHelperDB.mode
--- ============================================================
 local activeMode = "mythicplus"
 
 -- ============================================================
@@ -199,18 +197,40 @@ end
 -- ============================================================
 local function CreateMainFrame()
     local frame = CreateFrame("Frame", "BiSHelperFrame", UIParent, "BackdropTemplate")
-    frame:SetSize(700, 590)
+    local db = BiSHelperDB or {}
+    frame:SetSize(db.width or 700, db.height or 590)
     frame:SetPoint("CENTER")
     frame:SetMovable(true)
+    frame:SetResizable(true)
+    if frame.SetResizeBounds then
+        frame:SetResizeBounds(600, 400, 2000, 2000)
+    else
+        pcall(function() frame:SetMinResize(600, 400) end)
+    end
     frame:EnableMouse(true)
     frame:RegisterForDrag("LeftButton")
     frame:SetScript("OnDragStart", frame.StartMoving)
-    frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
+    frame:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        BiSHelperDB.point, _, BiSHelperDB.relPoint, BiSHelperDB.x, BiSHelperDB.y = self:GetPoint()
+    end)
     frame:SetClampedToScreen(true)
     frame:SetFrameStrata("MEDIUM")
     frame:Hide()
 
-    -- ── Base background (void purple) ────────────────────────
+    local resizer = CreateFrame("Button", nil, frame)
+    resizer:SetSize(20, 20)
+    resizer:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 0)
+    resizer:SetFrameLevel(frame:GetFrameLevel() + 10)
+    resizer:SetNormalTexture("Interface/ChatFrame/UI-ChatIM-SizeGrabber-Up")
+    resizer:SetHighlightTexture("Interface/ChatFrame/UI-ChatIM-SizeGrabber-Highlight")
+    resizer:SetPushedTexture("Interface/ChatFrame/UI-ChatIM-SizeGrabber-Down")
+    resizer:SetScript("OnMouseDown", function() frame:StartSizing("BOTTOMRIGHT") end)
+    resizer:SetScript("OnMouseUp", function() 
+        frame:StopMovingOrSizing() 
+        BiSHelperDB.width, BiSHelperDB.height = frame:GetSize()
+    end)
+
     frame:SetBackdrop({
         bgFile   = WHITE_TEX,
         edgeFile = WHITE_TEX,
@@ -220,77 +240,46 @@ local function CreateMainFrame()
     frame:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
     frame:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
 
-    -- ── Top gradient (purple glow fading down) ───────────────
     local topGlow = frame:CreateTexture(nil, "BACKGROUND", nil, 1)
     topGlow:SetPoint("TOPLEFT",  frame, "TOPLEFT",  1, -1)
     topGlow:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -1, -1)
     topGlow:SetHeight(HEADER_H + 20)
-    topGlow:SetGradient("VERTICAL",
-        CreateColor(0.20, 0.06, 0.40, 0.50),
-        CreateColor(0.04, 0.01, 0.10, 0.00))
+    if topGlow.SetGradient then
+        topGlow:SetGradient("VERTICAL", CreateColor(0.20, 0.06, 0.40, 0.50), CreateColor(0.04, 0.01, 0.10, 0.00))
+    end
 
-    -- ── Header background ────────────────────────────────────
-    local hdrBg = Rect(frame, "BACKGROUND", 2,
-        P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], P.bgHeader[4])
+    local hdrBg = Rect(frame, "BACKGROUND", 2, P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], P.bgHeader[4])
     hdrBg:SetPoint("TOPLEFT",  frame, "TOPLEFT",  1, -1)
     hdrBg:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -1, -1)
     hdrBg:SetHeight(HEADER_H)
 
-    -- Header bottom separator (gold line)
     local hdrSep = GoldLine(frame, 1)
     hdrSep:SetPoint("TOPLEFT",  frame, "TOPLEFT",  2, -HEADER_H)
     hdrSep:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -2, -HEADER_H)
 
-    -- Thin gold accent at very top
-    local topAccent = GoldLine(frame, 2)
-    topAccent:SetPoint("TOPLEFT",  frame, "TOPLEFT",  1,  -1)
-    topAccent:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -1, -1)
-
-    -- ── Title ────────────────────────────────────────────────
     frame.titleText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     frame.titleText:SetPoint("TOP", frame, "TOP", 0, -10)
     frame.titleText:SetText(P.tGold .. "BiS Helper|r")
 
-    -- Diamond decorations flanking the title
-    for _, side in ipairs({"LEFT", "RIGHT"}) do
-        local gem = frame:CreateTexture(nil, "OVERLAY")
-        gem:SetTexture("Interface/Garrison/GarrisonMissionUI-Rewards")
-        gem:SetTexCoord(0.60, 0.70, 0.00, 0.15)
-        gem:SetSize(16, 16)
-        gem:SetAlpha(0.7)
-        if side == "LEFT" then
-            gem:SetPoint("RIGHT", frame.titleText, "LEFT", -6, 0)
-        else
-            gem:SetPoint("LEFT", frame.titleText, "RIGHT", 6, 0)
-        end
-    end
-
-    -- ── Spec label ───────────────────────────────────────────
     frame.specLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     frame.specLabel:SetPoint("TOP", frame.titleText, "BOTTOM", 0, -2)
     frame.specLabel:SetText("")
 
-    -- ── Stat priority bars ───────────────────────────────────
-    -- Created/updated in BiSHelper_Refresh; placeholder container frame
     frame.statBarContainer = CreateFrame("Frame", nil, frame)
     frame.statBarContainer:SetPoint("TOPLEFT",  frame, "TOPLEFT",  14, -60)
     frame.statBarContainer:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -14, -60)
     frame.statBarContainer:SetHeight(48)
-    frame.statBars = {}  -- filled in BiSHelper_Refresh
 
-    -- ── Close button ─────────────────────────────────────────
     local closeBtn = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
     closeBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -2, -2)
     closeBtn:SetScript("OnClick", function() frame:Hide() end)
 
-    -- ── Refresh button ───────────────────────────────────────
     local refreshBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
     refreshBtn:SetSize(72, 20)
     refreshBtn:SetPoint("TOPRIGHT", closeBtn, "TOPLEFT", -2, 0)
     refreshBtn:SetText("Refresh")
     refreshBtn:SetScript("OnClick", function() BiSHelper_Refresh() end)
 
-    -- ── Mode toggle (Raid / Mythic+) ─────────────────────────
     local function ModeButton(label, mode, anchorFrame, anchorSide)
         local btn = CreateFrame("Button", nil, frame, "BackdropTemplate")
         btn:SetSize(72, 22)
@@ -301,11 +290,9 @@ local function CreateMainFrame()
             edgeSize = 1,
             insets   = { left=1, right=1, top=1, bottom=1 },
         })
-
         local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         lbl:SetAllPoints()
         lbl:SetJustifyH("CENTER")
-
         local function UpdateLook()
             if activeMode == mode then
                 btn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
@@ -317,167 +304,213 @@ local function CreateMainFrame()
                 lbl:SetText(P.tDim .. label .. "|r")
             end
         end
-
         btn:SetScript("OnClick", function()
             activeMode = mode
-            BiSHelperDB = BiSHelperDB or {}
             BiSHelperDB.mode = mode
-            -- refresh look of all mode buttons
             for _, b in ipairs(frame.modeButtons) do b.updateLook() end
             BiSHelper_Refresh()
         end)
-        btn:SetScript("OnEnter", function()
-            btn:SetBackdropColor(0.14, 0.06, 0.28, 0.95)
-        end)
-        btn:SetScript("OnLeave", function() UpdateLook() end)
-
         btn.updateLook = UpdateLook
         UpdateLook()
         return btn
     end
 
-    local btnRaid = ModeButton("Raid",     "raid",       refreshBtn, "LEFT")
-    local btnMplus = ModeButton("Mythic+", "mythicplus",  btnRaid,   "LEFT")
+    local btnRaid = ModeButton("Raid", "raid", refreshBtn, "LEFT")
+    local btnMplus = ModeButton("Mythic+", "mythicplus", btnRaid, "LEFT")
     frame.modeButtons = { btnRaid, btnMplus }
 
-    -- ── Column headers ───────────────────────────────────────
     local COL_Y = -(HEADER_H + 6)
-    local function ColHeader(text, x, w, align)
+    local function ColHeader(text, x, w, align, rightAnchor)
         local fs = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        fs:SetPoint("TOPLEFT", frame, "TOPLEFT", x, COL_Y)
+        if rightAnchor then
+            fs:SetPoint("TOPRIGHT", frame, "TOPRIGHT", rightAnchor, COL_Y)
+        else
+            fs:SetPoint("TOPLEFT", frame, "TOPLEFT", x, COL_Y)
+        end
         fs:SetWidth(w)
         fs:SetJustifyH(align or "LEFT")
         fs:SetText(P.tGold .. text .. "|r")
+        return fs
     end
-    ColHeader("Slot",      14,  86, "LEFT")
-    ColHeader("Equipped",  118, 148, "LEFT")
-    ColHeader("iLvl",      270,  36, "RIGHT")
-    ColHeader("Track",     312,  70, "LEFT")
-    ColHeader("BiS",       388,  22, "CENTER")
-    ColHeader("BiS Item",  416, 130, "LEFT")
-    ColHeader("Source",    552, 130, "LEFT")
+    
+    ColHeader("Slot",      38,  60, "LEFT")
+    ColHeader("Equipped",  80,  120, "LEFT")
+    ColHeader("iLvl",      206,  34, "RIGHT")
+    ColHeader("Enchant",   248,  130, "LEFT")
+    ColHeader("Gems",      382,  44, "LEFT")
+    ColHeader("Track",     432,  72, "LEFT")
+    ColHeader("BiS",       510,  24, "CENTER")
+    ColHeader("BiS Item",  538,  130, "LEFT")
+    ColHeader("Source",    nil,  132, "LEFT", -50)
 
-    -- Thin dim separator below column headers
-    local colSep = Rect(frame, "ARTWORK", 1,
-        P.goldDim[1], P.goldDim[2], P.goldDim[3], P.goldDim[4])
+    local colSep = Rect(frame, "ARTWORK", 1, P.goldDim[1], P.goldDim[2], P.goldDim[3], P.goldDim[4])
     colSep:SetHeight(1)
     colSep:SetPoint("TOPLEFT",  frame, "TOPLEFT",  2, -(HEADER_H + 20))
     colSep:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -2, -(HEADER_H + 20))
 
-    -- ── Scroll frame ─────────────────────────────────────────
     local SCROLL_TOP = HEADER_H + 24
     local scrollFrame = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
     scrollFrame:SetPoint("TOPLEFT",     frame, "TOPLEFT",    2, -SCROLL_TOP)
-    scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -20, 2)
+    scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -26, 16)
 
     local content = CreateFrame("Frame", nil, scrollFrame)
     content:SetHeight(#SLOTS * ROW_H)
     scrollFrame:SetScrollChild(content)
     scrollFrame:SetScript("OnSizeChanged", function(self, w) content:SetWidth(w) end)
 
-    -- ── Gear slot rows ───────────────────────────────────────
     frame.rows = {}
     for i, slot in ipairs(SLOTS) do
         local row = CreateFrame("Frame", nil, content)
         row:SetHeight(ROW_H)
         row:SetPoint("TOPLEFT",  content, "TOPLEFT",  0, -(i - 1) * ROW_H)
         row:SetPoint("TOPRIGHT", content, "TOPRIGHT", 0, -(i - 1) * ROW_H)
+        row.slotId = slot.id
 
-        -- Card background (alternating)
-        local cardBg = Rect(row, "BACKGROUND", 0,
-            i % 2 == 0 and P.bgCard[1]    or P.bgCardAlt[1],
-            i % 2 == 0 and P.bgCard[2]    or P.bgCardAlt[2],
-            i % 2 == 0 and P.bgCard[3]    or P.bgCardAlt[3],
-            i % 2 == 0 and P.bgCard[4]    or P.bgCardAlt[4])
+        local cardBg = Rect(row, "BACKGROUND", 0, i % 2 == 0 and P.bgCard[1] or P.bgCardAlt[1], i % 2 == 0 and P.bgCard[2] or P.bgCardAlt[2], i % 2 == 0 and P.bgCard[3] or P.bgCardAlt[3], i % 2 == 0 and P.bgCard[4] or P.bgCardAlt[4])
         cardBg:SetAllPoints()
 
-        -- Left accent strip (3 px, coloured by status later)
-        local accent = Rect(row, "ARTWORK", 1,
-            P.neonGrey[1], P.neonGrey[2], P.neonGrey[3], 0.6)
+        local accent = Rect(row, "ARTWORK", 1, P.neonGrey[1], P.neonGrey[2], P.neonGrey[3], 0.6)
         accent:SetWidth(3)
-        accent:SetPoint("TOPLEFT",    row, "TOPLEFT",    0,  0)
-        accent:SetPoint("BOTTOMLEFT", row, "BOTTOMLEFT", 0,  0)
+        accent:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
+        accent:SetPoint("BOTTOMLEFT", row, "BOTTOMLEFT", 0, 0)
         row.accent = accent
 
-        -- Thin bottom separator
-        local sep = Rect(row, "ARTWORK", 0,
-            P.goldDim[1], P.goldDim[2], P.goldDim[3], P.goldDim[4])
+        local sep = Rect(row, "ARTWORK", 0, P.goldDim[1], P.goldDim[2], P.goldDim[3], P.goldDim[4])
         sep:SetHeight(1)
-        sep:SetPoint("BOTTOMLEFT",  row, "BOTTOMLEFT",  3, 0)
+        sep:SetPoint("BOTTOMLEFT", row, "BOTTOMLEFT", 3, 0)
         sep:SetPoint("BOTTOMRIGHT", row, "BOTTOMRIGHT", 0, 0)
 
-        -- Icon border (24×24 gold frame, icon inside)
-        local iconBorder = Rect(row, "ARTWORK", 0,
-            P.goldDim[1], P.goldDim[2], P.goldDim[3], 0.70)
+        local function ShowItemTooltip(self)
+            local link = GetInventoryItemLink("player", row.slotId)
+            if link then
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                GameTooltip:SetHyperlink(link)
+                GameTooltip:Show()
+            end
+        end
+
+        local iconBorder = CreateFrame("Frame", nil, row)
         iconBorder:SetSize(24, 24)
         iconBorder:SetPoint("LEFT", row, "LEFT", 6, 0)
-
-        local icon = row:CreateTexture(nil, "ARTWORK", nil, 1)
+        iconBorder:EnableMouse(true)
+        iconBorder:SetScript("OnEnter", ShowItemTooltip)
+        iconBorder:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        local iconBgTex = Rect(iconBorder, "ARTWORK", 0, P.goldDim[1], P.goldDim[2], P.goldDim[3], 0.70)
+        iconBgTex:SetAllPoints()
+        local icon = iconBorder:CreateTexture(nil, "ARTWORK", nil, 1)
         icon:SetSize(22, 22)
         icon:SetPoint("CENTER", iconBorder, "CENTER")
         icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-        row.icon        = icon
-        row.iconBorder  = iconBorder
+        row.icon = icon
+        row.iconBorder = iconBgTex
 
-        -- Slot label
         local slotLabel = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         slotLabel:SetPoint("LEFT", row, "LEFT", 36, 0)
-        slotLabel:SetWidth(82)
+        slotLabel:SetWidth(40)
         slotLabel:SetJustifyH("LEFT")
         slotLabel:SetText(P.tDim .. slot.label .. "|r")
 
-        -- Equipped item name
-        local equippedName = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        equippedName:SetPoint("LEFT", row, "LEFT", 122, 0)
-        equippedName:SetWidth(142)
-        equippedName:SetJustifyH("LEFT")
-        equippedName:SetText(P.tDim .. "— empty —|r")
-        row.equippedName = equippedName
+        local eqBtn = CreateFrame("Button", nil, row)
+        eqBtn:SetSize(122, 20)
+        eqBtn:SetPoint("LEFT", row, "LEFT", 78, 0)
+        eqBtn:SetScript("OnEnter", ShowItemTooltip)
+        eqBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        local eqText = eqBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        eqText:SetAllPoints()
+        eqText:SetJustifyH("LEFT")
+        eqText:SetWordWrap(false)
+        row.equippedName = eqText
 
-        -- iLvl pill
         local ilvlBg = Rect(row, "ARTWORK", 0, 0.12, 0.06, 0.22, 0.85)
-        ilvlBg:SetSize(36, 16)
-        ilvlBg:SetPoint("LEFT", row, "LEFT", 268, 0)
+        ilvlBg:SetSize(34, 16)
+        ilvlBg:SetPoint("LEFT", row, "LEFT", 204, 0)
         local ilvlText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         ilvlText:SetPoint("CENTER", ilvlBg, "CENTER")
-        ilvlText:SetWidth(34)
+        ilvlText:SetWidth(32)
         ilvlText:SetJustifyH("CENTER")
         row.ilvlText = ilvlText
         row.ilvlBg   = ilvlBg
 
-        -- Gear track badge
+        local enchantText = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        enchantText:SetPoint("LEFT", row, "LEFT", 246, 0)
+        enchantText:SetWidth(130)
+        enchantText:SetJustifyH("LEFT")
+        enchantText:SetWordWrap(false)
+        row.enchantText = enchantText
+
+        local function ShowEnchantTooltip(self)
+            if row.enchantID and tonumber(row.enchantID) > 0 then
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                -- Try to show the specific enchant tooltip
+                GameTooltip:SetHyperlink("enchant:" .. row.enchantID)
+                -- If the tooltip is empty (some enchants don't have standalone data), fallback to item
+                if GameTooltip:NumLines() <= 1 then
+                    local link = GetInventoryItemLink("player", row.slotId)
+                    if link then GameTooltip:SetHyperlink(link) end
+                end
+                GameTooltip:Show()
+            else
+                ShowItemTooltip(self)
+            end
+        end
+
+        local enchantHover = CreateFrame("Frame", nil, row)
+        enchantHover:SetPoint("TOPLEFT", enchantText, "TOPLEFT")
+        enchantHover:SetPoint("BOTTOMRIGHT", enchantText, "BOTTOMRIGHT")
+        enchantHover:EnableMouse(true)
+        enchantHover:SetScript("OnEnter", ShowEnchantTooltip)
+        enchantHover:SetScript("OnLeave", function() GameTooltip:Hide() end)
+
+        local gemContainer = CreateFrame("Frame", nil, row)
+        gemContainer:SetSize(44, 18)
+        gemContainer:SetPoint("LEFT", row, "LEFT", 380, 0)
+        row.gemIcons = {}
+        for j = 1, 3 do
+            local f = CreateFrame("Frame", nil, gemContainer)
+            f:SetSize(16, 16)
+            f:SetPoint("LEFT", (j-1)*14, 0)
+            f:EnableMouse(true)
+            local g = f:CreateTexture(nil, "OVERLAY")
+            g:SetAllPoints()
+            g:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+            f:SetScript("OnEnter", function(self)
+                if self.gemLink then
+                    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                    GameTooltip:SetHyperlink(self.gemLink)
+                    GameTooltip:Show()
+                end
+            end)
+            f:SetScript("OnLeave", function() GameTooltip:Hide() end)
+            f.tex = g
+            row.gemIcons[j] = f
+        end
+
         local trackText = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        trackText:SetPoint("LEFT", row, "LEFT", 310, 0)
-        trackText:SetWidth(70)
+        trackText:SetPoint("LEFT", row, "LEFT", 430, 0)
+        trackText:SetWidth(72)
         trackText:SetJustifyH("LEFT")
-        trackText:SetText(P.tDim .. "—|r")
         row.trackText = trackText
 
-        -- BiS status indicator (✓ / ✗ / —)
-        local bisStatus = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        bisStatus:SetPoint("LEFT", row, "LEFT", 386, 0)
-        bisStatus:SetWidth(24)
-        bisStatus:SetJustifyH("CENTER")
+        local bisStatus = row:CreateTexture(nil, "OVERLAY")
+        bisStatus:SetSize(16, 16)
+        bisStatus:SetPoint("CENTER", row, "LEFT", 520, 0)
         row.bisStatus = bisStatus
 
-        -- BiS item name (shown when not BiS)
-        local bisName = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        bisName:SetPoint("LEFT", row, "LEFT", 414, 0)
-        bisName:SetWidth(130)
-        bisName:SetJustifyH("LEFT")
-        row.bisName = bisName
-
-        -- Source label
         local sourceText = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        sourceText:SetPoint("LEFT", row, "LEFT", 550, 0)
+        sourceText:SetPoint("RIGHT", row, "RIGHT", -24, 0)
         sourceText:SetWidth(132)
         sourceText:SetJustifyH("LEFT")
         row.sourceText = sourceText
 
-        -- Invisible hover zone over bisName + source for tooltip
+        local bisName = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        bisName:SetPoint("LEFT", row, "LEFT", 536, 0)
+        bisName:SetPoint("RIGHT", sourceText, "LEFT", -10, 0)
+        bisName:SetJustifyH("LEFT")
+        row.bisName = bisName
+
         local bisHover = CreateFrame("Frame", nil, row)
-        bisHover:SetPoint("TOPLEFT",     row, "TOPLEFT",     414,  0)
-        bisHover:SetPoint("BOTTOMRIGHT", row, "BOTTOMRIGHT",   0,  0)
+        bisHover:SetPoint("TOPLEFT", bisName, "TOPLEFT")
+        bisHover:SetPoint("BOTTOMRIGHT", bisName, "BOTTOMRIGHT")
         bisHover:EnableMouse(true)
         bisHover:SetScript("OnEnter", function(self)
             if self.bisItemID then
@@ -488,19 +521,6 @@ local function CreateMainFrame()
         end)
         bisHover:SetScript("OnLeave", function() GameTooltip:Hide() end)
         row.bisHover = bisHover
-
-        -- Tooltip
-        row:EnableMouse(true)
-        row.slotId = slot.id
-        row:SetScript("OnEnter", function(self)
-            local link = GetInventoryItemLink("player", self.slotId)
-            if link then
-                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                GameTooltip:SetHyperlink(link)
-                GameTooltip:Show()
-            end
-        end)
-        row:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
         frame.rows[i] = row
     end
@@ -513,14 +533,28 @@ end
 -- ============================================================
 local function RebuildStatBars(specData)
     local container = BiSHelperFrame.statBarContainer
-
-    -- Lazy-create persistent FontStrings
     if not BiSHelperFrame.statPriorityText then
-        local fs = container:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        local fs = CreateFrame("Frame", nil, container)
         fs:SetPoint("TOPLEFT", container, "TOPLEFT", 0, 0)
         fs:SetPoint("RIGHT",   container, "RIGHT",   0, 0)
-        fs:SetJustifyH("LEFT")
-        BiSHelperFrame.statPriorityText = fs
+        fs:SetHeight(18)
+        fs:EnableMouse(true)
+        local text = fs:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        text:SetAllPoints()
+        text:SetJustifyH("LEFT")
+        BiSHelperFrame.statPriorityText = text
+        fs:SetScript("OnEnter", function(self)
+            local spec = GetSpecData()
+            if spec and spec.statPriority then
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                GameTooltip:AddLine(P.tGold .. "Stat Priority Details|r")
+                GameTooltip:AddLine(" ")
+                local current = spec.statPriority[activeMode]
+                if current.note then GameTooltip:AddLine(current.note, 1, 1, 1, true) end
+                GameTooltip:Show()
+            end
+        end)
+        fs:SetScript("OnLeave", function() GameTooltip:Hide() end)
     end
     if not BiSHelperFrame.statNoteText then
         local fn = container:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -552,48 +586,28 @@ local function RebuildStatBars(specData)
 
     local sp      = specData.statPriority
     local current = sp[activeMode]
-
-    -- ── Priority chain ────────────────────────────────────────
     local parts = {}
     for _, stat in ipairs(current.stats) do
-        local hex = string.format("|cff%02x%02x%02x",
-            math.floor(stat.r * 255),
-            math.floor(stat.g * 255),
-            math.floor(stat.b * 255))
+        local hex = string.format("|cff%02x%02x%02x", math.floor(stat.r * 255), math.floor(stat.g * 255), math.floor(stat.b * 255))
         parts[#parts + 1] = hex .. stat.name .. "|r"
-        if stat.op then
-            parts[#parts + 1] = P.tDim .. " " .. stat.op .. " |r"
-        end
+        if stat.op then parts[#parts + 1] = P.tDim .. " " .. stat.op .. " |r" end
     end
     BiSHelperFrame.statPriorityText:SetText(table.concat(parts))
-
-    -- ── Build note ────────────────────────────────────────────
     BiSHelperFrame.statNoteText:SetText(P.tDim .. (current.note or "") .. "|r")
 
-    -- ── Diminishing returns ───────────────────────────────────
     if sp.dr then
         local drParts = { P.tDim .. "DR: |r" }
         for i, d in ipairs(sp.dr) do
-            local hex = string.format("|cff%02x%02x%02x",
-                math.floor(d.r * 255),
-                math.floor(d.g * 255),
-                math.floor(d.b * 255))
+            local hex = string.format("|cff%02x%02x%02x", math.floor(d.r * 255), math.floor(d.g * 255), math.floor(d.b * 255))
             drParts[#drParts + 1] = hex .. d.name .. " " .. d.rating .. "|r"
-            if i < #sp.dr then
-                drParts[#drParts + 1] = P.tDim .. "  |r"
-            end
+            if i < #sp.dr then drParts[#drParts + 1] = P.tDim .. "  |r" end
         end
         BiSHelperFrame.statDRText:SetText(table.concat(drParts))
     else
         BiSHelperFrame.statDRText:SetText("")
     end
-
-    BiSHelperFrame.statBars = {}
 end
 
--- ============================================================
--- Data refresh
--- ============================================================
 local pendingItems = {}
 
 local function SetRowVisualStatus(row, status)
@@ -602,13 +616,16 @@ local function SetRowVisualStatus(row, status)
     elseif status == "missing" then c = P.neonRed
     else                            c = P.neonGrey end
     row.accent:SetColorTexture(c[1], c[2], c[3], 0.85)
-
     if status == "bis" then
-        row.bisStatus:SetText("|cff00f280✓|r")
+        row.bisStatus:SetTexture("Interface\\RaidFrame\\ReadyCheck-Ready")
+        row.bisStatus:SetVertexColor(0, 1, 0.5, 1)
+        row.bisStatus:Show()
     elseif status == "missing" then
-        row.bisStatus:SetText("|cffff4040✗|r")
+        row.bisStatus:SetTexture("Interface\\RaidFrame\\ReadyCheck-NotReady")
+        row.bisStatus:SetVertexColor(1, 0.2, 0.2, 1)
+        row.bisStatus:Show()
     else
-        row.bisStatus:SetText(P.tDim .. "—|r")
+        row.bisStatus:Hide()
     end
 end
 
@@ -618,19 +635,14 @@ local function UpdateRow(rowIndex, slotId)
     local bisEntry = bisList and bisList[slotId]
     local link     = GetInventoryItemLink("player", slotId)
 
-    -- Icon
     if link then
         local _, _, _, _, iconTex = C_Item.GetItemInfoInstant(link)
-        if iconTex then
-            row.icon:SetTexture(iconTex)
-            row.iconBorder:SetColorTexture(P.gold[1], P.gold[2], P.gold[3], 0.70)
-        end
+        if iconTex then row.icon:SetTexture(iconTex) row.iconBorder:SetColorTexture(P.gold[1], P.gold[2], P.gold[3], 0.70) end
     else
         row.icon:SetTexture("Interface/ICONS/INV_Misc_QuestionMark")
         row.iconBorder:SetColorTexture(P.goldDim[1], P.goldDim[2], P.goldDim[3], 0.35)
     end
 
-    -- Equipped name + iLvl
     if link then
         local name, _, quality, ilvl = C_Item.GetItemInfo(link)
         if name then
@@ -655,7 +667,6 @@ local function UpdateRow(rowIndex, slotId)
         row.ilvlBg:SetColorTexture(0, 0, 0, 0)
     end
 
-    -- Gear track
     local track = GetItemTrack(link)
     if track then
         local tc = TRACK_COLOR[track] or P.tDim
@@ -664,7 +675,27 @@ local function UpdateRow(rowIndex, slotId)
         row.trackText:SetText(link and P.tDim .. "—|r" or "")
     end
 
-    -- BiS comparison
+    local enchant, gems = GetItemEnchantAndGems(slotId)
+    row.enchantText:SetText(enchant and ("|cff1eff00" .. enchant .. "|r") or (link and P.tDim .. "—|r" or ""))
+    
+    -- Store enchantID for the tooltip
+    if link then
+        row.enchantID = link:match("item:%d+:(%d+)")
+    else
+        row.enchantID = nil
+    end
+
+    for j = 1, 3 do
+        if gems and gems[j] then
+            row.gemIcons[j].tex:SetTexture(gems[j].icon)
+            row.gemIcons[j].gemLink = gems[j].link
+            row.gemIcons[j]:Show()
+        else
+            row.gemIcons[j].gemLink = nil
+            row.gemIcons[j]:Hide()
+        end
+    end
+
     if not bisEntry then
         SetRowVisualStatus(row, "none")
         row.bisName:SetText("")
@@ -673,15 +704,10 @@ local function UpdateRow(rowIndex, slotId)
         return
     end
 
-    -- Source (always shown regardless of BiS status)
     local src = bisEntry.source or ""
-    if src == "Crafted" then
-        row.sourceText:SetText("|cff1eff00" .. src .. "|r")
-    elseif src == "Tier Set" or src == "Catalyst" then
-        row.sourceText:SetText("|cffffcc00" .. src .. "|r")
-    else
-        row.sourceText:SetText(P.tDim .. src .. "|r")
-    end
+    if src == "Crafted" then row.sourceText:SetText("|cff1eff00" .. src .. "|r")
+    elseif src == "Tier Set" or src == "Catalyst" then row.sourceText:SetText("|cffffcc00" .. src .. "|r")
+    else row.sourceText:SetText(P.tDim .. src .. "|r") end
 
     local equippedID = GetItemIDFromLink(link)
     if equippedID == bisEntry.itemID then
@@ -698,36 +724,23 @@ end
 function BiSHelper_Refresh()
     if not BiSHelperFrame then return end
     wipe(pendingItems)
-
     local specData = GetSpecData()
-    local bisList  = GetActiveBiSList()
-
     if specData then
         BiSHelperFrame.specLabel:SetText(P.tLavender .. specData.label .. "|r")
-        RebuildStatBars(specData)   -- stat bars come from specData, not mode-specific list
+        RebuildStatBars(specData)
     else
-        local key = GetCurrentDataKey() or "unknown"
-        BiSHelperFrame.specLabel:SetText("|cffff4444No BiS data for: " .. key .. "|r")
+        BiSHelperFrame.specLabel:SetText("|cffff4444No BiS data for: " .. (GetCurrentDataKey() or "unknown") .. "|r")
         RebuildStatBars(nil)
     end
-
-    -- Refresh mode button appearance
-    if BiSHelperFrame.modeButtons then
-        for _, b in ipairs(BiSHelperFrame.modeButtons) do b.updateLook() end
-    end
-
-    for i, slot in ipairs(SLOTS) do
-        UpdateRow(i, slot.id)
-    end
+    if BiSHelperFrame.modeButtons then for _, b in ipairs(BiSHelperFrame.modeButtons) do b.updateLook() end end
+    for i, slot in ipairs(SLOTS) do UpdateRow(i, slot.id) end
 end
 
--- ============================================================
--- Events
--- ============================================================
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:RegisterEvent("PLAYER_LOGIN")
 eventFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+eventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 eventFrame:RegisterEvent("GET_ITEM_INFO_RECEIVED")
 
 eventFrame:SetScript("OnEvent", function(self, event, ...)
@@ -737,57 +750,30 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
             BiSHelperDB = BiSHelperDB or {}
             activeMode  = BiSHelperDB.mode or "mythicplus"
             BiSHelperFrame = CreateMainFrame()
+            if BiSHelperDB.point and BiSHelperDB.x and BiSHelperDB.y then
+                BiSHelperFrame:ClearAllPoints()
+                pcall(function() BiSHelperFrame:SetPoint(BiSHelperDB.point, UIParent, BiSHelperDB.relPoint or BiSHelperDB.point, BiSHelperDB.x, BiSHelperDB.y) end)
+            end
             print("|cff00ccff[BiS Helper]|r Loaded. Type |cffffcc00/bis|r to open.")
         end
-
-    elseif event == "PLAYER_LOGIN" then
-        C_Timer.After(0.5, function()
-            if BiSHelperFrame then BiSHelper_Refresh() end
-        end)
-
+    elseif event == "PLAYER_LOGIN" or event == "PLAYER_SPECIALIZATION_CHANGED" then
+        C_Timer.After(0.5, function() if BiSHelperFrame then BiSHelper_Refresh() end end)
     elseif event == "PLAYER_EQUIPMENT_CHANGED" then
         local slotId = ...
         if BiSHelperFrame and BiSHelperFrame:IsShown() then
-            for i, slot in ipairs(SLOTS) do
-                if slot.id == slotId then
-                    UpdateRow(i, slotId)
-                    break
-                end
-            end
+            for i, slot in ipairs(SLOTS) do if slot.id == slotId then UpdateRow(i, slotId) break end end
         end
-
     elseif event == "GET_ITEM_INFO_RECEIVED" then
         local _, success = ...
         if not success then return end
         for link, data in pairs(pendingItems) do
-            local name, _, quality, ilvl = C_Item.GetItemInfo(link)
-            if name then
-                local row = BiSHelperFrame.rows[data.rowIndex]
-                row.equippedName:SetText((QUALITY_HEX[quality] or QUALITY_HEX[1]) .. name .. "|r")
-                if ilvl and ilvl > 0 then
-                    row.ilvlText:SetText(P.tGold .. ilvl .. "|r")
-                    row.ilvlBg:SetColorTexture(0.12, 0.06, 0.22, 0.85)
-                end
-                pendingItems[link] = nil
-                UpdateRow(data.rowIndex, data.slotId)
-            else
-                data.retries = data.retries + 1
-                if data.retries > 5 then pendingItems[link] = nil end
-            end
+            if C_Item.GetItemInfo(link) then pendingItems[link] = nil UpdateRow(data.rowIndex, data.slotId) end
         end
     end
 end)
 
--- ============================================================
--- Slash command
--- ============================================================
 SLASH_BISHELPER1 = "/bis"
 SlashCmdList["BISHELPER"] = function()
     if not BiSHelperFrame then return end
-    if BiSHelperFrame:IsShown() then
-        BiSHelperFrame:Hide()
-    else
-        BiSHelper_Refresh()
-        BiSHelperFrame:Show()
-    end
+    if BiSHelperFrame:IsShown() then BiSHelperFrame:Hide() else BiSHelper_Refresh() BiSHelperFrame:Show() end
 end
