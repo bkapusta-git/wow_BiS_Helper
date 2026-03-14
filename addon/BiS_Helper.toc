@@ -4,6 +4,7 @@
 ## Author:
 ## Version: 0.1.0
 ## X-Curse-Project-ID:
+## SavedVariables: BiSHelperDB
 
 data\dh_devourer.lua
 data\dh_havoc.lua
