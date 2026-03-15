@@ -1,4 +1,3 @@
-print("|cff00ccff[BiS Helper]|r Loading file...")
 local ADDON_NAME = "BiS_Helper"
 
 -- ============================================================
@@ -22,6 +21,10 @@ local SLOTS = {
     { id = 16, label = "Main Hand" },
     { id = 17, label = "Off Hand"  },
 }
+
+-- Lookup: lowercase label → slot entry
+local slotByLabel = {}
+for _, s in ipairs(SLOTS) do slotByLabel[s.label:lower()] = s end
 
 local QUALITY_HEX = {
     [0] = "|cff9d9d9d", [1] = "|cffffffff", [2] = "|cff1eff00",
@@ -74,7 +77,7 @@ local TRACK_COLOR = {
 local scanTooltip = CreateFrame("GameTooltip", "BiSHelperScanTooltip", nil, "GameTooltipTemplate")
 scanTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
 
--- Scan tooltip lines for "X Track" pattern
+-- Scan tooltip lines for "Upgrade Level: TrackName X/Y" pattern
 local function GetItemTrack(itemLink)
     if not itemLink then return nil end
     scanTooltip:ClearLines()
@@ -86,8 +89,9 @@ local function GetItemTrack(itemLink)
         if line then
             local text = line:GetText()
             if text then
-                for trackName, _ in pairs(TRACK_COLOR) do
-                    if text:find(trackName) then return trackName end
+                local trackName = text:match("Upgrade Level:%s*(%a+)")
+                if trackName and TRACK_COLOR[trackName] then
+                    return trackName
                 end
             end
         end
@@ -161,6 +165,7 @@ local function GoldLine(parent, thickness)
 end
 
 local activeMode = "mythicplus"
+local pendingOverrideNames = {}  -- [itemID] = {specKey, mode, slotId}
 
 -- ============================================================
 -- Spec detection
@@ -184,12 +189,760 @@ end
 local function GetActiveBiSList()
     local spec = GetSpecData()
     if not spec then return nil end
-    return spec.content and spec.content[activeMode]
+    local base = spec.content and spec.content[activeMode]
+    local specKey = GetCurrentDataKey()
+    local ov = specKey and BiSHelperDB and BiSHelperDB.overrides
+               and BiSHelperDB.overrides[specKey]
+               and BiSHelperDB.overrides[specKey][activeMode]
+    if not ov then return base end
+    -- Merge: override wins per slot, fallback to base
+    local merged = {}
+    if base then for k, v in pairs(base) do merged[k] = v end end
+    for k, v in pairs(ov) do merged[k] = v end
+    return merged
 end
 
 local function GetItemIDFromLink(link)
     if not link then return nil end
     return tonumber(link:match("|Hitem:(%d+):"))
+end
+
+local DEFAULT_STAT_COLORS = {
+    ["intellect"]       = {0.94, 0.74, 0.90},
+    ["strength"]        = {0.94, 0.45, 0.45},
+    ["agility"]         = {0.45, 0.94, 0.45},
+    ["haste"]           = {1.00, 0.82, 0.00},
+    ["mastery"]         = {0.45, 0.94, 0.94},
+    ["versatility"]     = {0.55, 0.90, 0.55},
+    ["critical strike"] = {1.00, 0.50, 0.50},
+    ["crit"]            = {1.00, 0.50, 0.50},
+}
+
+local function GetActiveStatData()
+    local spec = GetSpecData()
+    if not spec or not spec.statPriority then return nil end
+    local base    = spec.statPriority
+    local specKey = GetCurrentDataKey()
+    local ov = specKey and BiSHelperDB and BiSHelperDB.statOverrides
+               and BiSHelperDB.statOverrides[specKey]
+    if not ov then return base end
+    local merged = {}
+    for k, v in pairs(base) do merged[k] = v end
+    if ov[activeMode] then merged[activeMode] = ov[activeMode] end
+    if ov["dr"]       then merged["dr"]       = ov["dr"]       end
+    return merged
+end
+
+-- ============================================================
+-- Edit panel helpers
+-- ============================================================
+local EQUIPTYPE_TO_SLOTS = {
+    INVTYPE_HEAD           = {1},
+    INVTYPE_NECK           = {2},
+    INVTYPE_SHOULDER       = {3},
+    INVTYPE_CHEST          = {5},
+    INVTYPE_ROBE           = {5},
+    INVTYPE_WAIST          = {6},
+    INVTYPE_LEGS           = {7},
+    INVTYPE_FEET           = {8},
+    INVTYPE_WRIST          = {9},
+    INVTYPE_HAND           = {10},
+    INVTYPE_FINGER         = {11, 12},
+    INVTYPE_TRINKET        = {13, 14},
+    INVTYPE_CLOAK          = {15},
+    INVTYPE_2HWEAPON       = {16},
+    INVTYPE_WEAPON         = {16, 17},
+    INVTYPE_WEAPONMAINHAND = {16},
+    INVTYPE_WEAPONOFFHAND  = {17},
+    INVTYPE_SHIELD         = {17},
+    INVTYPE_RANGED         = {16},
+    INVTYPE_RANGEDRIGHT    = {16},
+    INVTYPE_HOLDABLE       = {17},
+}
+
+local slotIdToLabel = {}
+for _, s in ipairs(SLOTS) do slotIdToLabel[s.id] = s.label end
+
+local function RebuildOverrideRows()
+    local ef = BiSHelperEditFrame
+    if not ef or not ef.overrideContent then return end
+    for _, row in ipairs(ef.overrideRowPool) do row:Hide() end
+    local specKey = GetCurrentDataKey()
+    local ov = specKey and BiSHelperDB and BiSHelperDB.overrides
+               and BiSHelperDB.overrides[specKey]
+               and BiSHelperDB.overrides[specKey][activeMode]
+    local count, y = 0, 0
+    if ov then
+        for _, slot in ipairs(SLOTS) do
+            local entry = ov[slot.id]
+            if entry then
+                count = count + 1
+                if not ef.overrideRowPool[count] then
+                    local row = CreateFrame("Frame", nil, ef.overrideContent)
+                    row:SetHeight(24)
+                    local rowBg = Rect(row, "BACKGROUND", 0, P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+                    rowBg:SetAllPoints()
+                    local rowSep = Rect(row, "ARTWORK", 0, P.goldDim[1], P.goldDim[2], P.goldDim[3], P.goldDim[4])
+                    rowSep:SetHeight(1)
+                    rowSep:SetPoint("BOTTOMLEFT",  row, "BOTTOMLEFT",  0, 0)
+                    rowSep:SetPoint("BOTTOMRIGHT", row, "BOTTOMRIGHT", 0, 0)
+                    local sLbl = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+                    sLbl:SetPoint("LEFT", row, "LEFT", 6, 0)
+                    sLbl:SetWidth(74)
+                    sLbl:SetJustifyH("LEFT")
+                    row.slotLbl = sLbl
+                    local nLbl = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+                    nLbl:SetPoint("LEFT",  row, "LEFT",  84, 0)
+                    nLbl:SetPoint("RIGHT", row, "RIGHT", -26, 0)
+                    nLbl:SetJustifyH("LEFT")
+                    nLbl:SetWordWrap(false)
+                    row.nameLbl = nLbl
+                    local xBtn = CreateFrame("Button", nil, row)
+                    xBtn:SetSize(20, 20)
+                    xBtn:SetPoint("RIGHT", row, "RIGHT", -2, 0)
+                    local xLbl = xBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+                    xLbl:SetAllPoints()
+                    xLbl:SetJustifyH("CENTER")
+                    xLbl:SetText("|cffff4040×|r")
+                    xBtn:SetScript("OnEnter", function() xLbl:SetText("|cffff8080×|r") end)
+                    xBtn:SetScript("OnLeave", function() xLbl:SetText("|cffff4040×|r") end)
+                    row.xBtn = xBtn
+                    ef.overrideRowPool[count] = row
+                end
+                local row = ef.overrideRowPool[count]
+                row:ClearAllPoints()
+                row:SetPoint("TOPLEFT",  ef.overrideContent, "TOPLEFT",  0, -y)
+                row:SetPoint("TOPRIGHT", ef.overrideContent, "TOPRIGHT", 0, -y)
+                row.slotLbl:SetText(P.tDim .. slot.label .. ":|r")
+                local dn = (entry.name and entry.name ~= "") and entry.name or "|cffaaaaaa(loading…)|r"
+                row.nameLbl:SetText(P.tGold .. dn .. "|r")
+                local slotId = slot.id
+                row.xBtn:SetScript("OnClick", function()
+                    local sk = GetCurrentDataKey()
+                    if sk and BiSHelperDB.overrides
+                       and BiSHelperDB.overrides[sk]
+                       and BiSHelperDB.overrides[sk][activeMode] then
+                        BiSHelperDB.overrides[sk][activeMode][slotId] = nil
+                        local hasAny = false
+                        for _ in pairs(BiSHelperDB.overrides[sk][activeMode]) do hasAny = true break end
+                        if not hasAny then
+                            BiSHelperDB.overrides[sk][activeMode] = nil
+                            local hasMode = false
+                            for _ in pairs(BiSHelperDB.overrides[sk]) do hasMode = true break end
+                            if not hasMode then BiSHelperDB.overrides[sk] = nil end
+                        end
+                    end
+                    BiSHelper_Refresh()
+                    RebuildOverrideRows()
+                end)
+                row:Show()
+                y = y + 24
+            end
+        end
+    end
+    ef.emptyMsg:SetShown(count == 0)
+    ef.overrideContent:SetHeight(math.max(y, 1))
+end
+
+local function ProcessAddItem(itemID)
+    local ef = BiSHelperEditFrame
+    if not ef then return end
+    local name, _, _, _, _, _, _, _, equipLoc = C_Item.GetItemInfo(itemID)
+    if not name or not equipLoc or equipLoc == "" then return end
+    local slots = EQUIPTYPE_TO_SLOTS[equipLoc]
+    if not slots then return end
+    if #slots == 1 then
+        BiSHelper_AddOverride(itemID, slots[1])
+    else
+        ef.pickerItemID = itemID
+        ef.pickerSlots  = slots
+        for i, pb in ipairs(ef.pickerBtns) do
+            if slots[i] then
+                pb.lbl:SetText(P.tGold .. (slotIdToLabel[slots[i]] or ("Slot "..slots[i])) .. "|r")
+                pb:Show()
+            else
+                pb:Hide()
+            end
+        end
+        ef.slotPicker:Show()
+    end
+end
+
+local function CreateEditFrame()
+    local ef = CreateFrame("Frame", "BiSHelperEditFrame", UIParent, "BackdropTemplate")
+    ef:SetSize(340, 460)
+    ef:SetPoint("CENTER")
+    ef:SetMovable(true)
+    ef:SetClampedToScreen(true)
+    ef:SetFrameStrata("HIGH")
+    ef:EnableMouse(true)
+    ef:RegisterForDrag("LeftButton")
+    ef:SetScript("OnDragStart", ef.StartMoving)
+    ef:SetScript("OnDragStop",  ef.StopMovingOrSizing)
+    ef:Hide()
+
+    ef:SetBackdrop({
+        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+        insets = { left=1, right=1, top=1, bottom=1 },
+    })
+    ef:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
+    ef:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+
+    -- Header (36px)
+    local hdrBg = Rect(ef, "BACKGROUND", 2, P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], P.bgHeader[4])
+    hdrBg:SetPoint("TOPLEFT",  ef, "TOPLEFT",  1, -1)
+    hdrBg:SetPoint("TOPRIGHT", ef, "TOPRIGHT", -1, -1)
+    hdrBg:SetHeight(36)
+    local hdrSep = GoldLine(ef, 1)
+    hdrSep:SetPoint("TOPLEFT",  ef, "TOPLEFT",  2, -36)
+    hdrSep:SetPoint("TOPRIGHT", ef, "TOPRIGHT", -2, -36)
+
+    ef.titleText = ef:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    ef.titleText:SetPoint("TOPLEFT", ef, "TOPLEFT", 10, -10)
+    ef.titleText:SetText(P.tGold .. "Edit BiS|r")
+
+    local closeBtn = CreateFrame("Button", nil, ef, "UIPanelCloseButton")
+    closeBtn:SetPoint("TOPRIGHT", ef, "TOPRIGHT", -2, -2)
+    closeBtn:SetScript("OnClick", function() ef:Hide() end)
+
+    -- Input row (y: -40 to -62)
+    local inputLabel = ef:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    inputLabel:SetPoint("TOPLEFT", ef, "TOPLEFT", 10, -50)
+    inputLabel:SetText(P.tDim .. "Item ID:|r")
+
+    local inputBox = CreateFrame("EditBox", nil, ef, "BackdropTemplate")
+    inputBox:SetSize(140, 22)
+    inputBox:SetPoint("TOPLEFT", ef, "TOPLEFT", 68, -41)
+    inputBox:SetBackdrop({
+        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+        insets = { left=2, right=2, top=2, bottom=2 },
+    })
+    inputBox:SetBackdropColor(0.06, 0.02, 0.14, 1)
+    inputBox:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 1)
+    inputBox:SetFontObject("ChatFontNormal")
+    inputBox:SetAutoFocus(false)
+    inputBox:SetNumeric(true)
+    inputBox:SetMaxLetters(10)
+    inputBox:SetTextInsets(4, 4, 0, 0)
+    ef.inputBox = inputBox
+
+    local addBtn = CreateFrame("Button", nil, ef, "BackdropTemplate")
+    addBtn:SetSize(50, 22)
+    addBtn:SetPoint("LEFT", inputBox, "RIGHT", 4, 0)
+    addBtn:SetBackdrop({
+        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+        insets = { left=1, right=1, top=1, bottom=1 },
+    })
+    addBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+    addBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    local addBtnLbl = addBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    addBtnLbl:SetAllPoints() addBtnLbl:SetJustifyH("CENTER")
+    addBtnLbl:SetText(P.tGold .. "Add|r")
+    addBtn:SetScript("OnEnter", function() addBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95) end)
+    addBtn:SetScript("OnLeave", function() addBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4]) end)
+
+    local function TryAdd()
+        local itemID = tonumber(inputBox:GetText())
+        if not itemID then return end
+        inputBox:SetText("")
+        local name, _, _, _, _, _, _, _, equipLoc = C_Item.GetItemInfo(itemID)
+        if name then
+            ProcessAddItem(itemID)
+        else
+            C_Item.RequestLoadItemDataByID(itemID)
+            ef.pendingAdd = itemID
+        end
+    end
+    inputBox:SetScript("OnEnterPressed", TryAdd)
+    addBtn:SetScript("OnClick", TryAdd)
+
+    -- Slot picker (y: -66 to -92, hidden by default)
+    local picker = CreateFrame("Frame", nil, ef)
+    picker:SetPoint("TOPLEFT",  ef, "TOPLEFT",  8, -66)
+    picker:SetPoint("TOPRIGHT", ef, "TOPRIGHT", -8, -66)
+    picker:SetHeight(26)
+    picker:Hide()
+    ef.slotPicker = picker
+
+    local pickerLbl = picker:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    pickerLbl:SetPoint("LEFT", picker, "LEFT", 0, 0)
+    pickerLbl:SetText(P.tDim .. "Which slot?|r")
+
+    ef.pickerBtns = {}
+    for i = 1, 2 do
+        local pb = CreateFrame("Button", nil, picker, "BackdropTemplate")
+        pb:SetSize(84, 22)
+        pb:SetPoint("LEFT", picker, "LEFT", 82 + (i-1)*90, -2)
+        pb:SetBackdrop({
+            bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+            insets = { left=1, right=1, top=1, bottom=1 },
+        })
+        pb:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+        pb:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+        pb.lbl = pb:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        pb.lbl:SetAllPoints() pb.lbl:SetJustifyH("CENTER")
+        pb:SetScript("OnEnter", function() pb:SetBackdropColor(0.20, 0.10, 0.38, 0.95) end)
+        pb:SetScript("OnLeave", function() pb:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4]) end)
+        local idx = i
+        pb:SetScript("OnClick", function()
+            picker:Hide()
+            if ef.pickerItemID and ef.pickerSlots and ef.pickerSlots[idx] then
+                BiSHelper_AddOverride(ef.pickerItemID, ef.pickerSlots[idx])
+            end
+        end)
+        ef.pickerBtns[i] = pb
+    end
+
+    -- Separator before list (y: -96)
+    local listSep = GoldLine(ef, 1)
+    listSep:SetPoint("TOPLEFT",  ef, "TOPLEFT",  2, -96)
+    listSep:SetPoint("TOPRIGHT", ef, "TOPRIGHT", -2, -96)
+
+    -- Override list scroll
+    local scrollFrame = CreateFrame("ScrollFrame", nil, ef, "UIPanelScrollFrameTemplate")
+    scrollFrame:SetPoint("TOPLEFT",     ef, "TOPLEFT",    4, -100)
+    scrollFrame:SetPoint("BOTTOMRIGHT", ef, "BOTTOMRIGHT", -26, 32)
+
+    local overrideContent = CreateFrame("Frame", nil, scrollFrame)
+    overrideContent:SetHeight(1)
+    scrollFrame:SetScrollChild(overrideContent)
+    scrollFrame:SetScript("OnSizeChanged", function(self, w) overrideContent:SetWidth(w) end)
+    ef.overrideContent = overrideContent
+    ef.overrideRowPool = {}
+
+    ef.emptyMsg = overrideContent:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    ef.emptyMsg:SetPoint("TOP", overrideContent, "TOP", 0, -10)
+    ef.emptyMsg:SetText(P.tDim .. "No overrides for this spec / mode.|r")
+    ef.emptyMsg:Hide()
+
+    -- Bottom separator + Reset All
+    local botSep = GoldLine(ef, 1)
+    botSep:SetPoint("BOTTOMLEFT",  ef, "BOTTOMLEFT",  2, 30)
+    botSep:SetPoint("BOTTOMRIGHT", ef, "BOTTOMRIGHT", -2, 30)
+
+    local resetBtn = CreateFrame("Button", nil, ef, "BackdropTemplate")
+    resetBtn:SetSize(80, 22)
+    resetBtn:SetPoint("BOTTOMRIGHT", ef, "BOTTOMRIGHT", -6, 5)
+    resetBtn:SetBackdrop({
+        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+        insets = { left=1, right=1, top=1, bottom=1 },
+    })
+    resetBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+    resetBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    local resetLbl = resetBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    resetLbl:SetAllPoints() resetLbl:SetJustifyH("CENTER")
+    resetLbl:SetText(P.tDim .. "Reset All|r")
+    resetBtn:SetScript("OnEnter", function() resetBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95) end)
+    resetBtn:SetScript("OnLeave", function() resetBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4]) end)
+    resetBtn:SetScript("OnClick", function() BiSHelper_ResetOverrides() end)
+
+    return ef
+end
+
+function BiSHelper_OpenEditPanel()
+    if not BiSHelperEditFrame then
+        BiSHelperEditFrame = CreateEditFrame()
+    end
+    local specData = GetSpecData()
+    local modeLabel = activeMode == "raid" and "Raid" or "Mythic+"
+    local specLabel = specData and specData.label or "?"
+    BiSHelperEditFrame.titleText:SetText(
+        P.tGold .. "Edit BiS|r — " .. P.tLavender .. specLabel .. "|r · " .. P.tDim .. modeLabel .. "|r")
+    BiSHelperEditFrame.inputBox:SetText("")
+    BiSHelperEditFrame.slotPicker:Hide()
+    RebuildOverrideRows()
+    BiSHelperEditFrame:Show()
+end
+
+function BiSHelper_AddOverride(itemID, slotId)
+    local specKey = GetCurrentDataKey()
+    if not specKey then return end
+    local name = C_Item.GetItemInfo(itemID)
+    BiSHelperDB.overrides = BiSHelperDB.overrides or {}
+    BiSHelperDB.overrides[specKey] = BiSHelperDB.overrides[specKey] or {}
+    BiSHelperDB.overrides[specKey][activeMode] = BiSHelperDB.overrides[specKey][activeMode] or {}
+    if name then
+        BiSHelperDB.overrides[specKey][activeMode][slotId] = { itemID = itemID, name = name, source = "Custom" }
+    else
+        BiSHelperDB.overrides[specKey][activeMode][slotId] = { itemID = itemID, name = "", source = "Custom" }
+        pendingOverrideNames[itemID] = { specKey = specKey, mode = activeMode, slotId = slotId }
+    end
+    BiSHelper_Refresh()
+    if BiSHelperEditFrame and BiSHelperEditFrame:IsShown() then RebuildOverrideRows() end
+end
+
+function BiSHelper_ResetOverrides()
+    local specKey = GetCurrentDataKey()
+    if not specKey then return end
+    if BiSHelperDB.overrides and BiSHelperDB.overrides[specKey] then
+        BiSHelperDB.overrides[specKey][activeMode] = nil
+        local hasAny = false
+        for _ in pairs(BiSHelperDB.overrides[specKey]) do hasAny = true break end
+        if not hasAny then BiSHelperDB.overrides[specKey] = nil end
+    end
+    wipe(pendingOverrideNames)
+    BiSHelper_Refresh()
+    if BiSHelperEditFrame and BiSHelperEditFrame:IsShown() then RebuildOverrideRows() end
+end
+
+-- ============================================================
+-- Stats panel helpers
+-- ============================================================
+local function GetStatColor(name, specData)
+    -- 1. Look in spec data (all modes) for matching name
+    if specData and specData.statPriority then
+        for _, mode in ipairs({"mythicplus", "raid"}) do
+            local sp = specData.statPriority[mode]
+            if sp and sp.stats then
+                for _, s in ipairs(sp.stats) do
+                    if s.name:lower() == name:lower() then return s.r, s.g, s.b end
+                end
+            end
+        end
+        if specData.statPriority.dr then
+            for _, d in ipairs(specData.statPriority.dr) do
+                if d.name:lower() == name:lower() then return d.r, d.g, d.b end
+            end
+        end
+    end
+    -- 2. Default palette
+    local c = DEFAULT_STAT_COLORS[name:lower()]
+    if c then return c[1], c[2], c[3] end
+    return 1, 1, 1
+end
+
+local function BuildStatText()
+    local sp = GetActiveStatData()
+    if not sp or not sp[activeMode] or not sp[activeMode].stats then return "" end
+    local parts = {}
+    for _, stat in ipairs(sp[activeMode].stats) do
+        parts[#parts + 1] = stat.name
+        if stat.op then parts[#parts + 1] = " " .. stat.op .. " " end
+    end
+    return table.concat(parts)
+end
+
+local function BuildDRText()
+    local sp = GetActiveStatData()
+    if not sp or not sp.dr then return "" end
+    local lines = {}
+    for _, d in ipairs(sp.dr) do
+        lines[#lines + 1] = d.name .. ": " .. (d.rating or "")
+    end
+    return table.concat(lines, "\n")
+end
+
+local function ParseStatText(text)
+    -- Parse "Haste > Critical Strike = Mastery" into stats array
+    local specData = GetSpecData()
+    local stats = {}
+    local rem = text:match("^%s*(.-)%s*$")
+    while #rem > 0 do
+        local name, op, rest = rem:match("^(.-[^%s%>%=])%s*([>=])%s*(.*)")
+        if name then
+            local r, g, b = GetStatColor(name, specData)
+            stats[#stats + 1] = { name = name, op = op, r = r, g = g, b = b }
+            rem = rest
+        else
+            local last = rem:match("^%s*(.-)%s*$")
+            if last ~= "" then
+                local r, g, b = GetStatColor(last, specData)
+                stats[#stats + 1] = { name = last, r = r, g = g, b = b }
+            end
+            break
+        end
+    end
+    return stats
+end
+
+local function ParseDRText(text)
+    local specData = GetSpecData()
+    local dr = {}
+    for line in (text .. "\n"):gmatch("([^\n]*)\n") do
+        local name, rating = line:match("^%s*(.-)%s*:%s*(%d+)%s*$")
+        if name and rating and name ~= "" then
+            local r, g, b = GetStatColor(name, specData)
+            dr[#dr + 1] = { name = name, rating = tonumber(rating), r = r, g = g, b = b }
+        end
+    end
+    return dr
+end
+
+local function CreateStatsFrame()
+    local sf = CreateFrame("Frame", "BiSHelperStatsFrame", UIParent, "BackdropTemplate")
+    sf:SetSize(460, 300)
+    sf:SetPoint("CENTER")
+    sf:SetMovable(true)
+    sf:SetClampedToScreen(true)
+    sf:SetFrameStrata("HIGH")
+    sf:EnableMouse(true)
+    sf:RegisterForDrag("LeftButton")
+    sf:SetScript("OnDragStart", sf.StartMoving)
+    sf:SetScript("OnDragStop",  sf.StopMovingOrSizing)
+    sf:Hide()
+
+    sf:SetBackdrop({
+        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+        insets = { left=1, right=1, top=1, bottom=1 },
+    })
+    sf:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
+    sf:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+
+    -- Header (36px)
+    local hdrBg = Rect(sf, "BACKGROUND", 2, P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], P.bgHeader[4])
+    hdrBg:SetPoint("TOPLEFT",  sf, "TOPLEFT",  1, -1)
+    hdrBg:SetPoint("TOPRIGHT", sf, "TOPRIGHT", -1, -1)
+    hdrBg:SetHeight(36)
+    local hdrSep = GoldLine(sf, 1)
+    hdrSep:SetPoint("TOPLEFT",  sf, "TOPLEFT",  2, -36)
+    hdrSep:SetPoint("TOPRIGHT", sf, "TOPRIGHT", -2, -36)
+
+    sf.titleText = sf:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    sf.titleText:SetPoint("TOPLEFT", sf, "TOPLEFT", 10, -10)
+    sf.titleText:SetText(P.tGold .. "Edit Stats|r")
+
+    local closeBtn = CreateFrame("Button", nil, sf, "UIPanelCloseButton")
+    closeBtn:SetPoint("TOPRIGHT", sf, "TOPRIGHT", -2, -2)
+    closeBtn:SetScript("OnClick", function() sf:Hide() end)
+
+    -- Stat priority section (y: -44 to -104)
+    local statLabel = sf:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    statLabel:SetPoint("TOPLEFT", sf, "TOPLEFT", 10, -46)
+    statLabel:SetText(P.tGold .. "Stat Priority:|r")
+
+    local statHint = sf:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    statHint:SetPoint("LEFT",  statLabel, "RIGHT", 8, 0)
+    statHint:SetText(P.tDim .. "Use  >  or  =  as separators|r")
+
+    local statBox = CreateFrame("EditBox", nil, sf, "BackdropTemplate")
+    statBox:SetSize(438, 24)
+    statBox:SetPoint("TOPLEFT", sf, "TOPLEFT", 10, -62)
+    statBox:SetBackdrop({
+        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+        insets = { left=3, right=3, top=2, bottom=2 },
+    })
+    statBox:SetBackdropColor(0.06, 0.02, 0.14, 1)
+    statBox:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 1)
+    statBox:SetFontObject("ChatFontNormal")
+    statBox:SetAutoFocus(false)
+    statBox:SetMaxLetters(256)
+    statBox:SetTextInsets(4, 4, 0, 0)
+    statBox:SetScript("OnEscapePressed", function() sf:Hide() end)
+    sf.statBox = statBox
+
+    -- DR section (y: -98 to -260)
+    local drSep = GoldLine(sf, 1)
+    drSep:SetPoint("TOPLEFT",  sf, "TOPLEFT",  2, -98)
+    drSep:SetPoint("TOPRIGHT", sf, "TOPRIGHT", -2, -98)
+
+    local drLabel = sf:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    drLabel:SetPoint("TOPLEFT", sf, "TOPLEFT", 10, -108)
+    drLabel:SetText(P.tGold .. "DR Caps:|r")
+
+    local drHint = sf:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    drHint:SetPoint("LEFT", drLabel, "RIGHT", 8, 0)
+    drHint:SetText(P.tDim .. "One per line:  Haste: 3456|r")
+
+    local drScroll = CreateFrame("ScrollFrame", nil, sf, "UIPanelScrollFrameTemplate")
+    drScroll:SetPoint("TOPLEFT",     sf, "TOPLEFT",    10, -126)
+    drScroll:SetPoint("BOTTOMRIGHT", sf, "BOTTOMRIGHT", -26, 36)
+
+    local drBox = CreateFrame("EditBox", nil, drScroll)
+    drBox:SetMultiLine(true)
+    drBox:SetAutoFocus(false)
+    drBox:SetFontObject("ChatFontNormal")
+    drBox:SetWidth(drScroll:GetWidth() or 410)
+    drBox:SetScript("OnEscapePressed", function() sf:Hide() end)
+    drScroll:SetScrollChild(drBox)
+    drScroll:SetScript("OnSizeChanged", function(self, w) drBox:SetWidth(w - 4) end)
+    sf.drBox = drBox
+
+    -- Bottom separator + buttons
+    local botSep = GoldLine(sf, 1)
+    botSep:SetPoint("BOTTOMLEFT",  sf, "BOTTOMLEFT",  2, 30)
+    botSep:SetPoint("BOTTOMRIGHT", sf, "BOTTOMRIGHT", -2, 30)
+
+    local function MakeBtn(label, w, anchorRight, offsetX, clickFn)
+        local btn = CreateFrame("Button", nil, sf, "BackdropTemplate")
+        btn:SetSize(w, 22)
+        btn:SetPoint("BOTTOMRIGHT", sf, "BOTTOMRIGHT", offsetX, 5)
+        btn:SetBackdrop({
+            bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+            insets = { left=1, right=1, top=1, bottom=1 },
+        })
+        btn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+        btn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+        local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        lbl:SetAllPoints() lbl:SetJustifyH("CENTER")
+        lbl:SetText(label)
+        btn:SetScript("OnEnter", function() btn:SetBackdropColor(0.20, 0.10, 0.38, 0.95) end)
+        btn:SetScript("OnLeave", function() btn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4]) end)
+        btn:SetScript("OnClick", clickFn)
+        return btn
+    end
+
+    MakeBtn(P.tDim .. "Reset|r",   70, sf, -6,  function() BiSHelper_ResetStatOverrides() end)
+    MakeBtn(P.tGold .. "Save|r",   70, sf, -82, function() BiSHelper_SaveStatEdits()      end)
+
+    return sf
+end
+
+function BiSHelper_OpenStatsPanel()
+    if not BiSHelperStatsFrame then
+        BiSHelperStatsFrame = CreateStatsFrame()
+    end
+    local specData = GetSpecData()
+    local modeLabel = activeMode == "raid" and "Raid" or "Mythic+"
+    local specLabel = specData and specData.label or "?"
+    BiSHelperStatsFrame.titleText:SetText(
+        P.tGold .. "Edit Stats|r — " .. P.tLavender .. specLabel .. "|r · " .. P.tDim .. modeLabel .. "|r")
+    BiSHelperStatsFrame.statBox:SetText(BuildStatText())
+    BiSHelperStatsFrame.drBox:SetText(BuildDRText())
+    BiSHelperStatsFrame:Show()
+end
+
+function BiSHelper_SaveStatEdits()
+    if not BiSHelperStatsFrame then return end
+    local specKey = GetCurrentDataKey()
+    if not specKey then return end
+    local stats = ParseStatText(BiSHelperStatsFrame.statBox:GetText())
+    local dr    = ParseDRText(BiSHelperStatsFrame.drBox:GetText())
+    BiSHelperDB.statOverrides = BiSHelperDB.statOverrides or {}
+    BiSHelperDB.statOverrides[specKey] = BiSHelperDB.statOverrides[specKey] or {}
+    -- Preserve note from base data
+    local specData = GetSpecData()
+    local baseNote = specData and specData.statPriority
+                     and specData.statPriority[activeMode]
+                     and specData.statPriority[activeMode].note
+    if #stats > 0 then
+        BiSHelperDB.statOverrides[specKey][activeMode] = { stats = stats, note = baseNote }
+    else
+        BiSHelperDB.statOverrides[specKey][activeMode] = nil
+    end
+    if #dr > 0 then
+        BiSHelperDB.statOverrides[specKey]["dr"] = dr
+    else
+        BiSHelperDB.statOverrides[specKey]["dr"] = nil
+    end
+    -- Clean up empty specKey
+    local hasAny = false
+    for _ in pairs(BiSHelperDB.statOverrides[specKey]) do hasAny = true break end
+    if not hasAny then BiSHelperDB.statOverrides[specKey] = nil end
+    BiSHelper_Refresh()
+    BiSHelperStatsFrame:Hide()
+end
+
+function BiSHelper_ResetStatOverrides()
+    local specKey = GetCurrentDataKey()
+    if not specKey then return end
+    if BiSHelperDB.statOverrides and BiSHelperDB.statOverrides[specKey] then
+        BiSHelperDB.statOverrides[specKey][activeMode] = nil
+        BiSHelperDB.statOverrides[specKey]["dr"]       = nil
+        local hasAny = false
+        for _ in pairs(BiSHelperDB.statOverrides[specKey]) do hasAny = true break end
+        if not hasAny then BiSHelperDB.statOverrides[specKey] = nil end
+    end
+    BiSHelper_Refresh()
+    if BiSHelperStatsFrame and BiSHelperStatsFrame:IsShown() then
+        BiSHelperStatsFrame.statBox:SetText(BuildStatText())
+        BiSHelperStatsFrame.drBox:SetText(BuildDRText())
+    end
+end
+
+-- ============================================================
+-- Help panel
+-- ============================================================
+local HELP_TEXT = [[|cff]] .. "f5d258" .. [[BiS Helper|r compares your equipped gear to Best in Slot lists for your spec and current content type.
+
+|cff]] .. "f5d258" .. [[ROW COLORS|r
+  |cff00f280✓|r |cff00f280green|r — equipped item matches the BiS list
+  |cffff4040✗|r |cffff4040red|r   — slot has a different item equipped
+  grey            — no BiS data available for this slot
+
+|cff]] .. "f5d258" .. [[COLUMNS|r
+  Slot        gear slot name
+  Equipped    your current item (hover for tooltip)
+  iLvl        item level
+  Enchant     enchant applied (hover for tooltip)
+  Gems        socketed gems (hover for tooltip)
+  Track       upgrade track: Myth / Hero / Champion…
+  BiS         match indicator (✓ / ✗)
+  BiS Item    recommended item (hover for tooltip)
+  Source      where to obtain it
+
+|cff]] .. "f5d258" .. [[BUTTONS|r
+  Refresh     re-read your gear from the server
+  Edit        override the BiS item for any slot
+  Stats       edit stat priority order and DR caps
+  Raid / M+   switch between Raid and Mythic+ lists
+
+|cff]] .. "f5d258" .. [[SLASH COMMAND|r
+  /bis        toggle this window]]
+
+local function CreateHelpFrame()
+    local hf = CreateFrame("Frame", "BiSHelperHelpFrame", UIParent, "BackdropTemplate")
+    hf:SetSize(400, 420)
+    hf:SetPoint("CENTER")
+    hf:SetMovable(true)
+    hf:SetClampedToScreen(true)
+    hf:SetFrameStrata("HIGH")
+    hf:EnableMouse(true)
+    hf:RegisterForDrag("LeftButton")
+    hf:SetScript("OnDragStart", hf.StartMoving)
+    hf:SetScript("OnDragStop",  hf.StopMovingOrSizing)
+    hf:Hide()
+
+    hf:SetBackdrop({
+        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+        insets = { left=1, right=1, top=1, bottom=1 },
+    })
+    hf:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
+    hf:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+
+    local hdrBg = Rect(hf, "BACKGROUND", 2, P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], P.bgHeader[4])
+    hdrBg:SetPoint("TOPLEFT",  hf, "TOPLEFT",  1, -1)
+    hdrBg:SetPoint("TOPRIGHT", hf, "TOPRIGHT", -1, -1)
+    hdrBg:SetHeight(36)
+    local hdrSep = GoldLine(hf, 1)
+    hdrSep:SetPoint("TOPLEFT",  hf, "TOPLEFT",  2, -36)
+    hdrSep:SetPoint("TOPRIGHT", hf, "TOPRIGHT", -2, -36)
+
+    local title = hf:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    title:SetPoint("TOPLEFT", hf, "TOPLEFT", 10, -10)
+    title:SetText(P.tGold .. "BiS Helper|r — " .. P.tLavender .. "How to use|r")
+
+    local closeBtn = CreateFrame("Button", nil, hf, "UIPanelCloseButton")
+    closeBtn:SetPoint("TOPRIGHT", hf, "TOPRIGHT", -2, -2)
+    closeBtn:SetScript("OnClick", function() hf:Hide() end)
+
+    local scroll = CreateFrame("ScrollFrame", nil, hf, "UIPanelScrollFrameTemplate")
+    scroll:SetPoint("TOPLEFT",     hf, "TOPLEFT",    10, -44)
+    scroll:SetPoint("BOTTOMRIGHT", hf, "BOTTOMRIGHT", -26, 10)
+
+    local content = CreateFrame("Frame", nil, scroll)
+    scroll:SetScrollChild(content)
+    scroll:SetScript("OnSizeChanged", function(self, w) content:SetWidth(w) end)
+
+    local bodyText = content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    bodyText:SetPoint("TOPLEFT", content, "TOPLEFT", 0, 0)
+    bodyText:SetPoint("RIGHT",   content, "RIGHT",   0, 0)
+    bodyText:SetJustifyH("LEFT")
+    bodyText:SetSpacing(3)
+    bodyText:SetText(HELP_TEXT)
+    content:SetHeight(bodyText:GetStringHeight() + 20)
+
+    return hf
+end
+
+function BiSHelper_OpenHelpPanel()
+    if not BiSHelperHelpFrame then
+        BiSHelperHelpFrame = CreateHelpFrame()
+    end
+    if BiSHelperHelpFrame:IsShown() then
+        BiSHelperHelpFrame:Hide()
+    else
+        BiSHelperHelpFrame:Show()
+    end
 end
 
 -- ============================================================
@@ -279,6 +1032,12 @@ local function CreateMainFrame()
     refreshBtn:SetPoint("TOPRIGHT", closeBtn, "TOPLEFT", -2, 0)
     refreshBtn:SetText("Refresh")
     refreshBtn:SetScript("OnClick", function() BiSHelper_Refresh() end)
+    refreshBtn:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+        GameTooltip:SetText("Reload gear data from player")
+        GameTooltip:Show()
+    end)
+    refreshBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
     local function ModeButton(label, mode, anchorFrame, anchorSide)
         local btn = CreateFrame("Button", nil, frame, "BackdropTemplate")
@@ -319,6 +1078,86 @@ local function CreateMainFrame()
     local btnMplus = ModeButton("Mythic+", "mythicplus", btnRaid, "LEFT")
     frame.modeButtons = { btnRaid, btnMplus }
 
+    local btnGroupSep = Rect(frame, "ARTWORK", 3, P.gold[1], P.gold[2], P.gold[3], 0.45)
+    btnGroupSep:SetSize(1, 16)
+    btnGroupSep:SetPoint("CENTER", btnMplus, "LEFT", -6, 0)
+
+    local editBtn = CreateFrame("Button", nil, frame, "BackdropTemplate")
+    editBtn:SetSize(50, 22)
+    editBtn:SetPoint("RIGHT", btnMplus, "LEFT", -4, 0)
+    editBtn:SetBackdrop({
+        bgFile   = WHITE_TEX,
+        edgeFile = WHITE_TEX,
+        edgeSize = 1,
+        insets   = { left=1, right=1, top=1, bottom=1 },
+    })
+    editBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+    editBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    local editBtnLbl = editBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    editBtnLbl:SetAllPoints()
+    editBtnLbl:SetJustifyH("CENTER")
+    editBtnLbl:SetText(P.tGold .. "Edit|r")
+    editBtn:SetScript("OnEnter", function(self)
+        editBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
+        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+        GameTooltip:SetText("Customize BiS items per slot")
+        GameTooltip:Show()
+    end)
+    editBtn:SetScript("OnLeave", function()
+        editBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+        GameTooltip:Hide()
+    end)
+    editBtn:SetScript("OnClick", function() BiSHelper_OpenEditPanel() end)
+
+    local statsBtn = CreateFrame("Button", nil, frame, "BackdropTemplate")
+    statsBtn:SetSize(50, 22)
+    statsBtn:SetPoint("RIGHT", editBtn, "LEFT", -4, 0)
+    statsBtn:SetBackdrop({
+        bgFile   = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+        insets   = { left=1, right=1, top=1, bottom=1 },
+    })
+    statsBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+    statsBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    local statsBtnLbl = statsBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    statsBtnLbl:SetAllPoints() statsBtnLbl:SetJustifyH("CENTER")
+    statsBtnLbl:SetText(P.tGold .. "Stats|r")
+    statsBtn:SetScript("OnEnter", function(self)
+        statsBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
+        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+        GameTooltip:SetText("Edit stat priority & DR caps")
+        GameTooltip:Show()
+    end)
+    statsBtn:SetScript("OnLeave", function()
+        statsBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+        GameTooltip:Hide()
+    end)
+    statsBtn:SetScript("OnClick", function() BiSHelper_OpenStatsPanel() end)
+
+    local helpBtn = CreateFrame("Button", nil, frame, "BackdropTemplate")
+    helpBtn:SetSize(22, 22)
+    helpBtn:SetPoint("RIGHT", statsBtn, "LEFT", -4, 0)
+    helpBtn:SetBackdrop({
+        bgFile   = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+        insets   = { left=1, right=1, top=1, bottom=1 },
+    })
+    helpBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+    helpBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    local helpBtnLbl = helpBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    helpBtnLbl:SetAllPoints()
+    helpBtnLbl:SetJustifyH("CENTER")
+    helpBtnLbl:SetText(P.tGold .. "?|r")
+    helpBtn:SetScript("OnEnter", function(self)
+        helpBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
+        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+        GameTooltip:SetText("Show help & feature overview")
+        GameTooltip:Show()
+    end)
+    helpBtn:SetScript("OnLeave", function()
+        helpBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+        GameTooltip:Hide()
+    end)
+    helpBtn:SetScript("OnClick", function() BiSHelper_OpenHelpPanel() end)
+
     local COL_Y = -(HEADER_H + 6)
     local function ColHeader(text, x, w, align, rightAnchor)
         local fs = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -333,7 +1172,7 @@ local function CreateMainFrame()
         return fs
     end
     
-    ColHeader("Slot",      38,  60, "LEFT")
+    ColHeader("Slot",      38,  64, "LEFT")
     ColHeader("Equipped",  80,  120, "LEFT")
     ColHeader("iLvl",      206,  34, "RIGHT")
     ColHeader("Enchant",   248,  130, "LEFT")
@@ -347,6 +1186,12 @@ local function CreateMainFrame()
     colSep:SetHeight(1)
     colSep:SetPoint("TOPLEFT",  frame, "TOPLEFT",  2, -(HEADER_H + 20))
     colSep:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -2, -(HEADER_H + 20))
+
+    -- Vertical separator between equipped columns and BiS columns (x=506)
+    local vColSep = Rect(frame, "ARTWORK", 2, P.gold[1], P.gold[2], P.gold[3], 0.45)
+    vColSep:SetWidth(2)
+    vColSep:SetPoint("TOP",    frame, "TOPLEFT", 506, -(HEADER_H + 2))
+    vColSep:SetPoint("BOTTOM", frame, "TOPLEFT", 506, -(HEADER_H + 22))
 
     local SCROLL_TOP = HEADER_H + 24
     local scrollFrame = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
@@ -369,6 +1214,10 @@ local function CreateMainFrame()
         local cardBg = Rect(row, "BACKGROUND", 0, i % 2 == 0 and P.bgCard[1] or P.bgCardAlt[1], i % 2 == 0 and P.bgCard[2] or P.bgCardAlt[2], i % 2 == 0 and P.bgCard[3] or P.bgCardAlt[3], i % 2 == 0 and P.bgCard[4] or P.bgCardAlt[4])
         cardBg:SetAllPoints()
 
+        local glowBg = Rect(row, "BACKGROUND", 1, 0, 0, 0, 0)
+        glowBg:SetAllPoints()
+        row.glowBg = glowBg
+
         local accent = Rect(row, "ARTWORK", 1, P.neonGrey[1], P.neonGrey[2], P.neonGrey[3], 0.6)
         accent:SetWidth(3)
         accent:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
@@ -379,6 +1228,11 @@ local function CreateMainFrame()
         sep:SetHeight(1)
         sep:SetPoint("BOTTOMLEFT", row, "BOTTOMLEFT", 3, 0)
         sep:SetPoint("BOTTOMRIGHT", row, "BOTTOMRIGHT", 0, 0)
+
+        local vSep = Rect(row, "ARTWORK", 1, P.gold[1], P.gold[2], P.gold[3], 0.25)
+        vSep:SetWidth(2)
+        vSep:SetPoint("TOP",    row, "TOPLEFT",    506, -2)
+        vSep:SetPoint("BOTTOM", row, "BOTTOMLEFT", 506,  2)
 
         local function ShowItemTooltip(self)
             local link = GetInventoryItemLink("player", row.slotId)
@@ -406,7 +1260,7 @@ local function CreateMainFrame()
 
         local slotLabel = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         slotLabel:SetPoint("LEFT", row, "LEFT", 36, 0)
-        slotLabel:SetWidth(40)
+        slotLabel:SetWidth(44)
         slotLabel:SetJustifyH("LEFT")
         slotLabel:SetText(P.tDim .. slot.label .. "|r")
 
@@ -491,9 +1345,10 @@ local function CreateMainFrame()
         trackText:SetJustifyH("LEFT")
         row.trackText = trackText
 
-        local bisStatus = row:CreateTexture(nil, "OVERLAY")
-        bisStatus:SetSize(16, 16)
+        local bisStatus = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         bisStatus:SetPoint("CENTER", row, "LEFT", 520, 0)
+        bisStatus:SetWidth(24)
+        bisStatus:SetJustifyH("CENTER")
         row.bisStatus = bisStatus
 
         local sourceText = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -531,7 +1386,7 @@ end
 -- ============================================================
 -- Rebuild stat priority display in header
 -- ============================================================
-local function RebuildStatBars(specData)
+local function RebuildStatBars()
     local container = BiSHelperFrame.statBarContainer
     if not BiSHelperFrame.statPriorityText then
         local fs = CreateFrame("Frame", nil, container)
@@ -544,13 +1399,13 @@ local function RebuildStatBars(specData)
         text:SetJustifyH("LEFT")
         BiSHelperFrame.statPriorityText = text
         fs:SetScript("OnEnter", function(self)
-            local spec = GetSpecData()
-            if spec and spec.statPriority then
+            local sp = GetActiveStatData()
+            if sp then
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:AddLine(P.tGold .. "Stat Priority Details|r")
                 GameTooltip:AddLine(" ")
-                local current = spec.statPriority[activeMode]
-                if current.note then GameTooltip:AddLine(current.note, 1, 1, 1, true) end
+                local current = sp[activeMode]
+                if current and current.note then GameTooltip:AddLine(current.note, 1, 1, 1, true) end
                 GameTooltip:Show()
             end
         end)
@@ -577,14 +1432,14 @@ local function RebuildStatBars(specData)
         BiSHelperFrame.statSourceLabel = src
     end
 
-    if not specData or not specData.statPriority then
+    local sp = GetActiveStatData()
+    if not sp then
         BiSHelperFrame.statPriorityText:SetText("")
         BiSHelperFrame.statNoteText:SetText("")
         BiSHelperFrame.statDRText:SetText("")
         return
     end
 
-    local sp      = specData.statPriority
     local current = sp[activeMode]
     local parts = {}
     for _, stat in ipairs(current.stats) do
@@ -617,15 +1472,14 @@ local function SetRowVisualStatus(row, status)
     else                            c = P.neonGrey end
     row.accent:SetColorTexture(c[1], c[2], c[3], 0.85)
     if status == "bis" then
-        row.bisStatus:SetTexture("Interface\\RaidFrame\\ReadyCheck-Ready")
-        row.bisStatus:SetVertexColor(0, 1, 0.5, 1)
-        row.bisStatus:Show()
+        row.glowBg:SetColorTexture(P.glowGreen[1], P.glowGreen[2], P.glowGreen[3], P.glowGreen[4])
+        row.bisStatus:SetText("|cff00f280✓|r")
     elseif status == "missing" then
-        row.bisStatus:SetTexture("Interface\\RaidFrame\\ReadyCheck-NotReady")
-        row.bisStatus:SetVertexColor(1, 0.2, 0.2, 1)
-        row.bisStatus:Show()
+        row.glowBg:SetColorTexture(P.glowRed[1], P.glowRed[2], P.glowRed[3], P.glowRed[4])
+        row.bisStatus:SetText("|cffff4040✗|r")
     else
-        row.bisStatus:Hide()
+        row.glowBg:SetColorTexture(0, 0, 0, 0)
+        row.bisStatus:SetText("")
     end
 end
 
@@ -727,13 +1581,116 @@ function BiSHelper_Refresh()
     local specData = GetSpecData()
     if specData then
         BiSHelperFrame.specLabel:SetText(P.tLavender .. specData.label .. "|r")
-        RebuildStatBars(specData)
+        RebuildStatBars()
     else
         BiSHelperFrame.specLabel:SetText("|cffff4444No BiS data for: " .. (GetCurrentDataKey() or "unknown") .. "|r")
-        RebuildStatBars(nil)
+        RebuildStatBars()
     end
     if BiSHelperFrame.modeButtons then for _, b in ipairs(BiSHelperFrame.modeButtons) do b.updateLook() end end
     for i, slot in ipairs(SLOTS) do UpdateRow(i, slot.id) end
+end
+
+-- ============================================================
+-- Minimap button
+-- ============================================================
+local minimapButton
+
+local function UpdateMinimapButtonPosition()
+    local angle = math.rad(BiSHelperDB.minimapPos or 225)
+    minimapButton:ClearAllPoints()
+    minimapButton:SetPoint("CENTER", Minimap, "CENTER", math.cos(angle) * 80, math.sin(angle) * 80)
+end
+
+local function CreateMinimapButton()
+    minimapButton = CreateFrame("Button", "BiSHelperMinimapButton", Minimap)
+    minimapButton:SetFrameStrata("MEDIUM")
+    minimapButton:SetSize(31, 31)
+    minimapButton:SetFrameLevel(8)
+    minimapButton:RegisterForClicks("AnyUp")
+    minimapButton:RegisterForDrag("LeftButton")
+    minimapButton:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
+
+    local overlay = minimapButton:CreateTexture(nil, "OVERLAY")
+    overlay:SetSize(53, 53)
+    overlay:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
+    overlay:SetPoint("TOPLEFT")
+
+    local background = minimapButton:CreateTexture(nil, "BACKGROUND")
+    background:SetSize(24, 24)
+    background:SetTexture("Interface\\Minimap\\UI-Minimap-Background")
+    background:SetPoint("CENTER", minimapButton, "CENTER", 0, 1)
+
+    local icon = minimapButton:CreateTexture(nil, "ARTWORK")
+    icon:SetSize(20, 20)
+    icon:SetPoint("CENTER", minimapButton, "CENTER", 0, 1)
+    icon:SetTexture("Interface\\Icons\\Achievement_Zone_Silvermoon")
+    icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
+
+    minimapButton:SetScript("OnClick", function(_, button)
+        if button == "LeftButton" then
+            if not BiSHelperFrame then return end
+            if BiSHelperFrame:IsShown() then
+                BiSHelperFrame:Hide()
+            else
+                BiSHelper_Refresh()
+                BiSHelperFrame:Show()
+            end
+        end
+    end)
+
+    minimapButton:SetScript("OnDragStart", function(self)
+        self:SetScript("OnUpdate", function()
+            local mx, my = Minimap:GetCenter()
+            local cx, cy = GetCursorPosition()
+            local scale  = Minimap:GetEffectiveScale()
+            local angle  = math.atan2(cy / scale - my, cx / scale - mx)
+            BiSHelperDB.minimapPos = math.deg(angle) % 360
+            self:ClearAllPoints()
+            self:SetPoint("CENTER", Minimap, "CENTER", math.cos(angle) * 80, math.sin(angle) * 80)
+        end)
+    end)
+
+    minimapButton:SetScript("OnDragStop", function(self)
+        self:SetScript("OnUpdate", nil)
+    end)
+
+    minimapButton:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_NONE")
+        GameTooltip:SetPoint("TOPLEFT", self, "BOTTOMLEFT")
+        GameTooltip:AddLine("BiS Helper", P.gold[1], P.gold[2], P.gold[3])
+        GameTooltip:AddLine("Click to open/close", 0.8, 0.8, 0.8)
+        GameTooltip:Show()
+    end)
+
+    minimapButton:SetScript("OnLeave", function()
+        GameTooltip:Hide()
+    end)
+
+    UpdateMinimapButtonPosition()
+end
+
+-- ============================================================
+-- Addon Compartment callbacks
+-- ============================================================
+function BiSHelper_OnAddonCompartmentClick(_, button)
+    if not BiSHelperFrame then return end
+    if BiSHelperFrame:IsShown() then
+        BiSHelperFrame:Hide()
+    else
+        BiSHelper_Refresh()
+        BiSHelperFrame:Show()
+    end
+end
+
+function BiSHelper_OnAddonCompartmentEnter(_, f)
+    GameTooltip:SetOwner(f, "ANCHOR_LEFT")
+    GameTooltip:AddLine("BiS Helper", P.gold[1], P.gold[2], P.gold[3])
+    GameTooltip:AddLine("Click to open/close", 0.8, 0.8, 0.8)
+    GameTooltip:Show()
+end
+
+function BiSHelper_OnAddonCompartmentLeave()
+    GameTooltip:Hide()
 end
 
 local eventFrame = CreateFrame("Frame")
@@ -748,13 +1705,15 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
         local name = ...
         if name == ADDON_NAME then
             BiSHelperDB = BiSHelperDB or {}
+            BiSHelperDB.overrides     = BiSHelperDB.overrides     or {}
+            BiSHelperDB.statOverrides = BiSHelperDB.statOverrides or {}
             activeMode  = BiSHelperDB.mode or "mythicplus"
             BiSHelperFrame = CreateMainFrame()
+            CreateMinimapButton()
             if BiSHelperDB.point and BiSHelperDB.x and BiSHelperDB.y then
                 BiSHelperFrame:ClearAllPoints()
                 pcall(function() BiSHelperFrame:SetPoint(BiSHelperDB.point, UIParent, BiSHelperDB.relPoint or BiSHelperDB.point, BiSHelperDB.x, BiSHelperDB.y) end)
             end
-            print("|cff00ccff[BiS Helper]|r Loaded. Type |cffffcc00/bis|r to open.")
         end
     elseif event == "PLAYER_LOGIN" or event == "PLAYER_SPECIALIZATION_CHANGED" then
         C_Timer.After(0.5, function() if BiSHelperFrame then BiSHelper_Refresh() end end)
@@ -764,10 +1723,31 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
             for i, slot in ipairs(SLOTS) do if slot.id == slotId then UpdateRow(i, slotId) break end end
         end
     elseif event == "GET_ITEM_INFO_RECEIVED" then
-        local _, success = ...
+        local itemID, success = ...
         if not success then return end
         for link, data in pairs(pendingItems) do
             if C_Item.GetItemInfo(link) then pendingItems[link] = nil UpdateRow(data.rowIndex, data.slotId) end
+        end
+        -- Resolve deferred override names
+        if pendingOverrideNames[itemID] then
+            local d    = pendingOverrideNames[itemID]
+            local name = C_Item.GetItemInfo(itemID)
+            if name then
+                pendingOverrideNames[itemID] = nil
+                if BiSHelperDB.overrides
+                   and BiSHelperDB.overrides[d.specKey]
+                   and BiSHelperDB.overrides[d.specKey][d.mode]
+                   and BiSHelperDB.overrides[d.specKey][d.mode][d.slotId] then
+                    BiSHelperDB.overrides[d.specKey][d.mode][d.slotId].name = name
+                    BiSHelper_Refresh()
+                    if BiSHelperEditFrame and BiSHelperEditFrame:IsShown() then RebuildOverrideRows() end
+                end
+            end
+        end
+        -- Process deferred item add (item wasn't cached when user typed ID)
+        if BiSHelperEditFrame and BiSHelperEditFrame.pendingAdd == itemID then
+            BiSHelperEditFrame.pendingAdd = nil
+            ProcessAddItem(itemID)
         end
     end
 end)
