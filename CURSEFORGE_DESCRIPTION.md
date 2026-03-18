@@ -1,84 +1,47 @@
 # BiS Helper
 
-> **Stop alt-tabbing to Wowhead mid-raid.** BiS Helper shows you exactly which gear slots need an upgrade — right inside the game.
+Simple gear checker — shows which slots match your Best in Slot list and which still need upgrades. No more alt-tabbing to Wowhead mid-raid.
 
 ---
 
-## What it does
+## How it works
 
-BiS Helper compares every equipment slot on your character against the Best-in-Slot list for your current spec and content type. Each row lights up **green** if you have the right item equipped, or **red** if you don't — so you can see your upgrade path at a glance.
+Open the panel with `/bis` (or the minimap button), pick Raid or Mythic+, and you'll see all 16 gear slots compared against the BiS list for your current spec. Green = you have it, red = you don't. That's it.
 
-It covers both **Raid** and **Mythic+** BiS lists, and switches automatically when you change specializations.
+The addon detects your spec automatically and switches the list when you respec.
 
----
+## What you see per slot
 
-## Key Features
+- Equipped item with icon, name, and item level
+- Enchant and gems (with tooltips)
+- Upgrade track (Myth / Hero / Champion / etc.)
+- BiS item name and where it drops
+- Match status (checkmark or X)
 
-### Gear overview at a glance
-- **Color-coded rows** — green tint = BiS equipped, red tint = upgrade available
-- **✓ / ✗ match indicator** per slot
-- **Item level pill** for every equipped item
-- **Enchant column** with tooltip showing enchant details
-- **Gems column** showing up to 3 gem icons (hover for info)
-- **Upgrade track badge** — Myth / Hero / Champion / Veteran…
+At the bottom there's a progress bar showing how many slots are BiS out of the total (e.g. "9/16 BiS").
 
-### Smart tooltips everywhere
-Hover over item icons, names, enchants, gems, and the BiS item column to get in-game tooltips without leaving the window.
+## Stat priority & DR caps
 
-### Fully customizable
-- **Edit panel** — override the BiS item for any individual slot (paste an item ID)
-- **Stats panel** — adjust the stat priority order and diminishing returns caps for your playstyle
+The header shows your spec's stat priority and diminishing returns caps as visual bars — you can see at a glance how close you are to each cap. Both are editable if you disagree with the defaults.
 
-### Clean, modern UI
-- Resizable and movable window — size and position saved per account
-- Minimap button (draggable, angle saved)
-- Addon Compartment integration
-- Midnight void-purple & ethereal gold color theme
+## Customization
 
----
+- Override any BiS item per slot (Edit panel — paste a Wowhead item ID)
+- Adjust stat priority and DR caps (Stats panel)
+- Window is resizable, movable, position saved between sessions
 
-## All 40 specs covered — Midnight Season 1
+## Specs
 
-Every class and every specialization is supported, including the new **Devourer** Demon Hunter spec.
+All 40 specs covered for Midnight Season 1, including the new Devourer DH spec. Data sourced from Wowhead BiS guides.
 
-| Class | Specs |
-|-------|-------|
-| Death Knight | Blood · Frost · Unholy |
-| Demon Hunter | Havoc · Vengeance · Devourer |
-| Druid | Balance · Feral · Guardian · Restoration |
-| Evoker | Augmentation · Devastation · Preservation |
-| Hunter | Beast Mastery · Marksmanship · Survival |
-| Mage | Arcane · Fire · Frost |
-| Monk | Brewmaster · Mistweaver · Windwalker |
-| Paladin | Holy · Protection · Retribution |
-| Priest | Discipline · Holy · Shadow |
-| Rogue | Assassination · Outlaw · Subtlety |
-| Shaman | Elemental · Enhancement · Restoration |
-| Warlock | Affliction · Demonology · Destruction |
-| Warrior | Arms · Fury · Protection |
+## Quick start
 
-BiS data sourced from Wowhead guides, updated for Season 1 of Midnight.
+1. Type `/bis` or click the minimap button
+2. Pick Raid or Mythic+
+3. Green rows = done, red rows = go farm
 
 ---
 
-## How to use
+No dependencies, no libraries. Works out of the box.
 
-1. Install the addon and log in.
-2. Type `/bis` to open the panel (or click the minimap button).
-3. Use **Raid** / **Mythic+** buttons to switch lists.
-4. Click **Refresh** if your gear doesn't update automatically.
-5. Use **Edit** to swap out any BiS item with your own choice.
-6. Use **Stats** to adjust stat priority or DR caps.
-7. Click **?** for a quick feature overview in-game.
-
----
-
-## Notes
-
-- No external libraries required — zero dependencies.
-- Settings (window size, position, mode, overrides) saved in `BiSHelperDB`.
-- Compatible with **The War Within / Midnight** (Interface 12.0.1+).
-
----
-
-*Feedback and bug reports welcome via the CurseForge issue tracker.*
+*Bug reports welcome via the CurseForge issue tracker.*

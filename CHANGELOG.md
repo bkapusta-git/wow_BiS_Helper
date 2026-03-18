@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1] — 2026-03-18
+
+### Changed
+- Custom addon icon (TGA) replaces placeholder Achievement_Zone_Silvermoon on minimap button, addon list, and Addon Compartment
+- Filter button to hide BiS-complete rows (toggle show/hide slots already matching BiS)
+- Main frame strata raised to prevent overlap issues
+
 ## [0.2.0] — 2026-03-18
 
 ### Added
