@@ -61,7 +61,7 @@ local P = {
 
 local WHITE_TEX = "Interface/Buttons/WHITE8X8"
 local ROW_H     = 30
-local HEADER_H  = 112
+local HEADER_H  = 130
 
 -- Gear track colours (highest → lowest)
 local TRACK_COLOR = {
@@ -72,6 +72,38 @@ local TRACK_COLOR = {
     ["Adventurer"] = "|cffaaaaaa",
     ["Explorer"]   = "|cff888888",
 }
+
+-- Mapping: DR cap stat name keywords → WoW combat rating IDs
+-- Used to read player's current rating via GetCombatRating()
+local DR_STAT_CR = {
+    ["haste"]            = 18,  -- CR_HASTE_MELEE
+    ["crit"]             = 11,  -- CR_CRIT_SPELL
+    ["critical strike"]  = 11,
+    ["mastery"]          = 26,  -- CR_MASTERY
+    ["versatility"]      = 29,  -- CR_VERSATILITY_DAMAGE_DONE
+    ["vers"]             = 29,
+}
+
+-- Splits compound DR names like "Crit / Mastery" into individual stat entries
+local function ExpandDREntry(d)
+    local parts = { strsplit("/", d.name) }
+    if #parts == 1 then
+        local key = strtrim(d.name):lower()
+        local crId = DR_STAT_CR[key]
+        if crId then
+            return {{ name = d.name, rating = d.rating, r = d.r, g = d.g, b = d.b, crId = crId }}
+        end
+        return {{ name = d.name, rating = d.rating, r = d.r, g = d.g, b = d.b }}
+    end
+    local out = {}
+    for _, part in ipairs(parts) do
+        local trimmed = strtrim(part)
+        local key = trimmed:lower()
+        local crId = DR_STAT_CR[key]
+        out[#out + 1] = { name = trimmed, rating = d.rating, r = d.r, g = d.g, b = d.b, crId = crId }
+    end
+    return out
+end
 
 -- Hidden tooltip used to scan item data (track, etc.)
 local scanTooltip = CreateFrame("GameTooltip", "BiSHelperScanTooltip", nil, "GameTooltipTemplate")
@@ -370,7 +402,7 @@ end
 
 local function CreateEditFrame()
     local ef = CreateFrame("Frame", "BiSHelperEditFrame", UIParent, "BackdropTemplate")
-    ef:SetSize(340, 460)
+    ef:SetSize(340, 476)
     ef:SetPoint("CENTER")
     ef:SetMovable(true)
     ef:SetClampedToScreen(true)
@@ -456,10 +488,17 @@ local function CreateEditFrame()
     inputBox:SetScript("OnEnterPressed", TryAdd)
     addBtn:SetScript("OnClick", TryAdd)
 
-    -- Slot picker (y: -66 to -92, hidden by default)
+    -- Help hint below input
+    local hintText = ef:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    hintText:SetPoint("TOPLEFT", ef, "TOPLEFT", 10, -68)
+    hintText:SetPoint("RIGHT", ef, "RIGHT", -10, 0)
+    hintText:SetJustifyH("LEFT")
+    hintText:SetText(P.tDim .. "Find Item ID on Wowhead: wowhead.com/item/123456 — the number is the ID.|r")
+
+    -- Slot picker (y: -82 to -108, hidden by default)
     local picker = CreateFrame("Frame", nil, ef)
-    picker:SetPoint("TOPLEFT",  ef, "TOPLEFT",  8, -66)
-    picker:SetPoint("TOPRIGHT", ef, "TOPRIGHT", -8, -66)
+    picker:SetPoint("TOPLEFT",  ef, "TOPLEFT",  8, -82)
+    picker:SetPoint("TOPRIGHT", ef, "TOPRIGHT", -8, -82)
     picker:SetHeight(26)
     picker:Hide()
     ef.slotPicker = picker
@@ -493,14 +532,14 @@ local function CreateEditFrame()
         ef.pickerBtns[i] = pb
     end
 
-    -- Separator before list (y: -96)
+    -- Separator before list (y: -112)
     local listSep = GoldLine(ef, 1)
-    listSep:SetPoint("TOPLEFT",  ef, "TOPLEFT",  2, -96)
-    listSep:SetPoint("TOPRIGHT", ef, "TOPRIGHT", -2, -96)
+    listSep:SetPoint("TOPLEFT",  ef, "TOPLEFT",  2, -112)
+    listSep:SetPoint("TOPRIGHT", ef, "TOPRIGHT", -2, -112)
 
     -- Override list scroll
     local scrollFrame = CreateFrame("ScrollFrame", nil, ef, "UIPanelScrollFrameTemplate")
-    scrollFrame:SetPoint("TOPLEFT",     ef, "TOPLEFT",    4, -100)
+    scrollFrame:SetPoint("TOPLEFT",     ef, "TOPLEFT",    4, -116)
     scrollFrame:SetPoint("BOTTOMRIGHT", ef, "BOTTOMRIGHT", -26, 32)
 
     local overrideContent = CreateFrame("Frame", nil, scrollFrame)
@@ -1021,7 +1060,7 @@ local function CreateMainFrame()
     frame.statBarContainer = CreateFrame("Frame", nil, frame)
     frame.statBarContainer:SetPoint("TOPLEFT",  frame, "TOPLEFT",  14, -60)
     frame.statBarContainer:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -14, -60)
-    frame.statBarContainer:SetHeight(48)
+    frame.statBarContainer:SetHeight(66)
 
     local closeBtn = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
     closeBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -2, -2)
@@ -1196,7 +1235,7 @@ local function CreateMainFrame()
     local SCROLL_TOP = HEADER_H + 24
     local scrollFrame = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
     scrollFrame:SetPoint("TOPLEFT",     frame, "TOPLEFT",    2, -SCROLL_TOP)
-    scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -26, 16)
+    scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -26, 28)
 
     local content = CreateFrame("Frame", nil, scrollFrame)
     content:SetHeight(#SLOTS * ROW_H)
@@ -1380,6 +1419,31 @@ local function CreateMainFrame()
         frame.rows[i] = row
     end
 
+    -- Footer: BiS progress bar + counter
+    local footer = CreateFrame("Frame", nil, frame)
+    footer:SetPoint("BOTTOMLEFT",  frame, "BOTTOMLEFT",  6, 4)
+    footer:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -6, 4)
+    footer:SetHeight(18)
+
+    local footerTrack = footer:CreateTexture(nil, "BACKGROUND")
+    footerTrack:SetAllPoints()
+    footerTrack:SetColorTexture(0.06, 0.02, 0.14, 0.90)
+
+    local footerFill = footer:CreateTexture(nil, "ARTWORK")
+    footerFill:SetPoint("TOPLEFT")
+    footerFill:SetPoint("BOTTOMLEFT")
+    footerFill:SetWidth(1)
+    footerFill:SetColorTexture(P.neonGreen[1], P.neonGreen[2], P.neonGreen[3], 0.45)
+
+    local footerLabel = footer:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    footerLabel:SetAllPoints()
+    footerLabel:SetJustifyH("CENTER")
+    footerLabel:SetJustifyV("MIDDLE")
+
+    frame.footerBar   = footer
+    frame.footerFill  = footerFill
+    frame.footerLabel = footerLabel
+
     return frame
 end
 
@@ -1418,12 +1482,8 @@ local function RebuildStatBars()
         fn:SetJustifyH("LEFT")
         BiSHelperFrame.statNoteText = fn
     end
-    if not BiSHelperFrame.statDRText then
-        local fd = container:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        fd:SetPoint("TOPRIGHT", container, "TOPRIGHT", 0, 0)
-        fd:SetWidth(200)
-        fd:SetJustifyH("RIGHT")
-        BiSHelperFrame.statDRText = fd
+    if not BiSHelperFrame.drBarPool then
+        BiSHelperFrame.drBarPool = {}
     end
     if not BiSHelperFrame.statSourceLabel then
         local src = container:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -1436,7 +1496,7 @@ local function RebuildStatBars()
     if not sp then
         BiSHelperFrame.statPriorityText:SetText("")
         BiSHelperFrame.statNoteText:SetText("")
-        BiSHelperFrame.statDRText:SetText("")
+        for _, bar in ipairs(BiSHelperFrame.drBarPool) do bar:Hide() end
         return
     end
 
@@ -1450,16 +1510,80 @@ local function RebuildStatBars()
     BiSHelperFrame.statPriorityText:SetText(table.concat(parts))
     BiSHelperFrame.statNoteText:SetText(P.tDim .. (current.note or "") .. "|r")
 
+    -- Hide all existing DR bars first
+    for _, bar in ipairs(BiSHelperFrame.drBarPool) do bar:Hide() end
+
     if sp.dr then
-        local drParts = { P.tDim .. "DR: |r" }
-        for i, d in ipairs(sp.dr) do
-            local hex = string.format("|cff%02x%02x%02x", math.floor(d.r * 255), math.floor(d.g * 255), math.floor(d.b * 255))
-            drParts[#drParts + 1] = hex .. d.name .. " " .. d.rating .. "|r"
-            if i < #sp.dr then drParts[#drParts + 1] = P.tDim .. "  |r" end
+        -- Expand compound entries (e.g. "Crit / Mastery") into individual bars
+        local expanded = {}
+        for _, d in ipairs(sp.dr) do
+            local entries = ExpandDREntry(d)
+            for _, e in ipairs(entries) do expanded[#expanded + 1] = e end
         end
-        BiSHelperFrame.statDRText:SetText(table.concat(drParts))
-    else
-        BiSHelperFrame.statDRText:SetText("")
+
+        local BAR_H    = 12
+        local barCount = #expanded
+        if barCount == 0 then return end
+        -- Calculate total width and per-bar width (horizontal layout)
+        local totalW   = container:GetWidth()
+        if not totalW or totalW < 100 then totalW = 500 end
+        local barGapH  = 6
+        local barW     = math.max((totalW - (barCount - 1) * barGapH) / barCount, 40)
+
+        for i, d in ipairs(expanded) do
+            local bar = BiSHelperFrame.drBarPool[i]
+            if not bar then
+                bar = CreateFrame("Frame", nil, container, "BackdropTemplate")
+                bar.track = bar:CreateTexture(nil, "BACKGROUND")
+                bar.track:SetAllPoints()
+                bar.track:SetColorTexture(0.08, 0.04, 0.16, 0.90)
+                bar.fill = bar:CreateTexture(nil, "ARTWORK")
+                bar.fill:SetPoint("TOPLEFT")
+                bar.fill:SetPoint("BOTTOMLEFT")
+                bar.label = bar:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+                bar.label:SetAllPoints()
+                bar.label:SetJustifyH("CENTER")
+                bar.label:SetJustifyV("MIDDLE")
+                bar:EnableMouse(true)
+                bar:SetScript("OnEnter", function(self)
+                    if self.tooltipText then
+                        GameTooltip:SetOwner(self, "ANCHOR_TOP")
+                        GameTooltip:AddLine(self.tooltipText)
+                        GameTooltip:Show()
+                    end
+                end)
+                bar:SetScript("OnLeave", function() GameTooltip:Hide() end)
+                BiSHelperFrame.drBarPool[i] = bar
+            end
+
+            -- Position: horizontal row below stat note
+            bar:ClearAllPoints()
+            bar:SetSize(barW, BAR_H)
+            local xOff = (i - 1) * (barW + barGapH)
+            bar:SetPoint("BOTTOMLEFT", container, "BOTTOMLEFT", xOff, 14)
+
+            -- Get current player rating
+            local playerRating = 0
+            if d.crId then
+                playerRating = math.floor((GetCombatRating(d.crId) or 0) + 0.5)
+            end
+            local ratio = (d.rating and d.rating > 0) and math.min(playerRating / d.rating, 1.0) or 0
+
+            -- Fill bar
+            bar.fill:SetWidth(math.max(barW * ratio, 1))
+            local alpha = 0.70
+            if ratio >= 1.0 then alpha = 0.95 end
+            bar.fill:SetColorTexture(d.r, d.g, d.b, alpha)
+
+            -- Label: "Haste: 1180/1320"
+            local hex = string.format("|cff%02x%02x%02x", math.floor(d.r * 255), math.floor(d.g * 255), math.floor(d.b * 255))
+            local pct = math.floor(ratio * 100)
+            bar.label:SetText(hex .. d.name .. ": " .. playerRating .. "/" .. d.rating .. "|r")
+            bar.tooltipText = hex .. d.name .. "|r — " .. playerRating .. " / " .. d.rating .. " (" .. pct .. "%)"
+                .. (ratio >= 1.0 and "  |cff00f280CAPPED|r" or "")
+
+            bar:Show()
+        end
     end
 end
 
@@ -1588,6 +1712,46 @@ function BiSHelper_Refresh()
     end
     if BiSHelperFrame.modeButtons then for _, b in ipairs(BiSHelperFrame.modeButtons) do b.updateLook() end end
     for i, slot in ipairs(SLOTS) do UpdateRow(i, slot.id) end
+
+    -- Update footer BiS progress bar
+    local bisList = GetActiveBiSList()
+    local bisCount, totalCount = 0, 0
+    if bisList then
+        for _, slot in ipairs(SLOTS) do
+            if bisList[slot.id] then
+                totalCount = totalCount + 1
+                local link = GetInventoryItemLink("player", slot.id)
+                local equippedID = link and GetItemIDFromLink(link)
+                if equippedID == bisList[slot.id].itemID then
+                    bisCount = bisCount + 1
+                end
+            end
+        end
+    end
+    if BiSHelperFrame.footerBar then
+        if totalCount > 0 then
+            local ratio = bisCount / totalCount
+            local fw = BiSHelperFrame.footerBar:GetWidth()
+            if not fw or fw < 10 then fw = 400 end
+            BiSHelperFrame.footerFill:SetWidth(math.max(fw * ratio, 1))
+            local pct = math.floor(ratio * 100)
+            if ratio >= 1.0 then
+                BiSHelperFrame.footerLabel:SetText(P.tBiS .. "Full BiS! " .. bisCount .. "/" .. totalCount .. " ✓|r")
+                BiSHelperFrame.footerFill:SetColorTexture(P.neonGreen[1], P.neonGreen[2], P.neonGreen[3], 0.50)
+            else
+                BiSHelperFrame.footerLabel:SetText(P.tGold .. bisCount .. "/" .. totalCount .. " BiS|r  " .. P.tDim .. "(" .. pct .. "%)|r")
+                -- Blend color: low = red-ish, high = green-ish
+                local r = 1.0 - ratio * 0.8
+                local g = 0.25 + ratio * 0.70
+                BiSHelperFrame.footerFill:SetColorTexture(r, g, 0.30, 0.45)
+            end
+            BiSHelperFrame.footerBar:Show()
+        else
+            BiSHelperFrame.footerLabel:SetText(P.tDim .. "No BiS data|r")
+            BiSHelperFrame.footerFill:SetWidth(1)
+            BiSHelperFrame.footerBar:Show()
+        end
+    end
 end
 
 -- ============================================================
