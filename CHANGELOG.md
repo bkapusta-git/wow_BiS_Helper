@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0] — 2026-03-18
+
+### Added
+- DR caps progress bars — visual bars showing your current stat rating vs diminishing returns cap for each stat (Haste, Crit, Mastery, Versatility) with color fill and hover tooltip
+- BiS progress footer — counter at the bottom of the main window showing how many slots match BiS (e.g. "9/16 BiS (56%)") with color gradient progress bar
+- Item ID help hint in Edit panel explaining where to find Item IDs on Wowhead
+
 ## [0.1.0] — 2026-03-15
 
 ### Added

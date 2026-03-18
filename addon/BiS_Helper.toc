@@ -2,7 +2,7 @@
 ## Title: BiS Helper
 ## Notes: Best in Slot gear checker - compares your equipment to class BiS lists
 ## Author: TrefnyTrunek
-## Version: 0.1.0
+## Version: 0.2.0
 ## SavedVariables: BiSHelperDB
 ## IconTexture: 236922
 ## AddonCompartmentFunc: BiSHelper_OnAddonCompartmentClick
