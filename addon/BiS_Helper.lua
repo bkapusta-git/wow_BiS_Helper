@@ -1854,7 +1854,7 @@ local function CreateMinimapButton()
     local icon = minimapButton:CreateTexture(nil, "ARTWORK")
     icon:SetSize(20, 20)
     icon:SetPoint("CENTER", minimapButton, "CENTER", 0, 1)
-    icon:SetTexture("Interface\\Icons\\Achievement_Zone_Silvermoon")
+    icon:SetTexture("Interface\\AddOns\\BiS_Helper\\icon")
     icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
 
     minimapButton:SetScript("OnClick", function(_, button)
