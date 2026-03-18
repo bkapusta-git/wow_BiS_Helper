@@ -406,7 +406,7 @@ local function CreateEditFrame()
     ef:SetPoint("CENTER")
     ef:SetMovable(true)
     ef:SetClampedToScreen(true)
-    ef:SetFrameStrata("HIGH")
+    ef:SetFrameStrata("DIALOG")
     ef:EnableMouse(true)
     ef:RegisterForDrag("LeftButton")
     ef:SetScript("OnDragStart", ef.StartMoving)
@@ -713,7 +713,7 @@ local function CreateStatsFrame()
     sf:SetPoint("CENTER")
     sf:SetMovable(true)
     sf:SetClampedToScreen(true)
-    sf:SetFrameStrata("HIGH")
+    sf:SetFrameStrata("DIALOG")
     sf:EnableMouse(true)
     sf:RegisterForDrag("LeftButton")
     sf:SetScript("OnDragStart", sf.StartMoving)
@@ -924,7 +924,7 @@ local function CreateHelpFrame()
     hf:SetPoint("CENTER")
     hf:SetMovable(true)
     hf:SetClampedToScreen(true)
-    hf:SetFrameStrata("HIGH")
+    hf:SetFrameStrata("DIALOG")
     hf:EnableMouse(true)
     hf:RegisterForDrag("LeftButton")
     hf:SetScript("OnDragStart", hf.StartMoving)
@@ -985,6 +985,30 @@ function BiSHelper_OpenHelpPanel()
 end
 
 -- ============================================================
+-- Row filter (hide BiS-complete rows)
+-- ============================================================
+local function ApplyRowFilter()
+    if not BiSHelperFrame or not BiSHelperFrame.rows then return end
+    local filterActive = BiSHelperDB and BiSHelperDB.filterMissing
+    local visiblePos = 0
+    for _, row in ipairs(BiSHelperFrame.rows) do
+        if filterActive and row.lastStatus == "bis" then
+            row:Hide()
+        else
+            row:Show()
+            row:ClearAllPoints()
+            row:SetPoint("TOPLEFT",  BiSHelperFrame.scrollContent, "TOPLEFT",  0, -visiblePos * ROW_H)
+            row:SetPoint("TOPRIGHT", BiSHelperFrame.scrollContent, "TOPRIGHT", 0, -visiblePos * ROW_H)
+            visiblePos = visiblePos + 1
+        end
+    end
+    BiSHelperFrame.scrollContent:SetHeight(math.max(visiblePos, 1) * ROW_H)
+    if BiSHelperFrame.filterBtn then
+        BiSHelperFrame.filterBtn.updateLook()
+    end
+end
+
+-- ============================================================
 -- Main window
 -- ============================================================
 local function CreateMainFrame()
@@ -1007,7 +1031,7 @@ local function CreateMainFrame()
         BiSHelperDB.point, _, BiSHelperDB.relPoint, BiSHelperDB.x, BiSHelperDB.y = self:GetPoint()
     end)
     frame:SetClampedToScreen(true)
-    frame:SetFrameStrata("MEDIUM")
+    frame:SetFrameStrata("HIGH")
     frame:Hide()
 
     local resizer = CreateFrame("Button", nil, frame)
@@ -1197,6 +1221,46 @@ local function CreateMainFrame()
     end)
     helpBtn:SetScript("OnClick", function() BiSHelper_OpenHelpPanel() end)
 
+    local filterBtn = CreateFrame("Button", nil, frame, "BackdropTemplate")
+    filterBtn:SetSize(50, 22)
+    filterBtn:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, -4)
+    filterBtn:SetBackdrop({
+        bgFile   = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+        insets   = { left=1, right=1, top=1, bottom=1 },
+    })
+    local filterBtnLbl = filterBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    filterBtnLbl:SetAllPoints()
+    filterBtnLbl:SetJustifyH("CENTER")
+    local function UpdateFilterLook()
+        if BiSHelperDB and BiSHelperDB.filterMissing then
+            filterBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
+            filterBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], 1.0)
+            filterBtnLbl:SetText(P.tGold .. "Filter|r")
+        else
+            filterBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+            filterBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+            filterBtnLbl:SetText(P.tDim .. "Filter|r")
+        end
+    end
+    filterBtn.updateLook = UpdateFilterLook
+    UpdateFilterLook()
+    filterBtn:SetScript("OnEnter", function(self)
+        filterBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
+        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+        GameTooltip:SetText("Show only slots missing BiS item")
+        GameTooltip:Show()
+    end)
+    filterBtn:SetScript("OnLeave", function()
+        UpdateFilterLook()
+        GameTooltip:Hide()
+    end)
+    filterBtn:SetScript("OnClick", function()
+        BiSHelperDB.filterMissing = not BiSHelperDB.filterMissing
+        UpdateFilterLook()
+        ApplyRowFilter()
+    end)
+    frame.filterBtn = filterBtn
+
     local COL_Y = -(HEADER_H + 6)
     local function ColHeader(text, x, w, align, rightAnchor)
         local fs = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -1241,6 +1305,7 @@ local function CreateMainFrame()
     content:SetHeight(#SLOTS * ROW_H)
     scrollFrame:SetScrollChild(content)
     scrollFrame:SetScript("OnSizeChanged", function(self, w) content:SetWidth(w) end)
+    frame.scrollContent = content
 
     frame.rows = {}
     for i, slot in ipairs(SLOTS) do
@@ -1590,6 +1655,7 @@ end
 local pendingItems = {}
 
 local function SetRowVisualStatus(row, status)
+    row.lastStatus = status
     local c
     if     status == "bis"     then c = P.neonGreen
     elseif status == "missing" then c = P.neonRed
@@ -1752,6 +1818,7 @@ function BiSHelper_Refresh()
             BiSHelperFrame.footerBar:Show()
         end
     end
+    ApplyRowFilter()
 end
 
 -- ============================================================
@@ -1869,8 +1936,9 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
         local name = ...
         if name == ADDON_NAME then
             BiSHelperDB = BiSHelperDB or {}
-            BiSHelperDB.overrides     = BiSHelperDB.overrides     or {}
-            BiSHelperDB.statOverrides = BiSHelperDB.statOverrides or {}
+            BiSHelperDB.overrides      = BiSHelperDB.overrides     or {}
+            BiSHelperDB.statOverrides  = BiSHelperDB.statOverrides or {}
+            if BiSHelperDB.filterMissing == nil then BiSHelperDB.filterMissing = false end
             activeMode  = BiSHelperDB.mode or "mythicplus"
             BiSHelperFrame = CreateMainFrame()
             CreateMinimapButton()
