@@ -1183,9 +1183,17 @@ local HELP_TEXT = [[|cff]] .. "f5d258" .. [[BiS Helper|r compares your equipped 
 
 |cff]] .. "f5d258" .. [[BUTTONS|r
   Refresh     re-read your gear from the server
+  Share       export or import your BiS profile
   Edit        override the BiS item for any slot
   Stats       edit stat priority order and DR caps
+  Filter      hide slots already matching BiS
   Raid / M+   switch between Raid and Mythic+ lists
+
+|cff]] .. "f5d258" .. [[SHARE / EXPORT / IMPORT|r
+  Click Share to export your BiS profile as an encoded string.
+  Copy it and share via Discord, forums, or save as backup.
+  To import: switch to the Import tab, paste the string,
+  and click Import Profile.
 
 |cff]] .. "f5d258" .. [[SLASH COMMAND|r
   /bis        toggle this window]]
