@@ -196,6 +196,48 @@ local function GoldLine(parent, thickness)
     return t
 end
 
+-- ============================================================
+-- Base64 encode / decode
+-- ============================================================
+local B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+local function Base64Encode(data)
+    local out = {}
+    local pad = #data % 3
+    data = data .. string.rep("\0", (3 - pad) % 3)
+    for i = 1, #data, 3 do
+        local b1, b2, b3 = data:byte(i, i + 2)
+        local n = b1 * 65536 + b2 * 256 + b3
+        out[#out + 1] = B64:sub(math.floor(n / 262144) % 64 + 1, math.floor(n / 262144) % 64 + 1)
+        out[#out + 1] = B64:sub(math.floor(n / 4096)   % 64 + 1, math.floor(n / 4096)   % 64 + 1)
+        out[#out + 1] = B64:sub(math.floor(n / 64)     % 64 + 1, math.floor(n / 64)     % 64 + 1)
+        out[#out + 1] = B64:sub(n                       % 64 + 1, n                       % 64 + 1)
+    end
+    if pad == 1 then out[#out] = "="; out[#out - 1] = "=" end
+    if pad == 2 then out[#out] = "=" end
+    return table.concat(out)
+end
+
+local B64_REV = {}
+for i = 1, 64 do B64_REV[B64:byte(i)] = i - 1 end
+
+local function Base64Decode(data)
+    data = data:gsub("[^A-Za-z0-9+/=]", "")
+    local out = {}
+    for i = 1, #data, 4 do
+        local c1, c2, c3, c4 = data:byte(i, i + 3)
+        local n1 = B64_REV[c1] or 0
+        local n2 = B64_REV[c2] or 0
+        local n3 = B64_REV[c3] or 0
+        local n4 = B64_REV[c4] or 0
+        local n = n1 * 262144 + n2 * 4096 + n3 * 64 + n4
+        out[#out + 1] = string.char(math.floor(n / 65536) % 256)
+        if data:sub(i + 2, i + 2) ~= "=" then out[#out + 1] = string.char(math.floor(n / 256) % 256) end
+        if data:sub(i + 3, i + 3) ~= "=" then out[#out + 1] = string.char(n % 256) end
+    end
+    return table.concat(out)
+end
+
 local activeMode = "mythicplus"
 local pendingOverrideNames = {}  -- [itemID] = {specKey, mode, slotId}
 
