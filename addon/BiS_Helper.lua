@@ -1257,6 +1257,295 @@ function BiSHelper_OpenHelpPanel()
 end
 
 -- ============================================================
+-- Share panel (export / import)
+-- ============================================================
+local function CreateShareFrame()
+    local sf = CreateFrame("Frame", "BiSHelperShareFrame", UIParent, "BackdropTemplate")
+    sf:SetSize(400, 340)
+    sf:SetPoint("CENTER")
+    sf:SetMovable(true)
+    sf:SetClampedToScreen(true)
+    sf:SetFrameStrata("DIALOG")
+    sf:EnableMouse(true)
+    sf:RegisterForDrag("LeftButton")
+    sf:SetScript("OnDragStart", sf.StartMoving)
+    sf:SetScript("OnDragStop",  sf.StopMovingOrSizing)
+    sf:Hide()
+
+    sf:SetBackdrop({
+        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+        insets = { left=1, right=1, top=1, bottom=1 },
+    })
+    sf:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
+    sf:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+
+    -- Header (36px)
+    local hdrBg = Rect(sf, "BACKGROUND", 2, P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], P.bgHeader[4])
+    hdrBg:SetPoint("TOPLEFT",  sf, "TOPLEFT",  1, -1)
+    hdrBg:SetPoint("TOPRIGHT", sf, "TOPRIGHT", -1, -1)
+    hdrBg:SetHeight(36)
+    local hdrSep = GoldLine(sf, 1)
+    hdrSep:SetPoint("TOPLEFT",  sf, "TOPLEFT",  2, -36)
+    hdrSep:SetPoint("TOPRIGHT", sf, "TOPRIGHT", -2, -36)
+
+    sf.titleText = sf:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    sf.titleText:SetPoint("TOPLEFT", sf, "TOPLEFT", 10, -10)
+    sf.titleText:SetText(P.tGold .. "Share BiS Profile|r")
+
+    local closeBtn = CreateFrame("Button", nil, sf, "UIPanelCloseButton")
+    closeBtn:SetPoint("TOPRIGHT", sf, "TOPRIGHT", -2, -2)
+    closeBtn:SetScript("OnClick", function() sf:Hide() end)
+
+    -- Tab state
+    local activeTab = "export"
+
+    -- Tab buttons (y: -44)
+    local function TabButton(label, tabKey, anchor, anchorPoint, offsetX)
+        local btn = CreateFrame("Button", nil, sf, "BackdropTemplate")
+        btn:SetSize(80, 22)
+        if anchor then
+            btn:SetPoint("LEFT", anchor, anchorPoint or "RIGHT", offsetX or 6, 0)
+        else
+            btn:SetPoint("TOPLEFT", sf, "TOPLEFT", 10, -44)
+        end
+        btn:SetBackdrop({
+            bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+            insets = { left=1, right=1, top=1, bottom=1 },
+        })
+        local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        lbl:SetAllPoints()
+        lbl:SetJustifyH("CENTER")
+        btn.label = label
+        btn.tabKey = tabKey
+        function btn:UpdateLook()
+            if activeTab == tabKey then
+                self:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
+                self:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], 1.0)
+                lbl:SetText(P.tGold .. label .. "|r")
+            else
+                self:SetBackdropColor(0.06, 0.02, 0.14, 0.90)
+                self:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 0.6)
+                lbl:SetText(P.tDim .. label .. "|r")
+            end
+        end
+        return btn
+    end
+
+    local exportTab = TabButton("Export", "export")
+    local importTab = TabButton("Import", "import", exportTab, "RIGHT", 4)
+    sf.tabs = { exportTab, importTab }
+
+    -- EditBox (multiline, scrollable) — y: -74 to bottom-70
+    local editScroll = CreateFrame("ScrollFrame", "BiSHelperShareScroll", sf, "UIPanelScrollFrameTemplate")
+    editScroll:SetPoint("TOPLEFT",  sf, "TOPLEFT",  12, -74)
+    editScroll:SetPoint("BOTTOMRIGHT", sf, "BOTTOMRIGHT", -30, 70)
+
+    local editBox = CreateFrame("EditBox", "BiSHelperShareEditBox", editScroll)
+    editBox:SetMultiLine(true)
+    editBox:SetFontObject("ChatFontNormal")
+    editBox:SetWidth(354)  -- explicit width; OnSizeChanged will correct after layout
+    editBox:SetAutoFocus(false)
+    editBox:SetMaxLetters(0)
+    editBox:SetTextInsets(4, 4, 4, 4)
+    editBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
+    editScroll:SetScrollChild(editBox)
+    editScroll:SetScript("OnSizeChanged", function(self, w) editBox:SetWidth(w - 4) end)
+    sf.editBox = editBox
+
+    -- EditBox background
+    local editBg = Rect(sf, "BACKGROUND", 1, 0.06, 0.02, 0.14, 1.00)
+    editBg:SetPoint("TOPLEFT",  editScroll, "TOPLEFT",  -4, 4)
+    editBg:SetPoint("BOTTOMRIGHT", editScroll, "BOTTOMRIGHT", 20, -4)
+    local editBorder = CreateFrame("Frame", nil, sf, "BackdropTemplate")
+    editBorder:SetPoint("TOPLEFT",  editBg, "TOPLEFT",  -1, 1)
+    editBorder:SetPoint("BOTTOMRIGHT", editBg, "BOTTOMRIGHT", 1, -1)
+    editBorder:SetBackdrop({
+        edgeFile = WHITE_TEX, edgeSize = 1,
+        insets = { left=1, right=1, top=1, bottom=1 },
+    })
+    editBorder:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 1)
+
+    -- Action button (bottom area)
+    local actionBtn = CreateFrame("Button", nil, sf, "BackdropTemplate")
+    actionBtn:SetSize(120, 24)
+    actionBtn:SetPoint("BOTTOMLEFT", sf, "BOTTOMLEFT", 12, 36)
+    actionBtn:SetBackdrop({
+        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+        insets = { left=1, right=1, top=1, bottom=1 },
+    })
+    actionBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+    actionBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    local actionBtnLbl = actionBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    actionBtnLbl:SetAllPoints()
+    actionBtnLbl:SetJustifyH("CENTER")
+    actionBtn:SetScript("OnEnter", function() actionBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95) end)
+    actionBtn:SetScript("OnLeave", function() actionBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4]) end)
+    sf.actionBtn = actionBtn
+    sf.actionBtnLbl = actionBtnLbl
+
+    -- Status line
+    local statusText = sf:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    statusText:SetPoint("BOTTOMLEFT", sf, "BOTTOMLEFT", 12, 14)
+    statusText:SetPoint("RIGHT", sf, "RIGHT", -12, 0)
+    statusText:SetJustifyH("LEFT")
+    statusText:SetText("")
+    sf.statusText = statusText
+
+    -- === Tab switching logic ===
+
+    local function ShowExportTab()
+        activeTab = "export"
+        for _, tab in ipairs(sf.tabs) do tab:UpdateLook() end
+
+        editBox:SetText("")
+        editBox:EnableKeyboard(false)
+        actionBtnLbl:SetText(P.tGold .. "Select All|r")
+        statusText:SetText("")
+
+        -- Generate export string
+        local profile = BuildExportProfile()
+        if profile then
+            local encoded = EncodeProfile(profile)
+            editBox:SetText(encoded)
+            editBox:SetFocus()
+            editBox:HighlightText()
+            local specData = GetSpecData()
+            local specLabel = specData and specData.label or profile.key
+            statusText:SetText(P.tDim .. "Profile exported for " .. specLabel .. " (both modes)|r")
+        else
+            editBox:SetText("")
+            statusText:SetText(P.tMissing .. "No overrides to export for current spec|r")
+        end
+    end
+    sf.ShowExportTab = ShowExportTab
+
+    local function ShowImportTab()
+        activeTab = "import"
+        for _, tab in ipairs(sf.tabs) do tab:UpdateLook() end
+
+        editBox:SetText("")
+        editBox:EnableKeyboard(true)
+        editBox:EnableMouse(true)
+        actionBtnLbl:SetText(P.tGold .. "Import Profile|r")
+        statusText:SetText(P.tDim .. "Paste an encoded profile string above|r")
+    end
+
+    local function DoImport(profileData)
+        local specKey = profileData.key
+        -- Apply item overrides
+        BiSHelperDB.overrides = BiSHelperDB.overrides or {}
+        if profileData.overrides then
+            BiSHelperDB.overrides[specKey] = BiSHelperDB.overrides[specKey] or {}
+            if profileData.overrides.raid then
+                BiSHelperDB.overrides[specKey].raid = profileData.overrides.raid
+            end
+            if profileData.overrides.mythicplus then
+                BiSHelperDB.overrides[specKey].mythicplus = profileData.overrides.mythicplus
+            end
+        end
+        -- Apply stat overrides
+        BiSHelperDB.statOverrides = BiSHelperDB.statOverrides or {}
+        if profileData.statOverrides then
+            BiSHelperDB.statOverrides[specKey] = BiSHelperDB.statOverrides[specKey] or {}
+            if profileData.statOverrides.raid then
+                BiSHelperDB.statOverrides[specKey].raid = profileData.statOverrides.raid
+            end
+            if profileData.statOverrides.mythicplus then
+                BiSHelperDB.statOverrides[specKey].mythicplus = profileData.statOverrides.mythicplus
+            end
+            if profileData.statOverrides.dr then
+                BiSHelperDB.statOverrides[specKey].dr = profileData.statOverrides.dr
+            end
+        end
+        -- Count what was imported
+        local counts = {}
+        if profileData.overrides then
+            local n = 0
+            for mode, slots in pairs(profileData.overrides) do
+                for _ in pairs(slots) do n = n + 1 end
+            end
+            if n > 0 then counts[#counts + 1] = n .. " item override" .. (n > 1 and "s" or "") end
+        end
+        if profileData.statOverrides then
+            if profileData.statOverrides.raid or profileData.statOverrides.mythicplus then
+                counts[#counts + 1] = "stat priority"
+            end
+            if profileData.statOverrides.dr then
+                counts[#counts + 1] = "DR caps"
+            end
+        end
+        BiSHelper_Refresh()
+        statusText:SetText(P.tBiS .. "Imported: " .. table.concat(counts, " + ") .. "|r")
+    end
+
+    local function TryImport()
+        local raw = strtrim(editBox:GetText())
+        if raw == "" then
+            statusText:SetText(P.tMissing .. "Paste a profile string first|r")
+            return
+        end
+        local profileData, err = DecodeProfile(raw)
+        if not profileData then
+            statusText:SetText(P.tMissing .. err .. "|r")
+            return
+        end
+        local currentKey = GetCurrentDataKey()
+        local specKey = profileData.key
+
+        local function ConfirmAndImport()
+            StaticPopupDialogs["BISHELPER_IMPORT_CONFIRM"].OnAccept = function()
+                DoImport(profileData)
+            end
+            StaticPopup_Show("BISHELPER_IMPORT_CONFIRM", specKey)
+        end
+
+        if currentKey and specKey ~= currentKey then
+            StaticPopupDialogs["BISHELPER_IMPORT_SPECWARN"].OnAccept = function()
+                ConfirmAndImport()
+            end
+            StaticPopup_Show("BISHELPER_IMPORT_SPECWARN", specKey, currentKey)
+        else
+            ConfirmAndImport()
+        end
+    end
+
+    -- Tab click handlers
+    exportTab:SetScript("OnClick", ShowExportTab)
+    importTab:SetScript("OnClick", ShowImportTab)
+
+    -- Action button click
+    actionBtn:SetScript("OnClick", function()
+        if activeTab == "export" then
+            editBox:HighlightText()
+            editBox:SetFocus()
+        else
+            TryImport()
+        end
+    end)
+
+    -- ESC to close
+    tinsert(UISpecialFrames, "BiSHelperShareFrame")
+
+    -- Initialize to export tab
+    ShowExportTab()
+
+    return sf
+end
+
+function BiSHelper_OpenSharePanel()
+    if not BiSHelperShareFrame then
+        BiSHelperShareFrame = CreateShareFrame()
+    end
+    if BiSHelperShareFrame:IsShown() then
+        BiSHelperShareFrame:Hide()
+    else
+        BiSHelperShareFrame:Show()
+        -- Re-trigger export tab to refresh data
+        BiSHelperShareFrame.ShowExportTab()
+    end
+end
+
+-- ============================================================
 -- Row filter (hide BiS-complete rows)
 -- ============================================================
 local function ApplyRowFilter()
