@@ -2196,6 +2196,31 @@ function BiSHelper_OnAddonCompartmentLeave()
     GameTooltip:Hide()
 end
 
+-- ============================================================
+-- Import confirmation dialogs
+-- ============================================================
+StaticPopupDialogs["BISHELPER_IMPORT_SPECWARN"] = {
+    text = "This profile is for %s but you are %s.\n\nImport anyway?",
+    button1 = "Yes",
+    button2 = "No",
+    OnAccept = function() end,  -- replaced at runtime
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+    preferredIndex = 3,
+}
+
+StaticPopupDialogs["BISHELPER_IMPORT_CONFIRM"] = {
+    text = "This will overwrite your current overrides for %s.\n\nContinue?",
+    button1 = "Import",
+    button2 = "Cancel",
+    OnAccept = function() end,  -- replaced at runtime
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+    preferredIndex = 3,
+}
+
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:RegisterEvent("PLAYER_LOGIN")
