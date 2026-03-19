@@ -1706,9 +1706,34 @@ local function CreateMainFrame()
     btnGroupSep:SetSize(1, 16)
     btnGroupSep:SetPoint("CENTER", btnMplus, "LEFT", -6, 0)
 
+    local shareBtn = CreateFrame("Button", nil, frame, "BackdropTemplate")
+    shareBtn:SetSize(50, 22)
+    shareBtn:SetPoint("RIGHT", btnMplus, "LEFT", -14, 0)
+    shareBtn:SetBackdrop({
+        bgFile   = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+        insets   = { left=1, right=1, top=1, bottom=1 },
+    })
+    shareBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+    shareBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    local shareBtnLbl = shareBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    shareBtnLbl:SetAllPoints()
+    shareBtnLbl:SetJustifyH("CENTER")
+    shareBtnLbl:SetText(P.tGold .. "Share|r")
+    shareBtn:SetScript("OnEnter", function(self)
+        shareBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
+        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+        GameTooltip:SetText("Export or import BiS profile")
+        GameTooltip:Show()
+    end)
+    shareBtn:SetScript("OnLeave", function()
+        shareBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+        GameTooltip:Hide()
+    end)
+    shareBtn:SetScript("OnClick", function() BiSHelper_OpenSharePanel() end)
+
     local editBtn = CreateFrame("Button", nil, frame, "BackdropTemplate")
     editBtn:SetSize(50, 22)
-    editBtn:SetPoint("RIGHT", btnMplus, "LEFT", -4, 0)
+    editBtn:SetPoint("RIGHT", shareBtn, "LEFT", -4, 0)
     editBtn:SetBackdrop({
         bgFile   = WHITE_TEX,
         edgeFile = WHITE_TEX,
