@@ -238,6 +238,164 @@ local function Base64Decode(data)
     return table.concat(out)
 end
 
+-- ============================================================
+-- Lua table serializer / deserializer
+-- ============================================================
+local function Serialize(val)
+    local t = type(val)
+    if t == "number" then
+        -- Use format to avoid scientific notation (e.g. 1e+20)
+        if val == math.floor(val) and val >= -2^53 and val <= 2^53 then
+            return string.format("%d", val)
+        else
+            return string.format("%.17g", val)
+        end
+    elseif t == "string" then
+        return string.format("%q", val)
+    elseif t == "boolean" then
+        return val and "true" or "false"
+    elseif t == "table" then
+        local parts = {}
+        -- Numeric keys first (array part)
+        local maxn = 0
+        for k in pairs(val) do
+            if type(k) == "number" and k == math.floor(k) and k > 0 then
+                if k > maxn then maxn = k end
+            end
+        end
+        for i = 1, maxn do
+            if val[i] ~= nil then
+                parts[#parts + 1] = Serialize(val[i])
+            else
+                parts[#parts + 1] = "nil"
+            end
+        end
+        -- String keys
+        for k, v in pairs(val) do
+            if type(k) == "string" then
+                parts[#parts + 1] = "[" .. string.format("%q", k) .. "]=" .. Serialize(v)
+            elseif type(k) == "number" and (k < 1 or k > maxn or k ~= math.floor(k)) then
+                parts[#parts + 1] = "[" .. tostring(k) .. "]=" .. Serialize(v)
+            end
+        end
+        return "{" .. table.concat(parts, ",") .. "}"
+    end
+    return "nil"
+end
+
+local function Deserialize(str)
+    local pos = 1
+    local len = #str
+
+    local function skipWhitespace()
+        while pos <= len and str:sub(pos, pos):match("%s") do pos = pos + 1 end
+    end
+
+    local function peek() return str:sub(pos, pos) end
+
+    local function parseValue()
+        skipWhitespace()
+        local ch = peek()
+
+        if ch == "{" then
+            -- Table
+            pos = pos + 1  -- skip '{'
+            local tbl = {}
+            local arrayIndex = 1
+            skipWhitespace()
+            while pos <= len and peek() ~= "}" do
+                skipWhitespace()
+                -- Check for [key]= syntax
+                if peek() == "[" then
+                    pos = pos + 1  -- skip '['
+                    local key = parseValue()
+                    skipWhitespace()
+                    if peek() == "]" then pos = pos + 1 end -- skip ']'
+                    skipWhitespace()
+                    if peek() == "=" then pos = pos + 1 end -- skip '='
+                    tbl[key] = parseValue()
+                else
+                    -- Could be key=value or just a positional value
+                    local savedPos = pos
+                    local val = parseValue()
+                    skipWhitespace()
+                    if peek() == "=" then
+                        -- It was a key (must be a string identifier)
+                        pos = pos + 1  -- skip '='
+                        tbl[val] = parseValue()
+                    else
+                        tbl[arrayIndex] = val
+                        arrayIndex = arrayIndex + 1
+                    end
+                end
+                skipWhitespace()
+                if peek() == "," then pos = pos + 1 end
+            end
+            if peek() == "}" then pos = pos + 1 end  -- skip '}'
+            return tbl
+
+        elseif ch == '"' then
+            -- Quoted string (handle escape sequences from string.format %q)
+            pos = pos + 1  -- skip opening "
+            local parts = {}
+            while pos <= len and peek() ~= '"' do
+                if peek() == "\\" then
+                    pos = pos + 1
+                    local esc = peek()
+                    if esc == "n" then parts[#parts + 1] = "\n"
+                    elseif esc == "t" then parts[#parts + 1] = "\t"
+                    elseif esc == "a" then parts[#parts + 1] = "\a"
+                    elseif esc == "b" then parts[#parts + 1] = "\b"
+                    elseif esc == "f" then parts[#parts + 1] = "\f"
+                    elseif esc == "r" then parts[#parts + 1] = "\r"
+                    elseif esc == "v" then parts[#parts + 1] = "\v"
+                    elseif esc == "\\" then parts[#parts + 1] = "\\"
+                    elseif esc == '"' then parts[#parts + 1] = '"'
+                    elseif esc:match("%d") then
+                        local numStr = esc
+                        pos = pos + 1
+                        if pos <= len and peek():match("%d") then numStr = numStr .. peek(); pos = pos + 1
+                            if pos <= len and peek():match("%d") then numStr = numStr .. peek(); pos = pos + 1 end
+                        end
+                        parts[#parts + 1] = string.char(tonumber(numStr))
+                        pos = pos - 1  -- will be incremented below
+                    else parts[#parts + 1] = esc end
+                    pos = pos + 1
+                else
+                    parts[#parts + 1] = peek()
+                    pos = pos + 1
+                end
+            end
+            if peek() == '"' then pos = pos + 1 end  -- skip closing "
+            return table.concat(parts)
+
+        elseif ch == "-" or ch:match("%d") then
+            -- Number
+            local numStr = str:match("^-?%d+%.?%d*", pos)
+            pos = pos + #numStr
+            return tonumber(numStr)
+
+        elseif str:sub(pos, pos + 3) == "true" then
+            pos = pos + 4
+            return true
+
+        elseif str:sub(pos, pos + 4) == "false" then
+            pos = pos + 5
+            return false
+
+        elseif str:sub(pos, pos + 2) == "nil" then
+            pos = pos + 3
+            return nil
+        end
+
+        return nil
+    end
+
+    local ok, result = pcall(parseValue)
+    if ok then return result end
+    return nil
+end
+
 local activeMode = "mythicplus"
 local pendingOverrideNames = {}  -- [itemID] = {specKey, mode, slotId}
 
