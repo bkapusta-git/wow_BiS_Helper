@@ -396,6 +396,48 @@ local function Deserialize(str)
     return nil
 end
 
+-- ============================================================
+-- Profile share helpers
+-- ============================================================
+local SHARE_PREFIX = "!BH1!"
+
+local function EncodeProfile(profileTable)
+    local serialized = Serialize(profileTable)
+    return SHARE_PREFIX .. Base64Encode(serialized)
+end
+
+local function DecodeProfile(encoded)
+    if type(encoded) ~= "string" then return nil, "Invalid input" end
+    encoded = strtrim(encoded)
+    if encoded:sub(1, #SHARE_PREFIX) ~= SHARE_PREFIX then
+        return nil, "Invalid import string — not a BiS Helper profile"
+    end
+    local b64 = encoded:sub(#SHARE_PREFIX + 1)
+    local ok, decoded = pcall(Base64Decode, b64)
+    if not ok or not decoded or decoded == "" then
+        return nil, "Invalid import string — corrupted data"
+    end
+    local tbl = Deserialize(decoded)
+    if type(tbl) ~= "table" then
+        return nil, "Invalid import string — corrupted data"
+    end
+    if not tbl.version then
+        return nil, "Invalid import string — missing version"
+    end
+    if tbl.version > 1 then
+        return nil, "This profile requires a newer version of BiS Helper"
+    end
+    if not tbl.key then
+        return nil, "Invalid import string — missing spec key"
+    end
+    local hasOverrides = tbl.overrides and (next(tbl.overrides) ~= nil)
+    local hasStats = tbl.statOverrides and (next(tbl.statOverrides) ~= nil)
+    if not hasOverrides and not hasStats then
+        return nil, "Nothing to import — profile is empty"
+    end
+    return tbl, nil
+end
+
 local activeMode = "mythicplus"
 local pendingOverrideNames = {}  -- [itemID] = {specKey, mode, slotId}
 
@@ -463,6 +505,36 @@ local function GetActiveStatData()
     if ov[activeMode] then merged[activeMode] = ov[activeMode] end
     if ov["dr"]       then merged["dr"]       = ov["dr"]       end
     return merged
+end
+
+local function BuildExportProfile()
+    local specKey = GetCurrentDataKey()
+    if not specKey then return nil end
+    local specData = GetSpecData()
+    local profile = {
+        version = 1,
+        key = specKey,
+    }
+    -- Gather item overrides (both modes)
+    local ov = BiSHelperDB.overrides and BiSHelperDB.overrides[specKey]
+    if ov then
+        profile.overrides = {}
+        if ov.raid and next(ov.raid) then profile.overrides.raid = ov.raid end
+        if ov.mythicplus and next(ov.mythicplus) then profile.overrides.mythicplus = ov.mythicplus end
+        if not next(profile.overrides) then profile.overrides = nil end
+    end
+    -- Gather stat overrides (both modes + dr)
+    local so = BiSHelperDB.statOverrides and BiSHelperDB.statOverrides[specKey]
+    if so then
+        profile.statOverrides = {}
+        if so.raid then profile.statOverrides.raid = so.raid end
+        if so.mythicplus then profile.statOverrides.mythicplus = so.mythicplus end
+        if so.dr then profile.statOverrides.dr = so.dr end
+        if not next(profile.statOverrides) then profile.statOverrides = nil end
+    end
+    -- Return nil if nothing to export
+    if not profile.overrides and not profile.statOverrides then return nil end
+    return profile
 end
 
 -- ============================================================
