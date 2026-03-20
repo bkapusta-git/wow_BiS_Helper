@@ -2535,8 +2535,13 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
     elseif event == "GET_ITEM_INFO_RECEIVED" then
         local itemID, success = ...
         if not success then return end
+        local resolved = {}
         for link, data in pairs(pendingItems) do
-            if C_Item.GetItemInfo(link) then pendingItems[link] = nil UpdateRow(data.rowIndex, data.slotId) end
+            if C_Item.GetItemInfo(link) then resolved[link] = data end
+        end
+        for link, data in pairs(resolved) do
+            pendingItems[link] = nil
+            UpdateRow(data.rowIndex, data.slotId)
         end
         -- Resolve deferred override names
         if pendingOverrideNames[itemID] then
