@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.0] — 2026-03-20
+
+### Added
+- Share panel — export your full BiS profile (items + stat priority + DR caps) as an encoded string, share it via Discord/forums, and import profiles from others
+- Import confirmation dialogs with spec mismatch warning
+
+### Changed
+- Redesigned main window header — two-row layout with logically grouped toolbar buttons (Filter/Refresh | Raid/M+ | Stats/Edit/Share/Help)
+- All header buttons now use consistent custom styling (Refresh no longer uses Blizzard default button template)
+- Title left-aligned with spec name inline instead of truncated centered title
+
 ## [0.2.1] — 2026-03-18
 
 ### Changed

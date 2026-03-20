@@ -430,9 +430,9 @@ local function DecodeProfile(encoded)
     if not tbl.key then
         return nil, "Invalid import string — missing spec key"
     end
-    local hasOverrides = tbl.overrides and (next(tbl.overrides) ~= nil)
-    local hasStats = tbl.statOverrides and (next(tbl.statOverrides) ~= nil)
-    if not hasOverrides and not hasStats then
+    local hasItems = tbl.items and (next(tbl.items) ~= nil)
+    local hasStats = tbl.stats and (next(tbl.stats) ~= nil)
+    if not hasItems and not hasStats then
         return nil, "Nothing to import — profile is empty"
     end
     return tbl, nil
@@ -511,29 +511,41 @@ local function BuildExportProfile()
     local specKey = GetCurrentDataKey()
     if not specKey then return nil end
     local specData = GetSpecData()
+    if not specData or not specData.content then return nil end
+
     local profile = {
         version = 1,
         key = specKey,
+        items = {},
+        stats = {},
     }
-    -- Gather item overrides (both modes)
-    local ov = BiSHelperDB.overrides and BiSHelperDB.overrides[specKey]
-    if ov then
-        profile.overrides = {}
-        if ov.raid and next(ov.raid) then profile.overrides.raid = ov.raid end
-        if ov.mythicplus and next(ov.mythicplus) then profile.overrides.mythicplus = ov.mythicplus end
-        if not next(profile.overrides) then profile.overrides = nil end
+
+    -- Items: grab base content, paste overrides on top
+    for _, mode in ipairs({"raid", "mythicplus"}) do
+        profile.items[mode] = {}
+        if specData.content[mode] then
+            for slot, data in pairs(specData.content[mode]) do
+                profile.items[mode][slot] = { itemID = data.itemID, name = data.name, source = data.source }
+            end
+        end
+        local ov = BiSHelperDB.overrides and BiSHelperDB.overrides[specKey] and BiSHelperDB.overrides[specKey][mode]
+        if ov then
+            for slot, data in pairs(ov) do
+                profile.items[mode][slot] = { itemID = data.itemID, name = data.name, source = data.source }
+            end
+        end
     end
-    -- Gather stat overrides (both modes + dr)
-    local so = BiSHelperDB.statOverrides and BiSHelperDB.statOverrides[specKey]
-    if so then
-        profile.statOverrides = {}
-        if so.raid then profile.statOverrides.raid = so.raid end
-        if so.mythicplus then profile.statOverrides.mythicplus = so.mythicplus end
-        if so.dr then profile.statOverrides.dr = so.dr end
-        if not next(profile.statOverrides) then profile.statOverrides = nil end
+
+    -- Stats: grab base, paste overrides on top
+    for _, mode in ipairs({"raid", "mythicplus"}) do
+        local base = specData.statPriority and specData.statPriority[mode]
+        local ov = BiSHelperDB.statOverrides and BiSHelperDB.statOverrides[specKey] and BiSHelperDB.statOverrides[specKey][mode]
+        profile.stats[mode] = ov or base
     end
-    -- Return nil if nothing to export
-    if not profile.overrides and not profile.statOverrides then return nil end
+    local baseDr = specData.statPriority and specData.statPriority.dr
+    local ovDr = BiSHelperDB.statOverrides and BiSHelperDB.statOverrides[specKey] and BiSHelperDB.statOverrides[specKey].dr
+    profile.stats.dr = ovDr or baseDr
+
     return profile
 end
 
@@ -1358,6 +1370,9 @@ local function CreateShareFrame()
     editBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
     editScroll:SetScrollChild(editBox)
     editScroll:SetScript("OnSizeChanged", function(self, w) editBox:SetWidth(w - 4) end)
+    editScroll:SetScript("OnMouseDown", function()
+        if activeTab == "import" then editBox:SetFocus() end
+    end)
     sf.editBox = editBox
 
     -- EditBox background
@@ -1401,12 +1416,23 @@ local function CreateShareFrame()
 
     -- === Tab switching logic ===
 
+    local exportString = nil  -- stored export text for read-only protection
+
+    -- Prevent editing in export mode while allowing Ctrl+C / Ctrl+A
+    editBox:SetScript("OnTextChanged", function(self, isUserInput)
+        if activeTab == "export" and isUserInput and exportString then
+            self:SetText(exportString)
+            self:HighlightText()
+        end
+    end)
+
     local function ShowExportTab()
         activeTab = "export"
         for _, tab in ipairs(sf.tabs) do tab:UpdateLook() end
 
+        exportString = nil
         editBox:SetText("")
-        editBox:EnableKeyboard(false)
+        editBox:EnableKeyboard(true)
         actionBtnLbl:SetText(P.tGold .. "Select All|r")
         statusText:SetText("")
 
@@ -1414,6 +1440,7 @@ local function CreateShareFrame()
         local profile = BuildExportProfile()
         if profile then
             local encoded = EncodeProfile(profile)
+            exportString = encoded
             editBox:SetText(encoded)
             editBox:SetFocus()
             editBox:HighlightText()
@@ -1422,66 +1449,57 @@ local function CreateShareFrame()
             statusText:SetText(P.tDim .. "Profile exported for " .. specLabel .. " (both modes)|r")
         else
             editBox:SetText("")
-            statusText:SetText(P.tMissing .. "No overrides to export for current spec|r")
+            statusText:SetText(P.tMissing .. "No data to export for current spec|r")
         end
     end
     sf.ShowExportTab = ShowExportTab
 
     local function ShowImportTab()
         activeTab = "import"
+        exportString = nil
         for _, tab in ipairs(sf.tabs) do tab:UpdateLook() end
 
         editBox:SetText("")
         editBox:EnableKeyboard(true)
         editBox:EnableMouse(true)
+        editBox:SetFocus()
         actionBtnLbl:SetText(P.tGold .. "Import Profile|r")
         statusText:SetText(P.tDim .. "Paste an encoded profile string above|r")
     end
 
     local function DoImport(profileData)
         local specKey = profileData.key
-        -- Apply item overrides
-        BiSHelperDB.overrides = BiSHelperDB.overrides or {}
-        if profileData.overrides then
-            BiSHelperDB.overrides[specKey] = BiSHelperDB.overrides[specKey] or {}
-            if profileData.overrides.raid then
-                BiSHelperDB.overrides[specKey].raid = profileData.overrides.raid
-            end
-            if profileData.overrides.mythicplus then
-                BiSHelperDB.overrides[specKey].mythicplus = profileData.overrides.mythicplus
-            end
+
+        -- Apply items → stored as overrides so they take priority over base data
+        if profileData.items then
+            BiSHelperDB.overrides = BiSHelperDB.overrides or {}
+            BiSHelperDB.overrides[specKey] = profileData.items
         end
-        -- Apply stat overrides
-        BiSHelperDB.statOverrides = BiSHelperDB.statOverrides or {}
-        if profileData.statOverrides then
-            BiSHelperDB.statOverrides[specKey] = BiSHelperDB.statOverrides[specKey] or {}
-            if profileData.statOverrides.raid then
-                BiSHelperDB.statOverrides[specKey].raid = profileData.statOverrides.raid
-            end
-            if profileData.statOverrides.mythicplus then
-                BiSHelperDB.statOverrides[specKey].mythicplus = profileData.statOverrides.mythicplus
-            end
-            if profileData.statOverrides.dr then
-                BiSHelperDB.statOverrides[specKey].dr = profileData.statOverrides.dr
-            end
+
+        -- Apply stats → stored as stat overrides
+        if profileData.stats then
+            BiSHelperDB.statOverrides = BiSHelperDB.statOverrides or {}
+            BiSHelperDB.statOverrides[specKey] = profileData.stats
         end
+
         -- Count what was imported
         local counts = {}
-        if profileData.overrides then
+        if profileData.items then
             local n = 0
-            for mode, slots in pairs(profileData.overrides) do
+            for _, slots in pairs(profileData.items) do
                 for _ in pairs(slots) do n = n + 1 end
             end
-            if n > 0 then counts[#counts + 1] = n .. " item override" .. (n > 1 and "s" or "") end
+            if n > 0 then counts[#counts + 1] = n .. " items" end
         end
-        if profileData.statOverrides then
-            if profileData.statOverrides.raid or profileData.statOverrides.mythicplus then
+        if profileData.stats then
+            if profileData.stats.raid or profileData.stats.mythicplus then
                 counts[#counts + 1] = "stat priority"
             end
-            if profileData.statOverrides.dr then
+            if profileData.stats.dr then
                 counts[#counts + 1] = "DR caps"
             end
         end
+
         BiSHelper_Refresh()
         statusText:SetText(P.tBiS .. "Imported: " .. table.concat(counts, " + ") .. "|r")
     end
@@ -1642,189 +1660,67 @@ local function CreateMainFrame()
     hdrSep:SetPoint("TOPLEFT",  frame, "TOPLEFT",  2, -HEADER_H)
     hdrSep:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -2, -HEADER_H)
 
+    -- ── Row 1: Title + Spec ─────────────────────────────────
     frame.titleText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-    frame.titleText:SetPoint("TOP", frame, "TOP", 0, -10)
+    frame.titleText:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -10)
     frame.titleText:SetText(P.tGold .. "BiS Helper|r")
 
     frame.specLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    frame.specLabel:SetPoint("TOP", frame.titleText, "BOTTOM", 0, -2)
+    frame.specLabel:SetPoint("LEFT", frame.titleText, "RIGHT", 8, -1)
     frame.specLabel:SetText("")
+
+    local closeBtn = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
+    closeBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -2, -2)
+    closeBtn:SetScript("OnClick", function() frame:Hide() end)
 
     frame.statBarContainer = CreateFrame("Frame", nil, frame)
     frame.statBarContainer:SetPoint("TOPLEFT",  frame, "TOPLEFT",  14, -60)
     frame.statBarContainer:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -14, -60)
     frame.statBarContainer:SetHeight(66)
 
-    local closeBtn = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
-    closeBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -2, -2)
-    closeBtn:SetScript("OnClick", function() frame:Hide() end)
+    -- ── Row 2: Toolbar (y = -34) ─────────────────────────────
+    local TOOLBAR_Y = -34
 
-    local refreshBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-    refreshBtn:SetSize(72, 20)
-    refreshBtn:SetPoint("TOPRIGHT", closeBtn, "TOPLEFT", -2, 0)
-    refreshBtn:SetText("Refresh")
-    refreshBtn:SetScript("OnClick", function() BiSHelper_Refresh() end)
-    refreshBtn:SetScript("OnEnter", function(self)
-        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
-        GameTooltip:SetText("Reload gear data from player")
-        GameTooltip:Show()
-    end)
-    refreshBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
-
-    local function ModeButton(label, mode, anchorFrame, anchorSide)
+    local function ToolbarBtn(label, width, tooltip)
         local btn = CreateFrame("Button", nil, frame, "BackdropTemplate")
-        btn:SetSize(72, 22)
-        btn:SetPoint("RIGHT", anchorFrame, anchorSide, -4, 0)
+        btn:SetSize(width, 22)
         btn:SetBackdrop({
-            bgFile   = WHITE_TEX,
-            edgeFile = WHITE_TEX,
-            edgeSize = 1,
-            insets   = { left=1, right=1, top=1, bottom=1 },
+            bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+            insets = { left=1, right=1, top=1, bottom=1 },
         })
+        btn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+        btn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
         local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         lbl:SetAllPoints()
         lbl:SetJustifyH("CENTER")
-        local function UpdateLook()
-            if activeMode == mode then
-                btn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
-                btn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], 1.0)
-                lbl:SetText(P.tGold .. label .. "|r")
-            else
-                btn:SetBackdropColor(0.06, 0.02, 0.14, 0.90)
-                btn:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 0.6)
-                lbl:SetText(P.tDim .. label .. "|r")
+        lbl:SetText(P.tGold .. label .. "|r")
+        btn.label = lbl
+        btn:SetScript("OnEnter", function(self)
+            btn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
+            if tooltip then
+                GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+                GameTooltip:SetText(tooltip)
+                GameTooltip:Show()
             end
-        end
-        btn:SetScript("OnClick", function()
-            activeMode = mode
-            BiSHelperDB.mode = mode
-            for _, b in ipairs(frame.modeButtons) do b.updateLook() end
-            BiSHelper_Refresh()
         end)
-        btn.updateLook = UpdateLook
-        UpdateLook()
+        btn:SetScript("OnLeave", function()
+            btn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+            if tooltip then GameTooltip:Hide() end
+        end)
         return btn
     end
 
-    local btnRaid = ModeButton("Raid", "raid", refreshBtn, "LEFT")
-    local btnMplus = ModeButton("Mythic+", "mythicplus", btnRaid, "LEFT")
-    frame.modeButtons = { btnRaid, btnMplus }
+    local function ToolbarSep(anchorBtn)
+        local sep = Rect(frame, "ARTWORK", 3, P.gold[1], P.gold[2], P.gold[3], 0.45)
+        sep:SetSize(1, 16)
+        sep:SetPoint("LEFT", anchorBtn, "RIGHT", 8, 0)
+        return sep
+    end
 
-    local btnGroupSep = Rect(frame, "ARTWORK", 3, P.gold[1], P.gold[2], P.gold[3], 0.45)
-    btnGroupSep:SetSize(1, 16)
-    btnGroupSep:SetPoint("CENTER", btnMplus, "LEFT", -6, 0)
-
-    local shareBtn = CreateFrame("Button", nil, frame, "BackdropTemplate")
-    shareBtn:SetSize(50, 22)
-    shareBtn:SetPoint("RIGHT", btnMplus, "LEFT", -14, 0)
-    shareBtn:SetBackdrop({
-        bgFile   = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-        insets   = { left=1, right=1, top=1, bottom=1 },
-    })
-    shareBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-    shareBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
-    local shareBtnLbl = shareBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    shareBtnLbl:SetAllPoints()
-    shareBtnLbl:SetJustifyH("CENTER")
-    shareBtnLbl:SetText(P.tGold .. "Share|r")
-    shareBtn:SetScript("OnEnter", function(self)
-        shareBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
-        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
-        GameTooltip:SetText("Export or import BiS profile")
-        GameTooltip:Show()
-    end)
-    shareBtn:SetScript("OnLeave", function()
-        shareBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-        GameTooltip:Hide()
-    end)
-    shareBtn:SetScript("OnClick", function() BiSHelper_OpenSharePanel() end)
-
-    local editBtn = CreateFrame("Button", nil, frame, "BackdropTemplate")
-    editBtn:SetSize(50, 22)
-    editBtn:SetPoint("RIGHT", shareBtn, "LEFT", -4, 0)
-    editBtn:SetBackdrop({
-        bgFile   = WHITE_TEX,
-        edgeFile = WHITE_TEX,
-        edgeSize = 1,
-        insets   = { left=1, right=1, top=1, bottom=1 },
-    })
-    editBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-    editBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
-    local editBtnLbl = editBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    editBtnLbl:SetAllPoints()
-    editBtnLbl:SetJustifyH("CENTER")
-    editBtnLbl:SetText(P.tGold .. "Edit|r")
-    editBtn:SetScript("OnEnter", function(self)
-        editBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
-        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
-        GameTooltip:SetText("Customize BiS items per slot")
-        GameTooltip:Show()
-    end)
-    editBtn:SetScript("OnLeave", function()
-        editBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-        GameTooltip:Hide()
-    end)
-    editBtn:SetScript("OnClick", function() BiSHelper_OpenEditPanel() end)
-
-    local statsBtn = CreateFrame("Button", nil, frame, "BackdropTemplate")
-    statsBtn:SetSize(50, 22)
-    statsBtn:SetPoint("RIGHT", editBtn, "LEFT", -4, 0)
-    statsBtn:SetBackdrop({
-        bgFile   = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-        insets   = { left=1, right=1, top=1, bottom=1 },
-    })
-    statsBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-    statsBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
-    local statsBtnLbl = statsBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    statsBtnLbl:SetAllPoints() statsBtnLbl:SetJustifyH("CENTER")
-    statsBtnLbl:SetText(P.tGold .. "Stats|r")
-    statsBtn:SetScript("OnEnter", function(self)
-        statsBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
-        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
-        GameTooltip:SetText("Edit stat priority & DR caps")
-        GameTooltip:Show()
-    end)
-    statsBtn:SetScript("OnLeave", function()
-        statsBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-        GameTooltip:Hide()
-    end)
-    statsBtn:SetScript("OnClick", function() BiSHelper_OpenStatsPanel() end)
-
-    local helpBtn = CreateFrame("Button", nil, frame, "BackdropTemplate")
-    helpBtn:SetSize(22, 22)
-    helpBtn:SetPoint("RIGHT", statsBtn, "LEFT", -4, 0)
-    helpBtn:SetBackdrop({
-        bgFile   = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-        insets   = { left=1, right=1, top=1, bottom=1 },
-    })
-    helpBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-    helpBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
-    local helpBtnLbl = helpBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    helpBtnLbl:SetAllPoints()
-    helpBtnLbl:SetJustifyH("CENTER")
-    helpBtnLbl:SetText(P.tGold .. "?|r")
-    helpBtn:SetScript("OnEnter", function(self)
-        helpBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
-        GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
-        GameTooltip:SetText("Show help & feature overview")
-        GameTooltip:Show()
-    end)
-    helpBtn:SetScript("OnLeave", function()
-        helpBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-        GameTooltip:Hide()
-    end)
-    helpBtn:SetScript("OnClick", function() BiSHelper_OpenHelpPanel() end)
-
-    local filterBtn = CreateFrame("Button", nil, frame, "BackdropTemplate")
-    filterBtn:SetSize(50, 22)
-    filterBtn:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, -4)
-    filterBtn:SetBackdrop({
-        bgFile   = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-        insets   = { left=1, right=1, top=1, bottom=1 },
-    })
-    local filterBtnLbl = filterBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    filterBtnLbl:SetAllPoints()
-    filterBtnLbl:SetJustifyH("CENTER")
+    -- Left group: Filter, Refresh
+    local filterBtn = ToolbarBtn("Filter", 50, "Show only slots missing BiS item")
+    filterBtn:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, TOOLBAR_Y)
+    local filterBtnLbl = filterBtn.label
     local function UpdateFilterLook()
         if BiSHelperDB and BiSHelperDB.filterMissing then
             filterBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
@@ -1854,6 +1750,69 @@ local function CreateMainFrame()
         ApplyRowFilter()
     end)
     frame.filterBtn = filterBtn
+
+    local refreshBtn = ToolbarBtn("Refresh", 60, "Reload gear data from player")
+    refreshBtn:SetPoint("LEFT", filterBtn, "RIGHT", 4, 0)
+    refreshBtn:SetScript("OnClick", function() BiSHelper_Refresh() end)
+
+    local sep1 = ToolbarSep(refreshBtn)
+
+    -- Center group: Mode toggle
+    local function ModeButton(label, mode, anchor, anchorPoint, offsetX)
+        local btn = CreateFrame("Button", nil, frame, "BackdropTemplate")
+        btn:SetSize(64, 22)
+        btn:SetPoint("LEFT", anchor, anchorPoint or "RIGHT", offsetX or 4, 0)
+        btn:SetBackdrop({
+            bgFile   = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+            insets   = { left=1, right=1, top=1, bottom=1 },
+        })
+        local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        lbl:SetAllPoints()
+        lbl:SetJustifyH("CENTER")
+        local function UpdateLook()
+            if activeMode == mode then
+                btn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
+                btn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], 1.0)
+                lbl:SetText(P.tGold .. label .. "|r")
+            else
+                btn:SetBackdropColor(0.06, 0.02, 0.14, 0.90)
+                btn:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 0.6)
+                lbl:SetText(P.tDim .. label .. "|r")
+            end
+        end
+        btn:SetScript("OnClick", function()
+            activeMode = mode
+            BiSHelperDB.mode = mode
+            for _, b in ipairs(frame.modeButtons) do b.updateLook() end
+            BiSHelper_Refresh()
+        end)
+        btn.updateLook = UpdateLook
+        UpdateLook()
+        return btn
+    end
+
+    local btnRaid = ModeButton("Raid", "raid", sep1, "RIGHT", 8)
+    local btnMplus = ModeButton("Mythic+", "mythicplus", btnRaid, "RIGHT", 4)
+    frame.modeButtons = { btnRaid, btnMplus }
+
+    local sep2 = ToolbarSep(btnMplus)
+
+    -- Right group: Stats, Edit, Share, Help (anchored from right)
+    local helpBtn = ToolbarBtn("?", 22, "Show help & feature overview")
+    helpBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -10, TOOLBAR_Y)
+    helpBtn:SetScript("OnClick", function() BiSHelper_OpenHelpPanel() end)
+
+    local shareBtn = ToolbarBtn("Share", 50, "Export or import BiS profile")
+    shareBtn:SetPoint("RIGHT", helpBtn, "LEFT", -4, 0)
+    shareBtn:SetScript("OnClick", function() BiSHelper_OpenSharePanel() end)
+
+    local editBtn = ToolbarBtn("Edit", 42, "Customize BiS items per slot")
+    editBtn:SetPoint("RIGHT", shareBtn, "LEFT", -4, 0)
+    editBtn:SetScript("OnClick", function() BiSHelper_OpenEditPanel() end)
+
+    local statsBtn = ToolbarBtn("Stats", 50, "Edit stat priority & DR caps")
+    statsBtn:SetPoint("RIGHT", editBtn, "LEFT", -4, 0)
+    statsBtn:SetScript("OnClick", function() BiSHelper_OpenStatsPanel() end)
 
     local COL_Y = -(HEADER_H + 6)
     local function ColHeader(text, x, w, align, rightAnchor)
