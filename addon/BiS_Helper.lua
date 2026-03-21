@@ -136,37 +136,66 @@ local function GetItemEnchantAndGems(slotId)
     local link = GetInventoryItemLink("player", slotId)
     if not link then return nil, nil end
 
-    local enchantID = link:match("item:%d+:(%d+)")
-    enchantID = tonumber(enchantID)
-
+    local enchantID = tonumber(link:match("item:%d+:(%d+)"))
     local enchantName = nil
     local gems = {}
 
     if enchantID and enchantID > 0 then
-        scanTooltip:ClearLines()
-        pcall(function() scanTooltip:SetHyperlink(link) end)
-        
+        -- Build a proper Lua match pattern from the localized format string.
+        -- e.g. "Enchanted: %s"  →  escape Lua specials  →  replace %%s  →  "Enchanted: (.+)"
         local fmt = _G.ITEM_ENCHANT_FORMAT or "Enchanted: %s"
-        local enchantPrefix = fmt:gsub("%%s", ""):lower()
+        local enchantPat = fmt:gsub("([%(%)%.%%%+%-%*%?%[%^%$])", "%%%1"):gsub("%%%%s", "(.+)")
 
-        for i = 1, scanTooltip:NumLines() do
-            local line = _G["BiSHelperScanTooltipTextLeft" .. i]
-            if line then
-                local r, g, b = line:GetTextColor()
-                local text = line:GetText()
-                if text and r < 0.1 and g > 0.9 and b < 0.1 then
-                    local textLower = text:lower()
-                    if textLower:find(enchantPrefix) or (not text:find("+") and #text < 45 and not text:find("Set:") and not text:find("%(")) then
-                        -- Remove prefix case-insensitively and clean punctuation
-                        local startPos, endPos = textLower:find(enchantPrefix)
-                        if endPos then enchantName = text:sub(endPos + 1) else enchantName = text end
-                        enchantName = enchantName:match("^%s*[:%-]?%s*(.-)%s*$") or enchantName
-                        enchantName = enchantName:gsub("Enchant [^%-]+ %- ", "")
-                        enchantName = enchantName:gsub("Enchant ", "")
-                        break
+        -- Primary: C_TooltipInfo (TWW+) — structured data, no colour dependency
+        if C_TooltipInfo and C_TooltipInfo.GetInventoryItem then
+            local data = C_TooltipInfo.GetInventoryItem("player", slotId)
+            if data and data.lines then
+                for _, line in ipairs(data.lines) do
+                    local text = line.leftText
+                    if text then
+                        local name = text:match(enchantPat)
+                        if name then
+                            enchantName = name:match("^%s*(.-)%s*$")
+                            break
+                        end
                     end
                 end
             end
+        end
+
+        -- Fallback: scan the hidden GameTooltip (pre-TWW or C_TooltipInfo unavailable)
+        if not enchantName then
+            scanTooltip:ClearLines()
+            pcall(function() scanTooltip:SetHyperlink(link) end)
+            for i = 1, scanTooltip:NumLines() do
+                local line = _G["BiSHelperScanTooltipTextLeft" .. i]
+                if line then
+                    local text = line:GetText()
+                    if text then
+                        -- Pattern match first — reliable when the prefix is present
+                        local name = text:match(enchantPat)
+                        if name then
+                            enchantName = name:match("^%s*(.-)%s*$")
+                            break
+                        end
+                        -- Colour fallback: bright-green line with no stat indicators
+                        local r, g, b = line:GetTextColor()
+                        if r < 0.1 and g > 0.9 and b < 0.1
+                            and not text:find("+") and #text < 45
+                            and not text:find("Set:") and not text:find("%(") then
+                            enchantName = text:match("^%s*(.-)%s*$")
+                            break
+                        end
+                    end
+                end
+            end
+        end
+
+        -- Strip legacy "Enchant Weapon - " or bare "Enchant " prefix if still present
+        if enchantName then
+            enchantName = enchantName:gsub("^Enchant%s+%S+%s*%-%s*", "")
+            enchantName = enchantName:gsub("^Enchant%s+", "")
+            if enchantName == "" then enchantName = nil end
         end
     end
 
