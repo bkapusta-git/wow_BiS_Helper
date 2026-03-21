@@ -2336,7 +2336,7 @@ local function UpdateRow(rowIndex, slotId)
     end
 
     local enchant, gems = GetItemEnchantAndGems(slotId)
-    row.enchantText:SetText(enchant and ("|cff1eff00" .. enchant .. "|r") or (link and P.tDim .. "—|r" or ""))
+    row.enchantText:SetText(link and (enchant and "|cff1eff00" .. enchant .. "|r" or P.tDim .. "—|r") or "")
     
     -- Store enchantID for the tooltip
     if link then
