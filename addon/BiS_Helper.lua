@@ -1596,9 +1596,94 @@ local function ApplyRowFilter()
 end
 
 -- ============================================================
--- Main window
+-- Main window — builder helpers
 -- ============================================================
-local function CreateMainFrame()
+local function ToolbarBtn(frame, label, width, tooltip)
+    local btn = CreateFrame("Button", nil, frame, "BackdropTemplate")
+    btn:SetSize(width, 22)
+    btn:SetBackdrop({
+        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+        insets = { left=1, right=1, top=1, bottom=1 },
+    })
+    btn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+    btn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    lbl:SetAllPoints()
+    lbl:SetJustifyH("CENTER")
+    lbl:SetText(P.tGold .. label .. "|r")
+    btn.label = lbl
+    btn:SetScript("OnEnter", function(self)
+        btn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
+        if tooltip then
+            GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+            GameTooltip:SetText(tooltip)
+            GameTooltip:Show()
+        end
+    end)
+    btn:SetScript("OnLeave", function()
+        btn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+        if tooltip then GameTooltip:Hide() end
+    end)
+    return btn
+end
+
+local function ToolbarSep(frame, anchorBtn)
+    local sep = Rect(frame, "ARTWORK", 3, P.gold[1], P.gold[2], P.gold[3], 0.45)
+    sep:SetSize(1, 16)
+    sep:SetPoint("LEFT", anchorBtn, "RIGHT", 8, 0)
+    return sep
+end
+
+local function ModeButton(frame, label, mode, anchor, anchorPoint, offsetX)
+    local btn = CreateFrame("Button", nil, frame, "BackdropTemplate")
+    btn:SetSize(64, 22)
+    btn:SetPoint("LEFT", anchor, anchorPoint or "RIGHT", offsetX or 4, 0)
+    btn:SetBackdrop({
+        bgFile   = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
+        insets   = { left=1, right=1, top=1, bottom=1 },
+    })
+    local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    lbl:SetAllPoints()
+    lbl:SetJustifyH("CENTER")
+    local function UpdateLook()
+        if activeMode == mode then
+            btn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
+            btn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], 1.0)
+            lbl:SetText(P.tGold .. label .. "|r")
+        else
+            btn:SetBackdropColor(0.06, 0.02, 0.14, 0.90)
+            btn:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 0.6)
+            lbl:SetText(P.tDim .. label .. "|r")
+        end
+    end
+    btn:SetScript("OnClick", function()
+        activeMode = mode
+        BiSHelperDB.mode = mode
+        for _, b in ipairs(frame.modeButtons) do b.updateLook() end
+        BiSHelper_Refresh()
+    end)
+    btn.updateLook = UpdateLook
+    UpdateLook()
+    return btn
+end
+
+local COL_Y_OFFSET = -(HEADER_H + 6)
+
+local function ColHeader(frame, text, x, w, align, rightAnchor)
+    local fs = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    if rightAnchor then
+        fs:SetPoint("TOPRIGHT", frame, "TOPRIGHT", rightAnchor, COL_Y_OFFSET)
+    else
+        fs:SetPoint("TOPLEFT", frame, "TOPLEFT", x, COL_Y_OFFSET)
+    end
+    fs:SetWidth(w)
+    fs:SetJustifyH(align or "LEFT")
+    fs:SetText(P.tGold .. text .. "|r")
+    return fs
+end
+
+-- ── Creates the base frame: size, drag, resize, backdrop ────
+local function CreateFrameBase()
     local frame = CreateFrame("Frame", "BiSHelperFrame", UIParent, "BackdropTemplate")
     local db = BiSHelperDB or {}
     frame:SetSize(db.width or 700, db.height or 590)
@@ -1629,8 +1714,8 @@ local function CreateMainFrame()
     resizer:SetHighlightTexture("Interface/ChatFrame/UI-ChatIM-SizeGrabber-Highlight")
     resizer:SetPushedTexture("Interface/ChatFrame/UI-ChatIM-SizeGrabber-Down")
     resizer:SetScript("OnMouseDown", function() frame:StartSizing("BOTTOMRIGHT") end)
-    resizer:SetScript("OnMouseUp", function() 
-        frame:StopMovingOrSizing() 
+    resizer:SetScript("OnMouseUp", function()
+        frame:StopMovingOrSizing()
         BiSHelperDB.width, BiSHelperDB.height = frame:GetSize()
     end)
 
@@ -1643,6 +1728,11 @@ local function CreateMainFrame()
     frame:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
     frame:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
 
+    return frame
+end
+
+-- ── Creates the header: glow, bg, title, spec label, stat bars ──
+local function CreateFrameHeader(frame)
     local topGlow = frame:CreateTexture(nil, "BACKGROUND", nil, 1)
     topGlow:SetPoint("TOPLEFT",  frame, "TOPLEFT",  1, -1)
     topGlow:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -1, -1)
@@ -1660,7 +1750,6 @@ local function CreateMainFrame()
     hdrSep:SetPoint("TOPLEFT",  frame, "TOPLEFT",  2, -HEADER_H)
     hdrSep:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -2, -HEADER_H)
 
-    -- ── Row 1: Title + Spec ─────────────────────────────────
     frame.titleText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     frame.titleText:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -10)
     frame.titleText:SetText(P.tGold .. "BiS Helper|r")
@@ -1677,48 +1766,13 @@ local function CreateMainFrame()
     frame.statBarContainer:SetPoint("TOPLEFT",  frame, "TOPLEFT",  14, -60)
     frame.statBarContainer:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -14, -60)
     frame.statBarContainer:SetHeight(66)
+end
 
-    -- ── Row 2: Toolbar (y = -34) ─────────────────────────────
+-- ── Creates the toolbar: Filter, Refresh, mode buttons, panel buttons ──
+local function CreateToolbar(frame)
     local TOOLBAR_Y = -34
 
-    local function ToolbarBtn(label, width, tooltip)
-        local btn = CreateFrame("Button", nil, frame, "BackdropTemplate")
-        btn:SetSize(width, 22)
-        btn:SetBackdrop({
-            bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-            insets = { left=1, right=1, top=1, bottom=1 },
-        })
-        btn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-        btn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
-        local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        lbl:SetAllPoints()
-        lbl:SetJustifyH("CENTER")
-        lbl:SetText(P.tGold .. label .. "|r")
-        btn.label = lbl
-        btn:SetScript("OnEnter", function(self)
-            btn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
-            if tooltip then
-                GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
-                GameTooltip:SetText(tooltip)
-                GameTooltip:Show()
-            end
-        end)
-        btn:SetScript("OnLeave", function()
-            btn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-            if tooltip then GameTooltip:Hide() end
-        end)
-        return btn
-    end
-
-    local function ToolbarSep(anchorBtn)
-        local sep = Rect(frame, "ARTWORK", 3, P.gold[1], P.gold[2], P.gold[3], 0.45)
-        sep:SetSize(1, 16)
-        sep:SetPoint("LEFT", anchorBtn, "RIGHT", 8, 0)
-        return sep
-    end
-
-    -- Left group: Filter, Refresh
-    local filterBtn = ToolbarBtn("Filter", 50, "Show only slots missing BiS item")
+    local filterBtn = ToolbarBtn(frame, "Filter", 50, "Show only slots missing BiS item")
     filterBtn:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, TOOLBAR_Y)
     local filterBtnLbl = filterBtn.label
     local function UpdateFilterLook()
@@ -1751,92 +1805,46 @@ local function CreateMainFrame()
     end)
     frame.filterBtn = filterBtn
 
-    local refreshBtn = ToolbarBtn("Refresh", 60, "Reload gear data from player")
+    local refreshBtn = ToolbarBtn(frame, "Refresh", 60, "Reload gear data from player")
     refreshBtn:SetPoint("LEFT", filterBtn, "RIGHT", 4, 0)
     refreshBtn:SetScript("OnClick", function() BiSHelper_Refresh() end)
 
-    local sep1 = ToolbarSep(refreshBtn)
+    local sep1 = ToolbarSep(frame, refreshBtn)
 
-    -- Center group: Mode toggle
-    local function ModeButton(label, mode, anchor, anchorPoint, offsetX)
-        local btn = CreateFrame("Button", nil, frame, "BackdropTemplate")
-        btn:SetSize(64, 22)
-        btn:SetPoint("LEFT", anchor, anchorPoint or "RIGHT", offsetX or 4, 0)
-        btn:SetBackdrop({
-            bgFile   = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-            insets   = { left=1, right=1, top=1, bottom=1 },
-        })
-        local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        lbl:SetAllPoints()
-        lbl:SetJustifyH("CENTER")
-        local function UpdateLook()
-            if activeMode == mode then
-                btn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
-                btn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], 1.0)
-                lbl:SetText(P.tGold .. label .. "|r")
-            else
-                btn:SetBackdropColor(0.06, 0.02, 0.14, 0.90)
-                btn:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 0.6)
-                lbl:SetText(P.tDim .. label .. "|r")
-            end
-        end
-        btn:SetScript("OnClick", function()
-            activeMode = mode
-            BiSHelperDB.mode = mode
-            for _, b in ipairs(frame.modeButtons) do b.updateLook() end
-            BiSHelper_Refresh()
-        end)
-        btn.updateLook = UpdateLook
-        UpdateLook()
-        return btn
-    end
-
-    local btnRaid = ModeButton("Raid", "raid", sep1, "RIGHT", 8)
-    local btnMplus = ModeButton("Mythic+", "mythicplus", btnRaid, "RIGHT", 4)
+    local btnRaid  = ModeButton(frame, "Raid",    "raid",       sep1,    "RIGHT", 8)
+    local btnMplus = ModeButton(frame, "Mythic+", "mythicplus", btnRaid, "RIGHT", 4)
     frame.modeButtons = { btnRaid, btnMplus }
 
-    local sep2 = ToolbarSep(btnMplus)
+    local sep2 = ToolbarSep(frame, btnMplus)
 
-    -- Right group: Stats, Edit, Share, Help (anchored from right)
-    local helpBtn = ToolbarBtn("?", 22, "Show help & feature overview")
+    local helpBtn = ToolbarBtn(frame, "?", 22, "Show help & feature overview")
     helpBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -10, TOOLBAR_Y)
     helpBtn:SetScript("OnClick", function() BiSHelper_OpenHelpPanel() end)
 
-    local shareBtn = ToolbarBtn("Share", 50, "Export or import BiS profile")
+    local shareBtn = ToolbarBtn(frame, "Share", 50, "Export or import BiS profile")
     shareBtn:SetPoint("RIGHT", helpBtn, "LEFT", -4, 0)
     shareBtn:SetScript("OnClick", function() BiSHelper_OpenSharePanel() end)
 
-    local editBtn = ToolbarBtn("Edit", 42, "Customize BiS items per slot")
+    local editBtn = ToolbarBtn(frame, "Edit", 42, "Customize BiS items per slot")
     editBtn:SetPoint("RIGHT", shareBtn, "LEFT", -4, 0)
     editBtn:SetScript("OnClick", function() BiSHelper_OpenEditPanel() end)
 
-    local statsBtn = ToolbarBtn("Stats", 50, "Edit stat priority & DR caps")
+    local statsBtn = ToolbarBtn(frame, "Stats", 50, "Edit stat priority & DR caps")
     statsBtn:SetPoint("RIGHT", editBtn, "LEFT", -4, 0)
     statsBtn:SetScript("OnClick", function() BiSHelper_OpenStatsPanel() end)
+end
 
-    local COL_Y = -(HEADER_H + 6)
-    local function ColHeader(text, x, w, align, rightAnchor)
-        local fs = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        if rightAnchor then
-            fs:SetPoint("TOPRIGHT", frame, "TOPRIGHT", rightAnchor, COL_Y)
-        else
-            fs:SetPoint("TOPLEFT", frame, "TOPLEFT", x, COL_Y)
-        end
-        fs:SetWidth(w)
-        fs:SetJustifyH(align or "LEFT")
-        fs:SetText(P.tGold .. text .. "|r")
-        return fs
-    end
-    
-    ColHeader("Slot",      38,  64, "LEFT")
-    ColHeader("Equipped",  80,  120, "LEFT")
-    ColHeader("iLvl",      206,  34, "RIGHT")
-    ColHeader("Enchant",   248,  130, "LEFT")
-    ColHeader("Gems",      382,  44, "LEFT")
-    ColHeader("Track",     432,  72, "LEFT")
-    ColHeader("BiS",       510,  24, "CENTER")
-    ColHeader("BiS Item",  538,  130, "LEFT")
-    ColHeader("Source",    nil,  132, "LEFT", -50)
+-- ── Creates column headers and their separators ──────────────
+local function CreateColumnHeaders(frame)
+    ColHeader(frame, "Slot",      38,  64,  "LEFT")
+    ColHeader(frame, "Equipped",  80,  120, "LEFT")
+    ColHeader(frame, "iLvl",      206,  34, "RIGHT")
+    ColHeader(frame, "Enchant",   248,  130, "LEFT")
+    ColHeader(frame, "Gems",      382,  44, "LEFT")
+    ColHeader(frame, "Track",     432,  72, "LEFT")
+    ColHeader(frame, "BiS",       510,  24, "CENTER")
+    ColHeader(frame, "BiS Item",  538,  130, "LEFT")
+    ColHeader(frame, "Source",    nil,  132, "LEFT", -50)
 
     local colSep = Rect(frame, "ARTWORK", 1, P.goldDim[1], P.goldDim[2], P.goldDim[3], P.goldDim[4])
     colSep:SetHeight(1)
@@ -1848,7 +1856,10 @@ local function CreateMainFrame()
     vColSep:SetWidth(2)
     vColSep:SetPoint("TOP",    frame, "TOPLEFT", 506, -(HEADER_H + 2))
     vColSep:SetPoint("BOTTOM", frame, "TOPLEFT", 506, -(HEADER_H + 22))
+end
 
+-- ── Creates the scroll frame and all gear rows ───────────────
+local function CreateRowPool(frame)
     local SCROLL_TOP = HEADER_H + 24
     local scrollFrame = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
     scrollFrame:SetPoint("TOPLEFT",     frame, "TOPLEFT",    2, -SCROLL_TOP)
@@ -2036,8 +2047,10 @@ local function CreateMainFrame()
 
         frame.rows[i] = row
     end
+end
 
-    -- Footer: BiS progress bar + counter
+-- ── Creates the footer progress bar ──────────────────────────
+local function CreateFooter(frame)
     local footer = CreateFrame("Frame", nil, frame)
     footer:SetPoint("BOTTOMLEFT",  frame, "BOTTOMLEFT",  6, 4)
     footer:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -6, 4)
@@ -2061,7 +2074,18 @@ local function CreateMainFrame()
     frame.footerBar   = footer
     frame.footerFill  = footerFill
     frame.footerLabel = footerLabel
+end
 
+-- ============================================================
+-- Main window assembly
+-- ============================================================
+local function CreateMainFrame()
+    local frame = CreateFrameBase()
+    CreateFrameHeader(frame)
+    CreateToolbar(frame)
+    CreateColumnHeaders(frame)
+    CreateRowPool(frame)
+    CreateFooter(frame)
     return frame
 end
 
