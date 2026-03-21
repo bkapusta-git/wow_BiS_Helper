@@ -131,6 +131,16 @@ local function GetItemTrack(itemLink)
     return nil
 end
 
+local function Trim(s) return s:match("^%s*(.-)%s*$") end
+
+-- C_TooltipInfo availability is constant at runtime — check once at load time.
+local useC_TooltipInfo = C_TooltipInfo and C_TooltipInfo.GetInventoryItem and true or false
+
+-- enchantPat is derived from a WoW locale global; build it lazily on first use
+-- so it is guaranteed to be set, then cached for all subsequent calls.
+-- Pattern: "Enchanted: %s"  →  escape Lua specials  →  replace %%s  →  "Enchanted: (.+)"
+local enchantPat
+
 -- Extracts enchant name and gem icons from item link/tooltip
 local function GetItemEnchantAndGems(slotId)
     local link = GetInventoryItemLink("player", slotId)
@@ -141,13 +151,13 @@ local function GetItemEnchantAndGems(slotId)
     local gems = {}
 
     if enchantID and enchantID > 0 then
-        -- Build a proper Lua match pattern from the localized format string.
-        -- e.g. "Enchanted: %s"  →  escape Lua specials  →  replace %%s  →  "Enchanted: (.+)"
-        local fmt = _G.ITEM_ENCHANT_FORMAT or "Enchanted: %s"
-        local enchantPat = fmt:gsub("([%(%)%.%%%+%-%*%?%[%^%$])", "%%%1"):gsub("%%%%s", "(.+)")
+        if not enchantPat then
+            local fmt = _G.ITEM_ENCHANT_FORMAT or "Enchanted: %s"
+            enchantPat = fmt:gsub("([%(%)%.%%%+%-%*%?%[%^%$])", "%%%1"):gsub("%%%%s", "(.+)")
+        end
 
         -- Primary: C_TooltipInfo (TWW+) — structured data, no colour dependency
-        if C_TooltipInfo and C_TooltipInfo.GetInventoryItem then
+        if useC_TooltipInfo then
             local data = C_TooltipInfo.GetInventoryItem("player", slotId)
             if data and data.lines then
                 for _, line in ipairs(data.lines) do
@@ -155,7 +165,7 @@ local function GetItemEnchantAndGems(slotId)
                     if text then
                         local name = text:match(enchantPat)
                         if name then
-                            enchantName = name:match("^%s*(.-)%s*$")
+                            enchantName = Trim(name)
                             break
                         end
                     end
@@ -175,7 +185,7 @@ local function GetItemEnchantAndGems(slotId)
                         -- Pattern match first — reliable when the prefix is present
                         local name = text:match(enchantPat)
                         if name then
-                            enchantName = name:match("^%s*(.-)%s*$")
+                            enchantName = Trim(name)
                             break
                         end
                         -- Colour fallback: bright-green line with no stat indicators
@@ -183,7 +193,7 @@ local function GetItemEnchantAndGems(slotId)
                         if r < 0.1 and g > 0.9 and b < 0.1
                             and not text:find("+") and #text < 45
                             and not text:find("Set:") and not text:find("%(") then
-                            enchantName = text:match("^%s*(.-)%s*$")
+                            enchantName = Trim(text)
                             break
                         end
                     end
@@ -1844,7 +1854,7 @@ local function CreateToolbar(frame)
     local btnMplus = ModeButton(frame, "Mythic+", "mythicplus", btnRaid, "RIGHT", 4)
     frame.modeButtons = { btnRaid, btnMplus }
 
-    local sep2 = ToolbarSep(frame, btnMplus)
+    ToolbarSep(frame, btnMplus)
 
     local helpBtn = ToolbarBtn(frame, "?", 22, "Show help & feature overview")
     helpBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -10, TOOLBAR_Y)
