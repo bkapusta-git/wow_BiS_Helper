@@ -1927,7 +1927,7 @@ local function CreateRowPool(frame)
         row.glowBg = glowBg
 
         local accent = Rect(row, "ARTWORK", 1, P.neonGrey[1], P.neonGrey[2], P.neonGrey[3], 0.6)
-        accent:SetWidth(3)
+        accent:SetWidth(4)
         accent:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
         accent:SetPoint("BOTTOMLEFT", row, "BOTTOMLEFT", 0, 0)
         row.accent = accent
