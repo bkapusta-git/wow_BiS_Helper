@@ -2319,7 +2319,7 @@ local function UpdateRow(rowIndex, slotId)
             row.equippedName:SetText(P.tDim .. "loading…|r")
             row.ilvlText:SetText("")
             row.ilvlBg:SetColorTexture(0, 0, 0, 0)
-            pendingItems[link] = { rowIndex = rowIndex, slotId = slotId, retries = 0 }
+            pendingItems[link] = { rowIndex = rowIndex, slotId = slotId }
         end
     else
         row.equippedName:SetText(P.tDim .. "— empty —|r")
@@ -2597,7 +2597,14 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
         end
     elseif event == "GET_ITEM_INFO_RECEIVED" then
         local itemID, success = ...
-        if not success then return end
+        if not success then
+            -- Item failed to load; drop any deferred work waiting on it to prevent leaks.
+            pendingOverrideNames[itemID] = nil
+            if BiSHelperEditFrame and BiSHelperEditFrame.pendingAdd == itemID then
+                BiSHelperEditFrame.pendingAdd = nil
+            end
+            return
+        end
         local resolved = {}
         for link, data in pairs(pendingItems) do
             if C_Item.GetItemInfo(link) then resolved[link] = data end
