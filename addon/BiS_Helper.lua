@@ -738,8 +738,8 @@ local function CreateEditFrame()
     ef:Hide()
 
     ef:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-        insets = { left=1, right=1, top=1, bottom=1 },
+        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 16,
+        insets = { left=4, right=4, top=4, bottom=4 },
     })
     ef:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
     ef:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
@@ -1045,8 +1045,8 @@ local function CreateStatsFrame()
     sf:Hide()
 
     sf:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-        insets = { left=1, right=1, top=1, bottom=1 },
+        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 16,
+        insets = { left=4, right=4, top=4, bottom=4 },
     })
     sf:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
     sf:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
@@ -1264,8 +1264,8 @@ local function CreateHelpFrame()
     hf:Hide()
 
     hf:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-        insets = { left=1, right=1, top=1, bottom=1 },
+        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 16,
+        insets = { left=4, right=4, top=4, bottom=4 },
     })
     hf:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
     hf:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
@@ -1333,8 +1333,8 @@ local function CreateShareFrame()
     sf:Hide()
 
     sf:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-        insets = { left=1, right=1, top=1, bottom=1 },
+        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 16,
+        insets = { left=4, right=4, top=4, bottom=4 },
     })
     sf:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
     sf:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
@@ -1761,9 +1761,9 @@ local function CreateFrameBase()
 
     frame:SetBackdrop({
         bgFile   = WHITE_TEX,
-        edgeFile = WHITE_TEX,
-        edgeSize = 1,
-        insets   = { left = 1, right = 1, top = 1, bottom = 1 },
+        edgeFile = BORDER_TEX,
+        edgeSize = 16,
+        insets   = { left = 4, right = 4, top = 4, bottom = 4 },
     })
     frame:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
     frame:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
