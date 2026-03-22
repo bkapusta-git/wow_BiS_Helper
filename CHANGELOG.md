@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.0] — 2026-03-22
+
+### Changed
+- Complete visual theme overhaul — new Silvermoon / Sin'dorei aesthetic replacing the void-purple motif
+- Warm mahogany backgrounds, crimson header gradient, parchment-cream text
+- Ornamental gold borders (UI-Tooltip-Border) on all window frames and buttons
+- Warmed status colors — softer greens and reds for BiS/missing indicators
+- Wider accent bars (4px) for better visibility
+
 ## [0.3.0] — 2026-03-20
 
 ### Added
