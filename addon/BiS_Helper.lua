@@ -88,7 +88,7 @@ local DR_STAT_CR = {
 local function ExpandDREntry(d)
     local parts = { strsplit("/", d.name) }
     if #parts == 1 then
-        local key = strtrim(d.name):lower()
+        local key = Trim(d.name):lower()
         local crId = DR_STAT_CR[key]
         if crId then
             return {{ name = d.name, rating = d.rating, r = d.r, g = d.g, b = d.b, crId = crId }}
@@ -97,7 +97,7 @@ local function ExpandDREntry(d)
     end
     local out = {}
     for _, part in ipairs(parts) do
-        local trimmed = strtrim(part)
+        local trimmed = Trim(part)
         local key = trimmed:lower()
         local crId = DR_STAT_CR[key]
         out[#out + 1] = { name = trimmed, rating = d.rating, r = d.r, g = d.g, b = d.b, crId = crId }
@@ -447,7 +447,7 @@ end
 
 local function DecodeProfile(encoded)
     if type(encoded) ~= "string" then return nil, "Invalid input" end
-    encoded = strtrim(encoded)
+    encoded = Trim(encoded)
     if encoded:sub(1, #SHARE_PREFIX) ~= SHARE_PREFIX then
         return nil, "Invalid import string — not a BiS Helper profile"
     end
@@ -1544,7 +1544,7 @@ local function CreateShareFrame()
     end
 
     local function TryImport()
-        local raw = strtrim(editBox:GetText())
+        local raw = Trim(editBox:GetText())
         if raw == "" then
             statusText:SetText(P.tMissing .. "Paste a profile string first|r")
             return
