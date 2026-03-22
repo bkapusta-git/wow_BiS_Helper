@@ -210,7 +210,7 @@ local function GetItemEnchantAndGems(slotId)
     end
 
     for i = 1, 3 do
-        local _, gemLink = _G.GetItemGem(link, i)
+        local _, gemLink = C_Item.GetItemGem(link, i)
         if gemLink then
             local _, _, _, _, icon = C_Item.GetItemInfoInstant(gemLink)
             if icon then table.insert(gems, { icon = icon, link = gemLink }) end
