@@ -910,7 +910,7 @@ function BiSHelper_OpenEditPanel()
     local modeLabel = activeMode == "raid" and "Raid" or "Mythic+"
     local specLabel = specData and specData.label or "?"
     BiSHelperEditFrame.titleText:SetText(
-        P.tGold .. "Edit BiS|r — " .. P.tLavender .. specLabel .. "|r · " .. P.tDim .. modeLabel .. "|r")
+        P.tGold .. "Edit BiS|r — " .. P.tCream .. specLabel .. "|r · " .. P.tDim .. modeLabel .. "|r")
     BiSHelperEditFrame.inputBox:SetText("")
     BiSHelperEditFrame.slotPicker:Hide()
     RebuildOverrideRows()
@@ -1158,7 +1158,7 @@ function BiSHelper_OpenStatsPanel()
     local modeLabel = activeMode == "raid" and "Raid" or "Mythic+"
     local specLabel = specData and specData.label or "?"
     BiSHelperStatsFrame.titleText:SetText(
-        P.tGold .. "Edit Stats|r — " .. P.tLavender .. specLabel .. "|r · " .. P.tDim .. modeLabel .. "|r")
+        P.tGold .. "Edit Stats|r — " .. P.tCream .. specLabel .. "|r · " .. P.tDim .. modeLabel .. "|r")
     BiSHelperStatsFrame.statBox:SetText(BuildStatText())
     BiSHelperStatsFrame.drBox:SetText(BuildDRText())
     BiSHelperStatsFrame:Show()
@@ -1280,7 +1280,7 @@ local function CreateHelpFrame()
 
     local title = hf:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     title:SetPoint("TOPLEFT", hf, "TOPLEFT", 10, -10)
-    title:SetText(P.tGold .. "BiS Helper|r — " .. P.tLavender .. "How to use|r")
+    title:SetText(P.tGold .. "BiS Helper|r — " .. P.tCream .. "How to use|r")
 
     local closeBtn = CreateFrame("Button", nil, hf, "UIPanelCloseButton")
     closeBtn:SetPoint("TOPRIGHT", hf, "TOPRIGHT", -2, -2)
@@ -2393,7 +2393,7 @@ function BiSHelper_Refresh()
     wipe(pendingItems)
     local specData = GetSpecData()
     if specData then
-        BiSHelperFrame.specLabel:SetText(P.tLavender .. specData.label .. "|r")
+        BiSHelperFrame.specLabel:SetText(P.tCream .. specData.label .. "|r")
         RebuildStatBars()
     else
         BiSHelperFrame.specLabel:SetText("|cffff4444No BiS data for: " .. (GetCurrentDataKey() or "unknown") .. "|r")
