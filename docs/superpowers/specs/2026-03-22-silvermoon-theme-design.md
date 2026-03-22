@@ -33,13 +33,15 @@ local P = {
 
     -- Text (parchment/cream replacing lavender/purple)
     tGold       = "|cfff5c842",
-    tLavender   = "|cffeddcc8",   -- renamed conceptually to "cream", key kept for compat
+    tCream      = "|cffeddcc8",   -- warm parchment (replaces old tLavender)
     tDim        = "|cff8a7262",
     tWhite      = "|cfff0e6d8",
     tBiS        = "|cff4ee050",
     tMissing    = "|cffe63830",
 }
 ```
+
+**Key rename:** `P.tLavender` → `P.tCream`. All references in the file must be updated (find-and-replace `tLavender` → `tCream`). There are no external consumers of this local table.
 
 ### Design rationale
 
@@ -49,6 +51,30 @@ local P = {
 - Text shifts from lavender tints to parchment/cream — like ancient scrolls under candlelight.
 - `TRACK_COLOR` and `QUALITY_HEX` remain unchanged (standard WoW colors, users expect them).
 
+## Hardcoded Color Replacements
+
+Beyond the `P` table, many colors are hardcoded throughout the file. All must be updated:
+
+### Hardcoded hex color strings
+
+| Old hex | New hex | Usage |
+|---------|---------|-------|
+| `\|cff00f280` | `\|cff4ee050` (= `P.tBiS`) | BiS status text, DR "CAPPED" text, HELP_TEXT |
+| `\|cffff4040` | `\|cffe63830` (= `P.tMissing`) | Missing status text, delete button "x", HELP_TEXT |
+| `f5d258` | `f5c842` (= `P.tGold` value) | HELP_TEXT header gold color |
+
+**Rule:** Replace ALL hardcoded instances. Prefer using `P.tBiS`/`P.tMissing`/`P.tGold` references where possible instead of raw hex strings.
+
+### Hardcoded RGBA purple values (find-and-replace-all)
+
+| Old RGBA | New RGBA | Usage |
+|----------|----------|-------|
+| `0.20, 0.10, 0.38, 0.95` | `0.25, 0.12, 0.08, 0.95` | Hover state on all buttons (toolbar, edit, stats, share, filter) |
+| `0.06, 0.02, 0.14` | `0.08, 0.04, 0.03` (= `P.bg` rgb) | Inactive button backgrounds, input box backgrounds, tab backgrounds |
+| `0.12, 0.06, 0.22, 0.85` | `0.15, 0.08, 0.06, 0.85` | ilvlBg badge background |
+| `0.08, 0.04, 0.16, 0.90` | `0.10, 0.05, 0.04, 0.90` | DR bar track background |
+| `0.06, 0.02, 0.14, 0.90` | `0.08, 0.04, 0.03, 0.90` | Footer progress bar track background |
+
 ## Border Changes
 
 ### New constant
@@ -56,6 +82,8 @@ local P = {
 ```lua
 local BORDER_TEX = "Interface/Tooltips/UI-Tooltip-Border"
 ```
+
+`bgFile` remains `WHITE_TEX` in all backdrops — only `edgeFile` changes.
 
 ### Window frames (5 frames)
 
@@ -73,6 +101,8 @@ Border colored with `SetBackdropBorderColor(P.gold)`.
 
 Same `BORDER_TEX` but with `edgeSize = 12`. Border color `goldDim` default, `gold` on hover.
 
+**Note:** Buttons shorter than ~30px may need `edgeSize = 8` if borders visually overlap. Verify in-game; the spec defaults to 12 but this is a testing checkpoint.
+
 ### InputBox (Edit panel)
 
 `BORDER_TEX` with `edgeSize = 12`, border color `goldDim`.
@@ -89,20 +119,26 @@ No structural change — only color values differ via the updated `P` table.
 
 ## Header Gradient Overlay
 
-Add one `WHITE8X8` texture in `CreateMainFrame()` header area:
+Update the **existing** `topGlow` gradient in `CreateFrameHeader()` (~line 1779-1781). Do NOT create a new texture — the gradient overlay already exists.
 
-- Color: crimson `{0.70, 0.14, 0.14}`
-- Gradient: `SetGradient("VERTICAL", 0.70, 0.14, 0.14, 0.15, 0.70, 0.14, 0.14, 0.0)` (top → bottom fade)
-- Layer: `BACKGROUND` sublayer 2 (above header bg, below content)
+Current:
+```lua
+topGlow:SetGradient("VERTICAL", CreateColor(0.20, 0.06, 0.40, 0.50), CreateColor(0.04, 0.01, 0.10, 0.00))
+```
 
-This adds depth and Silvermoon-banner warmth to the header without layout changes.
+New (using WoW 12.0 `CreateColor` API):
+```lua
+if topGlow.SetGradient then
+    topGlow:SetGradient("VERTICAL", CreateColor(0.70, 0.14, 0.14, 0.15), CreateColor(0.70, 0.14, 0.14, 0.0))
+end
+```
 
 ## Button Hover States
 
-Update `OnEnter`/`OnLeave` in all toolbar buttons:
+Update `OnEnter`/`OnLeave` in **all** buttons across the file (not just toolbar — also Edit panel buttons, Stats panel buttons, Share panel buttons, Filter button):
 
-- Current hover: `0.20, 0.10, 0.38, 0.95` (purple tint)
-- New hover: `0.25, 0.12, 0.08, 0.95` (warm mahogany-red tint)
+- Current hover bg: `0.20, 0.10, 0.38, 0.95` (purple tint)
+- New hover bg: `0.25, 0.12, 0.08, 0.95` (warm mahogany-red tint)
 - Border on hover: upgrade from `goldDim` to `gold`
 
 ## Scope
@@ -113,7 +149,16 @@ Update `OnEnter`/`OnLeave` in all toolbar buttons:
 
 ### Estimated edits
 
-~15-20 targeted edits (palette swap, backdrop definitions, hover colors, accent bar width, header overlay addition).
+~30-35 targeted edits:
+- 1 palette table swap
+- 1 new constant (`BORDER_TEX`)
+- 1 key rename (`tLavender` → `tCream` + all references)
+- ~7 backdrop definition updates (5 frames + inputbox + buttons)
+- ~10 hardcoded purple RGBA replacements
+- ~7 hardcoded hex string replacements
+- 1 gradient update
+- ~5 hover state updates
+- 1 accent bar width change
 
 ### Not changed
 
@@ -130,11 +175,15 @@ Update `OnEnter`/`OnLeave` in all toolbar buttons:
 
 Manual in-game testing via `/reload`. Key checkpoints:
 
-1. Main frame opens with new colors — no purple remnants
-2. Borders render correctly (no stretched/broken textures)
-3. Accent bars show warm colors for BiS/missing
-4. All panels (Edit, Stats, Help, Share) use new theme consistently
-5. Button hovers feel responsive with new warm tones
-6. Header gradient visible but subtle
-7. Text readable on new backgrounds (contrast check)
-8. Resize behavior unaffected
+1. Main frame opens with new colors — no purple remnants anywhere
+2. Borders render correctly on all frames (no stretched/broken textures)
+3. **Button borders** — verify `edgeSize = 12` looks good on small buttons (22px height); if not, reduce to 8
+4. Accent bars show warm colors for BiS/missing
+5. All panels (Edit, Stats, Help, Share) use new theme consistently
+6. Button hovers feel responsive with new warm tones across all panels
+7. Header gradient visible but subtle (crimson warmth)
+8. Text readable on new backgrounds (contrast check)
+9. Resize behavior unaffected
+10. HELP_TEXT displays correct warm colors (no old purple/neon remnants)
+11. DR bars and footer progress bar use warm backgrounds
+12. BiS status checkmarks (✓/✗) use warm green/red, not old neon
