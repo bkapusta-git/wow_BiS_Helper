@@ -33,33 +33,34 @@ local QUALITY_HEX = {
 }
 
 -- ============================================================
--- Color palette — Midnight / void-purple & ethereal gold
+-- Color palette — Silvermoon / Sin'dorei warm mahogany & gold
 -- ============================================================
 local P = {
-    -- Backgrounds
-    bg          = { 0.04, 0.01, 0.10, 0.97 },
-    bgCard      = { 0.08, 0.03, 0.17, 1.00 },
-    bgCardAlt   = { 0.05, 0.01, 0.12, 1.00 },
-    bgHeader    = { 0.10, 0.03, 0.22, 1.00 },
-    -- Borders
-    gold        = { 0.78, 0.66, 0.29, 0.90 },
-    goldDim     = { 0.45, 0.36, 0.14, 0.45 },
-    -- Status neon bars
-    neonGreen   = { 0.00, 0.95, 0.50, 1.00 },
-    neonRed     = { 0.95, 0.25, 0.25, 1.00 },
-    neonGrey    = { 0.22, 0.16, 0.32, 1.00 },
-    glowGreen   = { 0.00, 0.95, 0.50, 0.18 },
-    glowRed     = { 0.95, 0.25, 0.25, 0.14 },
-    -- Text (as hex strings)
-    tGold       = "|cfff5d258",
-    tLavender   = "|cffcdb8ff",
-    tDim        = "|cff8877aa",
-    tWhite      = "|cffece5ff",
-    tBiS        = "|cff00f280",
-    tMissing    = "|cffff4040",
+    -- Backgrounds (dark mahogany — Silvermoon interior)
+    bg          = { 0.08, 0.04, 0.03, 0.97 },
+    bgCard      = { 0.13, 0.07, 0.06, 1.00 },
+    bgCardAlt   = { 0.10, 0.05, 0.04, 1.00 },
+    bgHeader    = { 0.15, 0.08, 0.07, 1.00 },
+    -- Borders (ornamental gold — Silvermoon filigree)
+    gold        = { 0.85, 0.68, 0.25, 0.90 },
+    goldDim     = { 0.55, 0.40, 0.15, 0.45 },
+    -- Status (warmed)
+    neonGreen   = { 0.30, 0.88, 0.40, 1.00 },
+    neonRed     = { 0.90, 0.22, 0.18, 1.00 },
+    neonGrey    = { 0.30, 0.22, 0.20, 1.00 },
+    glowGreen   = { 0.30, 0.88, 0.40, 0.14 },
+    glowRed     = { 0.90, 0.22, 0.18, 0.10 },
+    -- Text (parchment/cream)
+    tGold       = "|cfff5c842",
+    tCream      = "|cffeddcc8",
+    tDim        = "|cff8a7262",
+    tWhite      = "|cfff0e6d8",
+    tBiS        = "|cff4ee050",
+    tMissing    = "|cffe63830",
 }
 
 local WHITE_TEX = "Interface/Buttons/WHITE8X8"
+local BORDER_TEX = "Interface/Tooltips/UI-Tooltip-Border"
 local ROW_H     = 30
 local HEADER_H  = 130
 
