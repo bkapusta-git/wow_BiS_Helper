@@ -770,8 +770,8 @@ local function CreateEditFrame()
     inputBox:SetSize(140, 22)
     inputBox:SetPoint("TOPLEFT", ef, "TOPLEFT", 68, -41)
     inputBox:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-        insets = { left=2, right=2, top=2, bottom=2 },
+        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
+        insets = { left=3, right=3, top=3, bottom=3 },
     })
     inputBox:SetBackdropColor(0.08, 0.04, 0.03, 1)
     inputBox:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 1)
@@ -786,8 +786,8 @@ local function CreateEditFrame()
     addBtn:SetSize(50, 22)
     addBtn:SetPoint("LEFT", inputBox, "RIGHT", 4, 0)
     addBtn:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-        insets = { left=1, right=1, top=1, bottom=1 },
+        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
+        insets = { left=3, right=3, top=3, bottom=3 },
     })
     addBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
     addBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
@@ -837,8 +837,8 @@ local function CreateEditFrame()
         pb:SetSize(84, 22)
         pb:SetPoint("LEFT", picker, "LEFT", 82 + (i-1)*90, -2)
         pb:SetBackdrop({
-            bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-            insets = { left=1, right=1, top=1, bottom=1 },
+            bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
+            insets = { left=3, right=3, top=3, bottom=3 },
         })
         pb:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
         pb:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
@@ -887,8 +887,8 @@ local function CreateEditFrame()
     resetBtn:SetSize(80, 22)
     resetBtn:SetPoint("BOTTOMRIGHT", ef, "BOTTOMRIGHT", -6, 5)
     resetBtn:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-        insets = { left=1, right=1, top=1, bottom=1 },
+        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
+        insets = { left=3, right=3, top=3, bottom=3 },
     })
     resetBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
     resetBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
@@ -1081,8 +1081,8 @@ local function CreateStatsFrame()
     statBox:SetSize(438, 24)
     statBox:SetPoint("TOPLEFT", sf, "TOPLEFT", 10, -62)
     statBox:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-        insets = { left=3, right=3, top=2, bottom=2 },
+        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
+        insets = { left=3, right=3, top=3, bottom=3 },
     })
     statBox:SetBackdropColor(0.08, 0.04, 0.03, 1)
     statBox:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 1)
@@ -1130,8 +1130,8 @@ local function CreateStatsFrame()
         btn:SetSize(w, 22)
         btn:SetPoint("BOTTOMRIGHT", sf, "BOTTOMRIGHT", offsetX, 5)
         btn:SetBackdrop({
-            bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-            insets = { left=1, right=1, top=1, bottom=1 },
+            bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
+            insets = { left=3, right=3, top=3, bottom=3 },
         })
         btn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
         btn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
@@ -1369,8 +1369,8 @@ local function CreateShareFrame()
             btn:SetPoint("TOPLEFT", sf, "TOPLEFT", 10, -44)
         end
         btn:SetBackdrop({
-            bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-            insets = { left=1, right=1, top=1, bottom=1 },
+            bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
+            insets = { left=3, right=3, top=3, bottom=3 },
         })
         local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         lbl:SetAllPoints()
@@ -1423,8 +1423,8 @@ local function CreateShareFrame()
     editBorder:SetPoint("TOPLEFT",  editBg, "TOPLEFT",  -1, 1)
     editBorder:SetPoint("BOTTOMRIGHT", editBg, "BOTTOMRIGHT", 1, -1)
     editBorder:SetBackdrop({
-        edgeFile = WHITE_TEX, edgeSize = 1,
-        insets = { left=1, right=1, top=1, bottom=1 },
+        edgeFile = BORDER_TEX, edgeSize = 12,
+        insets = { left=3, right=3, top=3, bottom=3 },
     })
     editBorder:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 1)
 
@@ -1433,8 +1433,8 @@ local function CreateShareFrame()
     actionBtn:SetSize(120, 24)
     actionBtn:SetPoint("BOTTOMLEFT", sf, "BOTTOMLEFT", 12, 36)
     actionBtn:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-        insets = { left=1, right=1, top=1, bottom=1 },
+        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
+        insets = { left=3, right=3, top=3, bottom=3 },
     })
     actionBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
     actionBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
@@ -1642,8 +1642,8 @@ local function ToolbarBtn(frame, label, width, tooltip)
     local btn = CreateFrame("Button", nil, frame, "BackdropTemplate")
     btn:SetSize(width, 22)
     btn:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-        insets = { left=1, right=1, top=1, bottom=1 },
+        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
+        insets = { left=3, right=3, top=3, bottom=3 },
     })
     btn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
     btn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
@@ -1679,8 +1679,8 @@ local function ModeButton(frame, label, mode, anchor, anchorPoint, offsetX)
     btn:SetSize(64, 22)
     btn:SetPoint("LEFT", anchor, anchorPoint or "RIGHT", offsetX or 4, 0)
     btn:SetBackdrop({
-        bgFile   = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
-        insets   = { left=1, right=1, top=1, bottom=1 },
+        bgFile   = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
+        insets   = { left=3, right=3, top=3, bottom=3 },
     })
     local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     lbl:SetAllPoints()
