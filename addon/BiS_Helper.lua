@@ -659,9 +659,9 @@ local function RebuildOverrideRows()
                     local xLbl = xBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
                     xLbl:SetAllPoints()
                     xLbl:SetJustifyH("CENTER")
-                    xLbl:SetText("|cffff4040×|r")
-                    xBtn:SetScript("OnEnter", function() xLbl:SetText("|cffff8080×|r") end)
-                    xBtn:SetScript("OnLeave", function() xLbl:SetText("|cffff4040×|r") end)
+                    xLbl:SetText("|cffe63830×|r")
+                    xBtn:SetScript("OnEnter", function() xLbl:SetText("|cffe86860×|r") end)
+                    xBtn:SetScript("OnLeave", function() xLbl:SetText("|cffe63830×|r") end)
                     row.xBtn = xBtn
                     ef.overrideRowPool[count] = row
                 end
@@ -1215,14 +1215,14 @@ end
 -- ============================================================
 -- Help panel
 -- ============================================================
-local HELP_TEXT = [[|cff]] .. "f5d258" .. [[BiS Helper|r compares your equipped gear to Best in Slot lists for your spec and current content type.
+local HELP_TEXT = [[|cff]] .. "f5c842" .. [[BiS Helper|r compares your equipped gear to Best in Slot lists for your spec and current content type.
 
-|cff]] .. "f5d258" .. [[ROW COLORS|r
-  |cff00f280✓|r |cff00f280green|r — equipped item matches the BiS list
-  |cffff4040✗|r |cffff4040red|r   — slot has a different item equipped
+|cff]] .. "f5c842" .. [[ROW COLORS|r
+  |cff4ee050✓|r |cff4ee050green|r — equipped item matches the BiS list
+  |cffe63830✗|r |cffe63830red|r   — slot has a different item equipped
   grey            — no BiS data available for this slot
 
-|cff]] .. "f5d258" .. [[COLUMNS|r
+|cff]] .. "f5c842" .. [[COLUMNS|r
   Slot        gear slot name
   Equipped    your current item (hover for tooltip)
   iLvl        item level
@@ -1233,7 +1233,7 @@ local HELP_TEXT = [[|cff]] .. "f5d258" .. [[BiS Helper|r compares your equipped 
   BiS Item    recommended item (hover for tooltip)
   Source      where to obtain it
 
-|cff]] .. "f5d258" .. [[BUTTONS|r
+|cff]] .. "f5c842" .. [[BUTTONS|r
   Refresh     re-read your gear from the server
   Share       export or import your BiS profile
   Edit        override the BiS item for any slot
@@ -1241,13 +1241,13 @@ local HELP_TEXT = [[|cff]] .. "f5d258" .. [[BiS Helper|r compares your equipped 
   Filter      hide slots already matching BiS
   Raid / M+   switch between Raid and Mythic+ lists
 
-|cff]] .. "f5d258" .. [[SHARE / EXPORT / IMPORT|r
+|cff]] .. "f5c842" .. [[SHARE / EXPORT / IMPORT|r
   Click Share to export your BiS profile as an encoded string.
   Copy it and share via Discord, forums, or save as backup.
   To import: switch to the Import tab, paste the string,
   and click Import Profile.
 
-|cff]] .. "f5d258" .. [[SLASH COMMAND|r
+|cff]] .. "f5c842" .. [[SLASH COMMAND|r
   /bis        toggle this window]]
 
 local function CreateHelpFrame()
@@ -2268,7 +2268,7 @@ local function RebuildStatBars()
             local pct = math.floor(ratio * 100)
             bar.label:SetText(hex .. d.name .. ": " .. playerRating .. "/" .. d.rating .. "|r")
             bar.tooltipText = hex .. d.name .. "|r — " .. playerRating .. " / " .. d.rating .. " (" .. pct .. "%)"
-                .. (ratio >= 1.0 and "  |cff00f280CAPPED|r" or "")
+                .. (ratio >= 1.0 and "  |cff4ee050CAPPED|r" or "")
 
             bar:Show()
         end
@@ -2286,10 +2286,10 @@ local function SetRowVisualStatus(row, status)
     row.accent:SetColorTexture(c[1], c[2], c[3], 0.85)
     if status == "bis" then
         row.glowBg:SetColorTexture(P.glowGreen[1], P.glowGreen[2], P.glowGreen[3], P.glowGreen[4])
-        row.bisStatus:SetText("|cff00f280✓|r")
+        row.bisStatus:SetText("|cff4ee050✓|r")
     elseif status == "missing" then
         row.glowBg:SetColorTexture(P.glowRed[1], P.glowRed[2], P.glowRed[3], P.glowRed[4])
-        row.bisStatus:SetText("|cffff4040✗|r")
+        row.bisStatus:SetText("|cffe63830✗|r")
     else
         row.glowBg:SetColorTexture(0, 0, 0, 0)
         row.bisStatus:SetText("")
