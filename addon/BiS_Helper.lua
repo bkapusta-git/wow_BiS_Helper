@@ -84,6 +84,8 @@ local DR_STAT_CR = {
     ["vers"]             = 29,
 }
 
+local function Trim(s) return s:match("^%s*(.-)%s*$") end
+
 -- Splits compound DR names like "Crit / Mastery" into individual stat entries
 local function ExpandDREntry(d)
     local parts = { strsplit("/", d.name) }
@@ -130,8 +132,6 @@ local function GetItemTrack(itemLink)
     end
     return nil
 end
-
-local function Trim(s) return s:match("^%s*(.-)%s*$") end
 
 -- C_TooltipInfo availability is constant at runtime — check once at load time.
 local useC_TooltipInfo = C_TooltipInfo and C_TooltipInfo.GetInventoryItem and true or false
