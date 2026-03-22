@@ -2182,6 +2182,12 @@ local function RebuildStatBars()
     end
 
     local current = sp[activeMode]
+    if not current or not current.stats then
+        BiSHelperFrame.statPriorityText:SetText("")
+        BiSHelperFrame.statNoteText:SetText("")
+        for _, bar in ipairs(BiSHelperFrame.drBarPool) do bar:Hide() end
+        return
+    end
     local parts = {}
     for _, stat in ipairs(current.stats) do
         local hex = string.format("|cff%02x%02x%02x", math.floor(stat.r * 255), math.floor(stat.g * 255), math.floor(stat.b * 255))
