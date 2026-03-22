@@ -1778,7 +1778,7 @@ local function CreateFrameHeader(frame)
     topGlow:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -1, -1)
     topGlow:SetHeight(HEADER_H + 20)
     if topGlow.SetGradient then
-        topGlow:SetGradient("VERTICAL", CreateColor(0.20, 0.06, 0.40, 0.50), CreateColor(0.04, 0.01, 0.10, 0.00))
+        topGlow:SetGradient("VERTICAL", CreateColor(0.70, 0.14, 0.14, 0.15), CreateColor(0.70, 0.14, 0.14, 0.0))
     end
 
     local hdrBg = Rect(frame, "BACKGROUND", 2, P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], P.bgHeader[4])
