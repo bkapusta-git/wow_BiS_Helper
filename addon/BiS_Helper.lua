@@ -773,7 +773,7 @@ local function CreateEditFrame()
         bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
         insets = { left=2, right=2, top=2, bottom=2 },
     })
-    inputBox:SetBackdropColor(0.06, 0.02, 0.14, 1)
+    inputBox:SetBackdropColor(0.08, 0.04, 0.03, 1)
     inputBox:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 1)
     inputBox:SetFontObject("ChatFontNormal")
     inputBox:SetAutoFocus(false)
@@ -794,7 +794,7 @@ local function CreateEditFrame()
     local addBtnLbl = addBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     addBtnLbl:SetAllPoints() addBtnLbl:SetJustifyH("CENTER")
     addBtnLbl:SetText(P.tGold .. "Add|r")
-    addBtn:SetScript("OnEnter", function() addBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95) end)
+    addBtn:SetScript("OnEnter", function() addBtn:SetBackdropColor(0.25, 0.12, 0.08, 0.95) end)
     addBtn:SetScript("OnLeave", function() addBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4]) end)
 
     local function TryAdd()
@@ -844,7 +844,7 @@ local function CreateEditFrame()
         pb:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
         pb.lbl = pb:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         pb.lbl:SetAllPoints() pb.lbl:SetJustifyH("CENTER")
-        pb:SetScript("OnEnter", function() pb:SetBackdropColor(0.20, 0.10, 0.38, 0.95) end)
+        pb:SetScript("OnEnter", function() pb:SetBackdropColor(0.25, 0.12, 0.08, 0.95) end)
         pb:SetScript("OnLeave", function() pb:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4]) end)
         local idx = i
         pb:SetScript("OnClick", function()
@@ -895,7 +895,7 @@ local function CreateEditFrame()
     local resetLbl = resetBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     resetLbl:SetAllPoints() resetLbl:SetJustifyH("CENTER")
     resetLbl:SetText(P.tDim .. "Reset All|r")
-    resetBtn:SetScript("OnEnter", function() resetBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95) end)
+    resetBtn:SetScript("OnEnter", function() resetBtn:SetBackdropColor(0.25, 0.12, 0.08, 0.95) end)
     resetBtn:SetScript("OnLeave", function() resetBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4]) end)
     resetBtn:SetScript("OnClick", function() BiSHelper_ResetOverrides() end)
 
@@ -1084,7 +1084,7 @@ local function CreateStatsFrame()
         bgFile = WHITE_TEX, edgeFile = WHITE_TEX, edgeSize = 1,
         insets = { left=3, right=3, top=2, bottom=2 },
     })
-    statBox:SetBackdropColor(0.06, 0.02, 0.14, 1)
+    statBox:SetBackdropColor(0.08, 0.04, 0.03, 1)
     statBox:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 1)
     statBox:SetFontObject("ChatFontNormal")
     statBox:SetAutoFocus(false)
@@ -1138,7 +1138,7 @@ local function CreateStatsFrame()
         local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         lbl:SetAllPoints() lbl:SetJustifyH("CENTER")
         lbl:SetText(label)
-        btn:SetScript("OnEnter", function() btn:SetBackdropColor(0.20, 0.10, 0.38, 0.95) end)
+        btn:SetScript("OnEnter", function() btn:SetBackdropColor(0.25, 0.12, 0.08, 0.95) end)
         btn:SetScript("OnLeave", function() btn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4]) end)
         btn:SetScript("OnClick", clickFn)
         return btn
@@ -1379,11 +1379,11 @@ local function CreateShareFrame()
         btn.tabKey = tabKey
         function btn:UpdateLook()
             if activeTab == tabKey then
-                self:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
+                self:SetBackdropColor(0.25, 0.12, 0.08, 0.95)
                 self:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], 1.0)
                 lbl:SetText(P.tGold .. label .. "|r")
             else
-                self:SetBackdropColor(0.06, 0.02, 0.14, 0.90)
+                self:SetBackdropColor(0.08, 0.04, 0.03, 0.90)
                 self:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 0.6)
                 lbl:SetText(P.tDim .. label .. "|r")
             end
@@ -1416,7 +1416,7 @@ local function CreateShareFrame()
     sf.editBox = editBox
 
     -- EditBox background
-    local editBg = Rect(sf, "BACKGROUND", 1, 0.06, 0.02, 0.14, 1.00)
+    local editBg = Rect(sf, "BACKGROUND", 1, 0.08, 0.04, 0.03, 1.00)
     editBg:SetPoint("TOPLEFT",  editScroll, "TOPLEFT",  -4, 4)
     editBg:SetPoint("BOTTOMRIGHT", editScroll, "BOTTOMRIGHT", 20, -4)
     local editBorder = CreateFrame("Frame", nil, sf, "BackdropTemplate")
@@ -1441,7 +1441,7 @@ local function CreateShareFrame()
     local actionBtnLbl = actionBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     actionBtnLbl:SetAllPoints()
     actionBtnLbl:SetJustifyH("CENTER")
-    actionBtn:SetScript("OnEnter", function() actionBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95) end)
+    actionBtn:SetScript("OnEnter", function() actionBtn:SetBackdropColor(0.25, 0.12, 0.08, 0.95) end)
     actionBtn:SetScript("OnLeave", function() actionBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4]) end)
     sf.actionBtn = actionBtn
     sf.actionBtnLbl = actionBtnLbl
@@ -1653,7 +1653,7 @@ local function ToolbarBtn(frame, label, width, tooltip)
     lbl:SetText(P.tGold .. label .. "|r")
     btn.label = lbl
     btn:SetScript("OnEnter", function(self)
-        btn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
+        btn:SetBackdropColor(0.25, 0.12, 0.08, 0.95)
         if tooltip then
             GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
             GameTooltip:SetText(tooltip)
@@ -1687,11 +1687,11 @@ local function ModeButton(frame, label, mode, anchor, anchorPoint, offsetX)
     lbl:SetJustifyH("CENTER")
     local function UpdateLook()
         if activeMode == mode then
-            btn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
+            btn:SetBackdropColor(0.25, 0.12, 0.08, 0.95)
             btn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], 1.0)
             lbl:SetText(P.tGold .. label .. "|r")
         else
-            btn:SetBackdropColor(0.06, 0.02, 0.14, 0.90)
+            btn:SetBackdropColor(0.08, 0.04, 0.03, 0.90)
             btn:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 0.6)
             lbl:SetText(P.tDim .. label .. "|r")
         end
@@ -1817,7 +1817,7 @@ local function CreateToolbar(frame)
     local filterBtnLbl = filterBtn.label
     local function UpdateFilterLook()
         if BiSHelperDB and BiSHelperDB.filterMissing then
-            filterBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
+            filterBtn:SetBackdropColor(0.25, 0.12, 0.08, 0.95)
             filterBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], 1.0)
             filterBtnLbl:SetText(P.tGold .. "Filter|r")
         else
@@ -1829,7 +1829,7 @@ local function CreateToolbar(frame)
     filterBtn.updateLook = UpdateFilterLook
     UpdateFilterLook()
     filterBtn:SetScript("OnEnter", function(self)
-        filterBtn:SetBackdropColor(0.20, 0.10, 0.38, 0.95)
+        filterBtn:SetBackdropColor(0.25, 0.12, 0.08, 0.95)
         GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
         GameTooltip:SetText("Show only slots missing BiS item")
         GameTooltip:Show()
@@ -1983,7 +1983,7 @@ local function CreateRowPool(frame)
         eqText:SetWordWrap(false)
         row.equippedName = eqText
 
-        local ilvlBg = Rect(row, "ARTWORK", 0, 0.12, 0.06, 0.22, 0.85)
+        local ilvlBg = Rect(row, "ARTWORK", 0, 0.15, 0.08, 0.06, 0.85)
         ilvlBg:SetSize(34, 16)
         ilvlBg:SetPoint("LEFT", row, "LEFT", 204, 0)
         local ilvlText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -2098,7 +2098,7 @@ local function CreateFooter(frame)
 
     local footerTrack = footer:CreateTexture(nil, "BACKGROUND")
     footerTrack:SetAllPoints()
-    footerTrack:SetColorTexture(0.06, 0.02, 0.14, 0.90)
+    footerTrack:SetColorTexture(0.08, 0.04, 0.03, 0.90)
 
     local footerFill = footer:CreateTexture(nil, "ARTWORK")
     footerFill:SetPoint("TOPLEFT")
@@ -2224,7 +2224,7 @@ local function RebuildStatBars()
                 bar = CreateFrame("Frame", nil, container, "BackdropTemplate")
                 bar.track = bar:CreateTexture(nil, "BACKGROUND")
                 bar.track:SetAllPoints()
-                bar.track:SetColorTexture(0.08, 0.04, 0.16, 0.90)
+                bar.track:SetColorTexture(0.10, 0.05, 0.04, 0.90)
                 bar.fill = bar:CreateTexture(nil, "ARTWORK")
                 bar.fill:SetPoint("TOPLEFT")
                 bar.fill:SetPoint("BOTTOMLEFT")
@@ -2317,7 +2317,7 @@ local function UpdateRow(rowIndex, slotId)
             row.equippedName:SetText(col .. name .. "|r")
             if ilvl and ilvl > 0 then
                 row.ilvlText:SetText(P.tGold .. ilvl .. "|r")
-                row.ilvlBg:SetColorTexture(0.12, 0.06, 0.22, 0.85)
+                row.ilvlBg:SetColorTexture(0.15, 0.08, 0.06, 0.85)
             else
                 row.ilvlText:SetText("")
                 row.ilvlBg:SetColorTexture(0, 0, 0, 0)
