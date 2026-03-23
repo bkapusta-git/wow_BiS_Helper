@@ -2435,6 +2435,7 @@ local function UpdateRow(rowIndex, slotId)
         row.bisName:SetText("")
         row.sourceText:SetText("")
         row.bisHover.bisItemID = nil
+        row.bisItemID = nil
         return
     end
 
@@ -2448,10 +2449,12 @@ local function UpdateRow(rowIndex, slotId)
         SetRowVisualStatus(row, "bis")
         row.bisName:SetText("")
         row.bisHover.bisItemID = nil
+        row.bisItemID = bisEntry.itemID
     else
         SetRowVisualStatus(row, "missing")
         row.bisName:SetText(P.tMissing .. bisEntry.name .. "|r")
         row.bisHover.bisItemID = bisEntry.itemID
+        row.bisItemID = bisEntry.itemID
     end
 end
 
