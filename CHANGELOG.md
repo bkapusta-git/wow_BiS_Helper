@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0] — 2026-03-23
+
+### Added
+- Copy item links — Shift+click on any equipped or BiS item to get a Wowhead link popup, Shift+Ctrl+click for raw Item ID
+- Escape key closes all addon panels one at a time (sub-panels first, then main window)
+- Help panel updated with Copy Item Link section
+
 ## [0.4.0] — 2026-03-22
 
 ### Changed
