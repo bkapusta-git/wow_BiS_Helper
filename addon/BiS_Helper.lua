@@ -92,6 +92,7 @@ local copyFrame
 
 local function CreateCopyPopup()
     local f = CreateFrame("Frame", "BiSHelperCopyFrame", UIParent, "BackdropTemplate")
+    tinsert(UISpecialFrames, "BiSHelperCopyFrame")
     f:SetSize(320, 50)
     f:SetFrameStrata("DIALOG")
     f:SetClampedToScreen(true)
@@ -793,6 +794,7 @@ end
 
 local function CreateEditFrame()
     local ef = CreateFrame("Frame", "BiSHelperEditFrame", UIParent, "BackdropTemplate")
+    tinsert(UISpecialFrames, "BiSHelperEditFrame")
     ef:SetSize(340, 476)
     ef:SetPoint("CENTER")
     ef:SetMovable(true)
@@ -1100,6 +1102,7 @@ end
 
 local function CreateStatsFrame()
     local sf = CreateFrame("Frame", "BiSHelperStatsFrame", UIParent, "BackdropTemplate")
+    tinsert(UISpecialFrames, "BiSHelperStatsFrame")
     sf:SetSize(460, 300)
     sf:SetPoint("CENTER")
     sf:SetMovable(true)
@@ -1325,6 +1328,7 @@ local HELP_TEXT = [[|cff]] .. "f5c842" .. [[BiS Helper|r compares your equipped 
 
 local function CreateHelpFrame()
     local hf = CreateFrame("Frame", "BiSHelperHelpFrame", UIParent, "BackdropTemplate")
+    tinsert(UISpecialFrames, "BiSHelperHelpFrame")
     hf:SetSize(400, 420)
     hf:SetPoint("CENTER")
     hf:SetMovable(true)
@@ -1798,6 +1802,7 @@ end
 -- ── Creates the base frame: size, drag, resize, backdrop ────
 local function CreateFrameBase()
     local frame = CreateFrame("Frame", "BiSHelperFrame", UIParent, "BackdropTemplate")
+    tinsert(UISpecialFrames, "BiSHelperFrame")
     local db = BiSHelperDB or {}
     frame:SetSize(db.width or 700, db.height or 590)
     frame:SetPoint("CENTER")
