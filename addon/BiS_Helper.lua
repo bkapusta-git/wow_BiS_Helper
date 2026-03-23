@@ -2024,6 +2024,15 @@ local function CreateRowPool(frame)
         iconBorder:EnableMouse(true)
         iconBorder:SetScript("OnEnter", ShowItemTooltip)
         iconBorder:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        iconBorder:SetScript("OnMouseDown", function(self, button)
+            if button == "LeftButton" and IsShiftKeyDown() then
+                local link = GetInventoryItemLink("player", row.slotId)
+                local itemID = link and GetItemIDFromLink(link)
+                if itemID then
+                    ShowCopyPopup(self, itemID, IsControlKeyDown())
+                end
+            end
+        end)
         local iconBgTex = Rect(iconBorder, "ARTWORK", 0, P.goldDim[1], P.goldDim[2], P.goldDim[3], 0.70)
         iconBgTex:SetAllPoints()
         local icon = iconBorder:CreateTexture(nil, "ARTWORK", nil, 1)
@@ -2044,6 +2053,15 @@ local function CreateRowPool(frame)
         eqBtn:SetPoint("LEFT", row, "LEFT", 78, 0)
         eqBtn:SetScript("OnEnter", ShowItemTooltip)
         eqBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        eqBtn:SetScript("OnMouseDown", function(self, button)
+            if button == "LeftButton" and IsShiftKeyDown() then
+                local link = GetInventoryItemLink("player", row.slotId)
+                local itemID = link and GetItemIDFromLink(link)
+                if itemID then
+                    ShowCopyPopup(self, itemID, IsControlKeyDown())
+                end
+            end
+        end)
         local eqText = eqBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         eqText:SetAllPoints()
         eqText:SetJustifyH("LEFT")
