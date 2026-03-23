@@ -1314,6 +1314,12 @@ local HELP_TEXT = [[|cff]] .. "f5c842" .. [[BiS Helper|r compares your equipped 
   To import: switch to the Import tab, paste the string,
   and click Import Profile.
 
+|cff]] .. "f5c842" .. [[COPY ITEM LINK|r
+  Shift+click on item name or icon to get a Wowhead link.
+  Shift+Ctrl+click to get the raw Item ID instead.
+  Works on both equipped items and BiS items.
+  Press Ctrl+C to copy, Escape to close.
+
 |cff]] .. "f5c842" .. [[SLASH COMMAND|r
   /bis        toggle this window]]
 
