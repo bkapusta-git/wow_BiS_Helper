@@ -87,6 +87,73 @@ local DR_STAT_CR = {
 
 local function Trim(s) return s:match("^%s*(.-)%s*$") end
 
+-- ── Copy-to-clipboard popup ────────────────────────────────
+local copyFrame
+
+local function CreateCopyPopup()
+    local f = CreateFrame("Frame", "BiSHelperCopyFrame", UIParent, "BackdropTemplate")
+    f:SetSize(320, 50)
+    f:SetFrameStrata("DIALOG")
+    f:SetClampedToScreen(true)
+    f:Hide()
+
+    f:SetBackdrop({
+        bgFile   = WHITE_TEX,
+        edgeFile = BORDER_TEX,
+        edgeSize = 12,
+        insets   = { left = 2, right = 2, top = 2, bottom = 2 },
+    })
+    f:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], 0.97)
+    f:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+
+    local label = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    label:SetPoint("TOPLEFT", f, "TOPLEFT", 10, -6)
+    f.label = label
+
+    local eb = CreateFrame("EditBox", nil, f, "InputBoxTemplate")
+    eb:SetSize(296, 20)
+    eb:SetPoint("TOPLEFT", f, "TOPLEFT", 12, -22)
+    eb:SetAutoFocus(false)
+    eb:SetFontObject(GameFontHighlightSmall)
+
+    eb:SetScript("OnEscapePressed", function() f:Hide() end)
+    eb:SetScript("OnEditFocusLost", function() f:Hide() end)
+
+    f.editBox = eb
+    f.savedText = ""
+
+    eb:SetScript("OnTextChanged", function(self)
+        if self:GetText() ~= f.savedText then
+            self:SetText(f.savedText)
+            self:HighlightText()
+        end
+    end)
+
+    return f
+end
+
+local function ShowCopyPopup(anchor, itemID, showRawID)
+    GameTooltip:Hide()
+    if not copyFrame then copyFrame = CreateCopyPopup() end
+
+    local text
+    if showRawID then
+        text = tostring(itemID)
+        copyFrame.label:SetText(P.tGold .. "Item ID|r")
+    else
+        text = "https://www.wowhead.com/item=" .. itemID
+        copyFrame.label:SetText(P.tGold .. "Wowhead Link|r")
+    end
+
+    copyFrame.savedText = text
+    copyFrame.editBox:SetText(text)
+    copyFrame:ClearAllPoints()
+    copyFrame:SetPoint("BOTTOM", anchor, "TOP", 0, 4)
+    copyFrame:Show()
+    copyFrame.editBox:SetFocus()
+    copyFrame.editBox:HighlightText()
+end
+
 -- Splits compound DR names like "Crit / Mastery" into individual stat entries
 local function ExpandDREntry(d)
     local parts = { strsplit("/", d.name) }
