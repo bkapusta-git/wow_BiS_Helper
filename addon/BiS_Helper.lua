@@ -92,10 +92,18 @@ local copyFrame
 
 local function CreateCopyPopup()
     local f = CreateFrame("Frame", "BiSHelperCopyFrame", UIParent, "BackdropTemplate")
-    tinsert(UISpecialFrames, "BiSHelperCopyFrame")
     f:SetSize(320, 50)
     f:SetFrameStrata("DIALOG")
     f:SetClampedToScreen(true)
+    f:EnableKeyboard(true)
+    f:SetScript("OnKeyDown", function(self, key)
+        if key == "ESCAPE" then
+            self:SetPropagateKeyboardInput(false)
+            self:Hide()
+        else
+            self:SetPropagateKeyboardInput(true)
+        end
+    end)
     f:Hide()
 
     f:SetBackdrop({
@@ -794,7 +802,6 @@ end
 
 local function CreateEditFrame()
     local ef = CreateFrame("Frame", "BiSHelperEditFrame", UIParent, "BackdropTemplate")
-    tinsert(UISpecialFrames, "BiSHelperEditFrame")
     ef:SetSize(340, 476)
     ef:SetPoint("CENTER")
     ef:SetMovable(true)
@@ -829,6 +836,16 @@ local function CreateEditFrame()
     local closeBtn = CreateFrame("Button", nil, ef, "UIPanelCloseButton")
     closeBtn:SetPoint("TOPRIGHT", ef, "TOPRIGHT", -2, -2)
     closeBtn:SetScript("OnClick", function() ef:Hide() end)
+
+    ef:EnableKeyboard(true)
+    ef:SetScript("OnKeyDown", function(self, key)
+        if key == "ESCAPE" then
+            self:SetPropagateKeyboardInput(false)
+            self:Hide()
+        else
+            self:SetPropagateKeyboardInput(true)
+        end
+    end)
 
     -- Input row (y: -40 to -62)
     local inputLabel = ef:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -1102,7 +1119,6 @@ end
 
 local function CreateStatsFrame()
     local sf = CreateFrame("Frame", "BiSHelperStatsFrame", UIParent, "BackdropTemplate")
-    tinsert(UISpecialFrames, "BiSHelperStatsFrame")
     sf:SetSize(460, 300)
     sf:SetPoint("CENTER")
     sf:SetMovable(true)
@@ -1137,6 +1153,16 @@ local function CreateStatsFrame()
     local closeBtn = CreateFrame("Button", nil, sf, "UIPanelCloseButton")
     closeBtn:SetPoint("TOPRIGHT", sf, "TOPRIGHT", -2, -2)
     closeBtn:SetScript("OnClick", function() sf:Hide() end)
+
+    sf:EnableKeyboard(true)
+    sf:SetScript("OnKeyDown", function(self, key)
+        if key == "ESCAPE" then
+            self:SetPropagateKeyboardInput(false)
+            self:Hide()
+        else
+            self:SetPropagateKeyboardInput(true)
+        end
+    end)
 
     -- Stat priority section (y: -44 to -104)
     local statLabel = sf:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -1328,7 +1354,6 @@ local HELP_TEXT = [[|cff]] .. "f5c842" .. [[BiS Helper|r compares your equipped 
 
 local function CreateHelpFrame()
     local hf = CreateFrame("Frame", "BiSHelperHelpFrame", UIParent, "BackdropTemplate")
-    tinsert(UISpecialFrames, "BiSHelperHelpFrame")
     hf:SetSize(400, 420)
     hf:SetPoint("CENTER")
     hf:SetMovable(true)
@@ -1362,6 +1387,16 @@ local function CreateHelpFrame()
     local closeBtn = CreateFrame("Button", nil, hf, "UIPanelCloseButton")
     closeBtn:SetPoint("TOPRIGHT", hf, "TOPRIGHT", -2, -2)
     closeBtn:SetScript("OnClick", function() hf:Hide() end)
+
+    hf:EnableKeyboard(true)
+    hf:SetScript("OnKeyDown", function(self, key)
+        if key == "ESCAPE" then
+            self:SetPropagateKeyboardInput(false)
+            self:Hide()
+        else
+            self:SetPropagateKeyboardInput(true)
+        end
+    end)
 
     local scroll = CreateFrame("ScrollFrame", nil, hf, "UIPanelScrollFrameTemplate")
     scroll:SetPoint("TOPLEFT",     hf, "TOPLEFT",    10, -44)
@@ -1667,7 +1702,15 @@ local function CreateShareFrame()
     end)
 
     -- ESC to close
-    tinsert(UISpecialFrames, "BiSHelperShareFrame")
+    sf:EnableKeyboard(true)
+    sf:SetScript("OnKeyDown", function(self, key)
+        if key == "ESCAPE" then
+            self:SetPropagateKeyboardInput(false)
+            self:Hide()
+        else
+            self:SetPropagateKeyboardInput(true)
+        end
+    end)
 
     -- Initialize to export tab
     ShowExportTab()
