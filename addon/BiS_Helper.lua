@@ -2168,6 +2168,14 @@ local function CreateRowPool(frame)
             end
         end)
         bisHover:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        bisHover:SetScript("OnMouseDown", function(self, button)
+            if button == "LeftButton" and IsShiftKeyDown() then
+                local itemID = row.bisItemID
+                if itemID then
+                    ShowCopyPopup(self, itemID, IsControlKeyDown())
+                end
+            end
+        end)
         row.bisHover = bisHover
 
         frame.rows[i] = row
