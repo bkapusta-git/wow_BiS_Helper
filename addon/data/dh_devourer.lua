@@ -1,6 +1,7 @@
 -- BiS data: Devourer Demon Hunter — Midnight Season 1
 -- Source: https://www.wowhead.com/guide/classes/demon-hunter/devourer/bis-gear
--- Last updated: 2026-03-14
+--         https://www.wowhead.com/guide/classes/demon-hunter/devourer/stat-priority-pve-dps
+-- Last updated: 2026-03-24
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -11,9 +12,11 @@ BiSHelper_Data["DEMONHUNTER_DEVOURER"] = {
 
     -- Stat priority per content type — source: wowhead.com/guide/.../stat-priority-pve-dps
     -- op = operator AFTER this stat (nil = last in chain)
+    -- Collapsing Star always crits in Midnight → Crit loses value
+    -- Mastery doubles in value during Void Metamorphosis
     statPriority = {
         raid = {
-            note  = "Annihilator: Haste \226\137\165 Mastery  |  Void-Scarred: Mastery \226\137\165 Haste",
+            note  = "Annihilator: Haste >= Mastery  |  Void-Scarred: Mastery >= Haste",
             stats = {
                 { name = "Haste",           op = ">=",  r = 1.00, g = 0.82, b = 0.20 },
                 { name = "Mastery",         op = ">",   r = 0.30, g = 0.75, b = 1.00 },
@@ -60,6 +63,7 @@ BiSHelper_Data["DEMONHUNTER_DEVOURER"] = {
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
+        -- Differences: Trinket 1, Trinket 2
         mythicplus = {
             [1]  = { itemID = 250033, name = "Devouring Reaver's Intake",          source = "Tier Set"                        }, -- Head
             [2]  = { itemID = 249368, name = "Eternal Voidsong Chain",             source = "Crown of the Cosmos · Voidspire"  }, -- Neck

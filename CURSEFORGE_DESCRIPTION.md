@@ -14,7 +14,7 @@ The addon detects your spec automatically and switches the list when you respec.
 
 - Equipped item with icon, name, and item level
 - Enchant and gems (with tooltips)
-- Upgrade track (Myth / Hero / Champion / etc.)
+- Upgrade track and level (e.g. Hero 2/6, Champion 4/6)
 - BiS item name and where it drops
 - Match status (checkmark or X)
 
