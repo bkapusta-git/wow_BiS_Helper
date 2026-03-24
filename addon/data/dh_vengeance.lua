@@ -1,7 +1,7 @@
 -- BiS data: Vengeance Demon Hunter — Midnight Season 1
 -- Source: https://www.wowhead.com/guide/classes/demon-hunter/vengeance/bis-gear
 --         https://www.wowhead.com/guide/classes/demon-hunter/vengeance/stat-priority-pve-tank
--- Last updated: 2026-03-14
+-- Last updated: 2026-03-24
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -50,17 +50,17 @@ BiSHelper_Data["DEMONHUNTER_VENGEANCE"] = {
             [8]  = { itemID = 251210, name = "Eclipse Espadrilles",              source = "Nexus Point Xenas"               }, -- Feet
             [9]  = { itemID = 50264,  name = "Chewed Leather Wristguards",       source = "Pit of Saron"                    }, -- Wrist
             [10] = { itemID = 250034, name = "Devouring Reaver's Essence Grips", source = "Tier Set"                        }, -- Hands
-            [11] = { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls"                  }, -- Ring 1
-            [12] = { itemID = 251513, name = "Loa Worshiper's Band",             source = "Crafted"                         }, -- Ring 2
+            [11] = { itemID = 251093, name = "Omission of Light",                source = "Nexus Point Xenas"               }, -- Ring 1
+            [12] = { itemID = 251217, name = "Occlusion of Void",                source = "Nexus Point Xenas"               }, -- Ring 2
             [13] = { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus · The Dreamrift"       }, -- Trinket 1
             [14] = { itemID = 249344, name = "Light Company Guidon",             source = "Imperator Averzian"              }, -- Trinket 2
             [15] = { itemID = 239656, name = "Adherent's Silken Shroud",         source = "Crafted"                         }, -- Back
             [16] = { itemID = 260408, name = "Lightless Lament",                 source = "Midnight Falls"                  }, -- Main Hand
-            [17] = { itemID = 249298, name = "Tormentor's Bladed Fists",         source = "Fallen-King Salhadaar · Voidspire"}, -- Off Hand
+            [17] = { itemID = 249298, name = "Tormentor's Bladed Fists",         source = "Vorasius"                        }, -- Off Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
-        -- Key differences: Trinket 1, Main Hand
+        -- Key differences: Trinket 1
         mythicplus = {
             [1]  = { itemID = 250033, name = "Devouring Reaver's Intake",        source = "Tier Set"                        }, -- Head
             [2]  = { itemID = 151309, name = "Necklace of the Twisting Void",    source = "Seat of the Triumvirate"         }, -- Neck
@@ -71,13 +71,13 @@ BiSHelper_Data["DEMONHUNTER_VENGEANCE"] = {
             [8]  = { itemID = 251210, name = "Eclipse Espadrilles",              source = "Nexus Point Xenas"               }, -- Feet
             [9]  = { itemID = 50264,  name = "Chewed Leather Wristguards",       source = "Pit of Saron"                    }, -- Wrist
             [10] = { itemID = 250034, name = "Devouring Reaver's Essence Grips", source = "Tier Set"                        }, -- Hands
-            [11] = { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls"                  }, -- Ring 1
-            [12] = { itemID = 251513, name = "Loa Worshiper's Band",             source = "Crafted"                         }, -- Ring 2
+            [11] = { itemID = 251093, name = "Omission of Light",                source = "Nexus Point Xenas"               }, -- Ring 1
+            [12] = { itemID = 251217, name = "Occlusion of Void",                source = "Nexus Point Xenas"               }, -- Ring 2
             [13] = { itemID = 252420, name = "Solarflare Prism",                 source = "Mythic+"                         }, -- Trinket 1 (M+)
             [14] = { itemID = 249344, name = "Light Company Guidon",             source = "Imperator Averzian"              }, -- Trinket 2
             [15] = { itemID = 239656, name = "Adherent's Silken Shroud",         source = "Crafted"                         }, -- Back
-            [16] = { itemID = 193717, name = "Mystakria's Harvester",            source = "Mythic+"                         }, -- Main Hand (M+)
-            [17] = { itemID = 249298, name = "Tormentor's Bladed Fists",         source = "Fallen-King Salhadaar · Voidspire"}, -- Off Hand
+            [16] = { itemID = 260408, name = "Lightless Lament",                 source = "Midnight Falls"                  }, -- Main Hand
+            [17] = { itemID = 249298, name = "Tormentor's Bladed Fists",         source = "Vorasius"                        }, -- Off Hand
         },
     },
 }

@@ -1,7 +1,7 @@
 -- BiS data: Havoc Demon Hunter — Midnight Season 1
 -- Source: https://www.wowhead.com/guide/classes/demon-hunter/havoc/bis-gear
 --         https://www.wowhead.com/guide/classes/demon-hunter/havoc/stat-priority-pve-dps
--- Last updated: 2026-03-14
+-- Last updated: 2026-03-24
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -11,13 +11,14 @@ BiSHelper_Data["DEMONHUNTER_HAVOC"] = {
     spec  = "Havoc",
 
     -- Stat priority — source: Wowhead stat priority page
-    -- Same for both builds (Fel-Scarred & Aldrachi Reaver); same in AoE
+    -- Both Fel-Scarred & Aldrachi Reaver share the same priority
+    -- Know Your Enemy talent: +40% crit chance as crit damage → Crit very strong
     statPriority = {
         raid = {
             note  = "Fel-Scarred & Aldrachi Reaver: identical priority",
             stats = {
-                { name = "Critical Strike", op = ">",   r = 1.00, g = 0.35, b = 0.35 },
-                { name = "Mastery",         op = ">",   r = 0.30, g = 0.75, b = 1.00 },
+                { name = "Critical Strike", op = ">>",  r = 1.00, g = 0.35, b = 0.35 },
+                { name = "Mastery",         op = ">=",  r = 0.30, g = 0.75, b = 1.00 },
                 { name = "Haste",           op = ">",   r = 1.00, g = 0.82, b = 0.20 },
                 { name = "Versatility",     op = nil,   r = 0.65, g = 0.40, b = 1.00 },
             },
@@ -25,8 +26,8 @@ BiSHelper_Data["DEMONHUNTER_HAVOC"] = {
         mythicplus = {
             note  = "Priority remains roughly the same in AoE",
             stats = {
-                { name = "Critical Strike", op = ">",   r = 1.00, g = 0.35, b = 0.35 },
-                { name = "Mastery",         op = ">",   r = 0.30, g = 0.75, b = 1.00 },
+                { name = "Critical Strike", op = ">>",  r = 1.00, g = 0.35, b = 0.35 },
+                { name = "Mastery",         op = ">=",  r = 0.30, g = 0.75, b = 1.00 },
                 { name = "Haste",           op = ">",   r = 1.00, g = 0.82, b = 0.20 },
                 { name = "Versatility",     op = nil,   r = 0.65, g = 0.40, b = 1.00 },
             },
@@ -51,12 +52,12 @@ BiSHelper_Data["DEMONHUNTER_HAVOC"] = {
             [9]  = { itemID = 244576, name = "Silvermoon Agent's Deflectors",    source = "Crafted"                         }, -- Wrist
             [10] = { itemID = 250034, name = "Devouring Reaver's Essence Grips", source = "Tier Set"                        }, -- Hands
             [11] = { itemID = 249919, name = "Sin'dorei Band of Hope",           source = "Belo'ren"                        }, -- Ring 1
-            [12] = { itemID = 251217, name = "Occlusion of Void",                source = "Nexus Point Xenas"               }, -- Ring 2
+            [12] = { itemID = 193708, name = "Platinum Star Band",               source = "Algeth'ar Academy"               }, -- Ring 2
             [13] = { itemID = 193701, name = "Algeth'ar Puzzle Box",             source = "Algeth'ar Academy"               }, -- Trinket 1
-            [14] = { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus · The Dreamrift"       }, -- Trinket 2
+            [14] = { itemID = 260235, name = "Umbral Plume",                     source = "Belo'ren"                        }, -- Trinket 2
             [15] = { itemID = 239656, name = "Adherent's Silken Shroud",         source = "Crafted"                         }, -- Back
             [16] = { itemID = 260408, name = "Lightless Lament",                 source = "Midnight Falls"                  }, -- Main Hand
-            [17] = { itemID = 249280, name = "Emblazoned Sunglaive",             source = "The Voidspire"                   }, -- Off Hand
+            [17] = { itemID = 249280, name = "Emblazoned Sunglaive",             source = "Vaelgor & Ezzorak"               }, -- Off Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
@@ -72,12 +73,12 @@ BiSHelper_Data["DEMONHUNTER_HAVOC"] = {
             [9]  = { itemID = 244576, name = "Silvermoon Agent's Deflectors",    source = "Crafted"                         }, -- Wrist
             [10] = { itemID = 250034, name = "Devouring Reaver's Essence Grips", source = "Tier Set"                        }, -- Hands
             [11] = { itemID = 249919, name = "Sin'dorei Band of Hope",           source = "Belo'ren"                        }, -- Ring 1
-            [12] = { itemID = 251217, name = "Occlusion of Void",                source = "Nexus Point Xenas"               }, -- Ring 2
+            [12] = { itemID = 193708, name = "Platinum Star Band",               source = "Algeth'ar Academy"               }, -- Ring 2
             [13] = { itemID = 193701, name = "Algeth'ar Puzzle Box",             source = "Algeth'ar Academy"               }, -- Trinket 1
-            [14] = { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus · The Dreamrift"       }, -- Trinket 2
+            [14] = { itemID = 260235, name = "Umbral Plume",                     source = "Belo'ren"                        }, -- Trinket 2
             [15] = { itemID = 239656, name = "Adherent's Silken Shroud",         source = "Crafted"                         }, -- Back
             [16] = { itemID = 260408, name = "Lightless Lament",                 source = "Midnight Falls"                  }, -- Main Hand
-            [17] = { itemID = 249280, name = "Emblazoned Sunglaive",             source = "The Voidspire"                   }, -- Off Hand
+            [17] = { itemID = 249280, name = "Emblazoned Sunglaive",             source = "Vaelgor & Ezzorak"               }, -- Off Hand
         },
     },
 }

@@ -200,9 +200,12 @@ local function GetItemTrack(itemLink)
         if line then
             local text = line:GetText()
             if text then
-                local trackName = text:match("Upgrade Level:%s*(%a+)")
+                local trackName, upgradeLevel = text:match("Upgrade Level:%s*(%a+)%s+(%d+/%d+)")
+                if not trackName then
+                    trackName = text:match("Upgrade Level:%s*(%a+)")
+                end
                 if trackName and TRACK_COLOR[trackName] then
-                    return trackName
+                    return trackName, upgradeLevel
                 end
             end
         end
@@ -1324,7 +1327,7 @@ local HELP_TEXT = [[|cff]] .. "f5c842" .. [[BiS Helper|r compares your equipped 
   iLvl        item level
   Enchant     enchant applied (hover for tooltip)
   Gems        socketed gems (hover for tooltip)
-  Track       upgrade track: Myth / Hero / Champion…
+  Track       upgrade track & level: Hero 2/6, Myth 4/6…
   BiS         match indicator (✓ / ✗)
   BiS Item    recommended item (hover for tooltip)
   Source      where to obtain it
@@ -1847,20 +1850,26 @@ local function CreateFrameBase()
     local frame = CreateFrame("Frame", "BiSHelperFrame", UIParent, "BackdropTemplate")
     tinsert(UISpecialFrames, "BiSHelperFrame")
     local db = BiSHelperDB or {}
-    frame:SetSize(db.width or 700, db.height or 590)
+    local w = db.width or 748
+    local h = db.height or 590
+    if w < 748 then w = 748 end
+    if h > 800 or h < 400 then h = 590 end
+    frame:SetSize(w, h)
     frame:SetPoint("CENTER")
     frame:SetMovable(true)
+    frame:SetUserPlaced(false)
     frame:SetResizable(true)
     if frame.SetResizeBounds then
-        frame:SetResizeBounds(600, 400, 2000, 2000)
+        frame:SetResizeBounds(748, 400, 1200, 800)
     else
-        pcall(function() frame:SetMinResize(600, 400) end)
+        pcall(function() frame:SetMinResize(748, 400) end)
     end
     frame:EnableMouse(true)
     frame:RegisterForDrag("LeftButton")
     frame:SetScript("OnDragStart", frame.StartMoving)
     frame:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
+        self:SetUserPlaced(false)
         BiSHelperDB.point, _, BiSHelperDB.relPoint, BiSHelperDB.x, BiSHelperDB.y = self:GetPoint()
     end)
     frame:SetClampedToScreen(true)
@@ -1877,6 +1886,7 @@ local function CreateFrameBase()
     resizer:SetScript("OnMouseDown", function() frame:StartSizing("BOTTOMRIGHT") end)
     resizer:SetScript("OnMouseUp", function()
         frame:StopMovingOrSizing()
+        frame:SetUserPlaced(false)
         BiSHelperDB.width, BiSHelperDB.height = frame:GetSize()
     end)
 
@@ -2002,9 +2012,9 @@ local function CreateColumnHeaders(frame)
     ColHeader(frame, "iLvl",      206,  34, "RIGHT")
     ColHeader(frame, "Enchant",   248,  130, "LEFT")
     ColHeader(frame, "Gems",      382,  44, "LEFT")
-    ColHeader(frame, "Track",     432,  72, "LEFT")
-    ColHeader(frame, "BiS",       510,  24, "CENTER")
-    ColHeader(frame, "BiS Item",  538,  130, "LEFT")
+    ColHeader(frame, "Track",     432, 120, "LEFT")
+    ColHeader(frame, "BiS",       558,  24, "CENTER")
+    ColHeader(frame, "BiS Item",  586, 130, "LEFT")
     ColHeader(frame, "Source",    nil,  132, "LEFT", -50)
 
     local colSep = Rect(frame, "ARTWORK", 1, P.goldDim[1], P.goldDim[2], P.goldDim[3], P.goldDim[4])
@@ -2012,11 +2022,11 @@ local function CreateColumnHeaders(frame)
     colSep:SetPoint("TOPLEFT",  frame, "TOPLEFT",  2, -(HEADER_H + 20))
     colSep:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -2, -(HEADER_H + 20))
 
-    -- Vertical separator between equipped columns and BiS columns (x=506)
+    -- Vertical separator between equipped columns and BiS columns (x=555)
     local vColSep = Rect(frame, "ARTWORK", 2, P.gold[1], P.gold[2], P.gold[3], 0.45)
     vColSep:SetWidth(2)
-    vColSep:SetPoint("TOP",    frame, "TOPLEFT", 506, -(HEADER_H + 2))
-    vColSep:SetPoint("BOTTOM", frame, "TOPLEFT", 506, -(HEADER_H + 22))
+    vColSep:SetPoint("TOP",    frame, "TOPLEFT", 555, -(HEADER_H + 2))
+    vColSep:SetPoint("BOTTOM", frame, "TOPLEFT", 555, -(HEADER_H + 22))
 end
 
 -- ── Creates the scroll frame and all gear rows ───────────────
@@ -2060,8 +2070,8 @@ local function CreateRowPool(frame)
 
         local vSep = Rect(row, "ARTWORK", 1, P.gold[1], P.gold[2], P.gold[3], 0.25)
         vSep:SetWidth(2)
-        vSep:SetPoint("TOP",    row, "TOPLEFT",    506, -2)
-        vSep:SetPoint("BOTTOM", row, "BOTTOMLEFT", 506,  2)
+        vSep:SetPoint("TOP",    row, "TOPLEFT",    555, -2)
+        vSep:SetPoint("BOTTOM", row, "BOTTOMLEFT", 555,  2)
 
         local function ShowItemTooltip(self)
             local link = GetInventoryItemLink("player", row.slotId)
@@ -2188,12 +2198,12 @@ local function CreateRowPool(frame)
 
         local trackText = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         trackText:SetPoint("LEFT", row, "LEFT", 430, 0)
-        trackText:SetWidth(72)
+        trackText:SetWidth(120)
         trackText:SetJustifyH("LEFT")
         row.trackText = trackText
 
         local bisStatus = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        bisStatus:SetPoint("CENTER", row, "LEFT", 520, 0)
+        bisStatus:SetPoint("CENTER", row, "LEFT", 568, 0)
         bisStatus:SetWidth(24)
         bisStatus:SetJustifyH("CENTER")
         row.bisStatus = bisStatus
@@ -2205,7 +2215,7 @@ local function CreateRowPool(frame)
         row.sourceText = sourceText
 
         local bisName = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        bisName:SetPoint("LEFT", row, "LEFT", 536, 0)
+        bisName:SetPoint("LEFT", row, "LEFT", 584, 0)
         bisName:SetPoint("RIGHT", sourceText, "LEFT", -10, 0)
         bisName:SetJustifyH("LEFT")
         row.bisName = bisName
@@ -2481,10 +2491,10 @@ local function UpdateRow(rowIndex, slotId)
         row.ilvlBg:SetColorTexture(0, 0, 0, 0)
     end
 
-    local track = GetItemTrack(link)
+    local track, upgradeLevel = GetItemTrack(link)
     if track then
         local tc = TRACK_COLOR[track] or P.tDim
-        row.trackText:SetText(tc .. track .. " Track|r")
+        row.trackText:SetText(tc .. track .. (upgradeLevel and (" " .. upgradeLevel) or " Track") .. "|r")
     else
         row.trackText:SetText(link and P.tDim .. "—|r" or "")
     end
@@ -2744,6 +2754,18 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
                 BiSHelperFrame:ClearAllPoints()
                 pcall(function() BiSHelperFrame:SetPoint(BiSHelperDB.point, UIParent, BiSHelperDB.relPoint or BiSHelperDB.point, BiSHelperDB.x, BiSHelperDB.y) end)
             end
+            -- Override WoW layout cache (per-character) which restores old size after ~0.1s
+            local db = BiSHelperDB
+            local fw = db.width or 748
+            local fh = db.height or 590
+            if fw < 748 then fw = 748 end
+            if fh > 800 or fh < 400 then fh = 590 end
+            C_Timer.After(0.2, function()
+                if BiSHelperFrame then
+                    BiSHelperFrame:SetSize(fw, fh)
+                    BiSHelperFrame:SetUserPlaced(false)
+                end
+            end)
         end
     elseif event == "PLAYER_LOGIN" or event == "PLAYER_SPECIALIZATION_CHANGED" then
         C_Timer.After(0.5, function() if BiSHelperFrame then BiSHelper_Refresh() end end)

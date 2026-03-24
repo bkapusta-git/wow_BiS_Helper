@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.6.0] — 2026-03-24
+
+### Added
+- Upgrade level displayed in Track column (e.g. "Champion 2/6" instead of "Champion Track")
+
+### Changed
+- Track column widened to accommodate upgrade level text
+- Adjusted column layout — BiS separator and columns shifted to match wider Track
+
+### Fixed
+- Window size no longer gets overridden by WoW layout cache (SetUserPlaced fix)
+
 ## [0.5.0] — 2026-03-23
 
 ### Added
