@@ -2013,9 +2013,8 @@ local function CreateColumnHeaders(frame)
     ColHeader(frame, "Enchant",   248,  130, "LEFT")
     ColHeader(frame, "Gems",      382,  44, "LEFT")
     ColHeader(frame, "Track",     432, 120, "LEFT")
-    ColHeader(frame, "BiS",       558,  24, "CENTER")
-    ColHeader(frame, "BiS Item",  586, 130, "LEFT")
-    ColHeader(frame, "Source",    nil,  132, "LEFT", -50)
+    ColHeader(frame, "BiS Item",  558, 130, "LEFT")
+    ColHeader(frame, "Source",    nil,  160, "LEFT", -50)
 
     local colSep = Rect(frame, "ARTWORK", 1, P.goldDim[1], P.goldDim[2], P.goldDim[3], P.goldDim[4])
     colSep:SetHeight(1)
@@ -2202,20 +2201,14 @@ local function CreateRowPool(frame)
         trackText:SetJustifyH("LEFT")
         row.trackText = trackText
 
-        local bisStatus = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        bisStatus:SetPoint("CENTER", row, "LEFT", 568, 0)
-        bisStatus:SetWidth(24)
-        bisStatus:SetJustifyH("CENTER")
-        row.bisStatus = bisStatus
-
         local sourceText = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         sourceText:SetPoint("RIGHT", row, "RIGHT", -24, 0)
-        sourceText:SetWidth(132)
+        sourceText:SetWidth(160)
         sourceText:SetJustifyH("LEFT")
         row.sourceText = sourceText
 
         local bisName = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        bisName:SetPoint("LEFT", row, "LEFT", 584, 0)
+        bisName:SetPoint("LEFT", row, "LEFT", 558, 0)
         bisName:SetPoint("RIGHT", sourceText, "LEFT", -10, 0)
         bisName:SetJustifyH("LEFT")
         row.bisName = bisName
@@ -2443,13 +2436,10 @@ local function SetRowVisualStatus(row, status)
     row.accent:SetColorTexture(c[1], c[2], c[3], 0.85)
     if status == "bis" then
         row.glowBg:SetColorTexture(P.glowGreen[1], P.glowGreen[2], P.glowGreen[3], P.glowGreen[4])
-        row.bisStatus:SetText("|cff4ee050✓|r")
     elseif status == "missing" then
         row.glowBg:SetColorTexture(P.glowRed[1], P.glowRed[2], P.glowRed[3], P.glowRed[4])
-        row.bisStatus:SetText("|cffe63830✗|r")
     else
         row.glowBg:SetColorTexture(0, 0, 0, 0)
-        row.bisStatus:SetText("")
     end
 end
 
@@ -2537,7 +2527,7 @@ local function UpdateRow(rowIndex, slotId)
     local equippedID = GetItemIDFromLink(link)
     if equippedID == bisEntry.itemID then
         SetRowVisualStatus(row, "bis")
-        row.bisName:SetText("")
+        row.bisName:SetText(P.tBiS .. bisEntry.name .. "|r")
         row.bisHover.bisItemID = nil
         row.bisItemID = bisEntry.itemID
     else

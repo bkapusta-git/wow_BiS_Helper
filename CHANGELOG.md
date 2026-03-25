@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1] — 2026-03-25
+
+### Changed
+- Removed redundant BiS status column (✓/✗) — accent bar and row glow already indicate status
+- BiS item name now stays visible (in green) when equipped instead of disappearing
+- Source column widened with reclaimed space
+
 ## [0.6.0] — 2026-03-24
 
 ### Added
