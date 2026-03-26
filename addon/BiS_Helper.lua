@@ -1798,6 +1798,318 @@ local function CreateShareFrame()
     return sf
 end
 
+-- ============================================================
+-- Profiles panel (save / load / rename / delete)
+-- ============================================================
+local function CreateProfilesFrame()
+    local pf = CreateFrame("Frame", "BiSHelperProfilesFrame", UIParent, "BackdropTemplate")
+    pf:SetSize(340, 476)
+    pf:SetPoint("CENTER")
+    pf:SetMovable(true)
+    pf:SetClampedToScreen(true)
+    pf:SetFrameStrata("DIALOG")
+    pf:EnableMouse(true)
+    pf:RegisterForDrag("LeftButton")
+    pf:SetScript("OnDragStart", pf.StartMoving)
+    pf:SetScript("OnDragStop",  pf.StopMovingOrSizing)
+    pf:Hide()
+
+    pf:SetBackdrop({
+        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 16,
+        insets = { left=4, right=4, top=4, bottom=4 },
+    })
+    pf:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
+    pf:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+
+    -- Header
+    local hdrBg = Rect(pf, "BACKGROUND", 2, P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], P.bgHeader[4])
+    hdrBg:SetPoint("TOPLEFT",  pf, "TOPLEFT",  1, -1)
+    hdrBg:SetPoint("TOPRIGHT", pf, "TOPRIGHT", -1, -1)
+    hdrBg:SetHeight(36)
+    local hdrSep = GoldLine(pf, 1)
+    hdrSep:SetPoint("TOPLEFT",  pf, "TOPLEFT",  2, -36)
+    hdrSep:SetPoint("TOPRIGHT", pf, "TOPRIGHT", -2, -36)
+
+    pf.titleText = pf:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    pf.titleText:SetPoint("TOPLEFT", pf, "TOPLEFT", 10, -10)
+    pf.titleText:SetText(P.tGold .. "Profiles|r")
+
+    pf.subtitleText = pf:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    pf.subtitleText:SetPoint("TOPLEFT", pf.titleText, "BOTTOMLEFT", 0, -2)
+
+    local closeBtn = CreateFrame("Button", nil, pf, "UIPanelCloseButton")
+    closeBtn:SetPoint("TOPRIGHT", pf, "TOPRIGHT", -2, -2)
+    closeBtn:SetScript("OnClick", function() pf:Hide() end)
+
+    -- ESC to close
+    pf:SetScript("OnKeyDown", function(self, key)
+        if key == "ESCAPE" then
+            self:SetPropagateKeyboardInput(false)
+            self:Hide()
+        else
+            self:SetPropagateKeyboardInput(true)
+        end
+    end)
+
+    -- Save section
+    local saveLbl = pf:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    saveLbl:SetPoint("TOPLEFT", pf, "TOPLEFT", 10, -46)
+    saveLbl:SetText(P.tDim .. "SAVE CURRENT|r")
+
+    local nameBox = CreateFrame("EditBox", nil, pf, "BackdropTemplate")
+    nameBox:SetSize(224, 24)
+    nameBox:SetPoint("TOPLEFT", pf, "TOPLEFT", 10, -62)
+    nameBox:SetBackdrop({
+        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
+        insets = { left=3, right=3, top=3, bottom=3 },
+    })
+    nameBox:SetBackdropColor(0.05, 0.02, 0.02, 0.95)
+    nameBox:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], P.goldDim[4])
+    nameBox:SetFontObject(ChatFontNormal)
+    nameBox:SetTextColor(0.93, 0.84, 0.72, 1.0)
+    nameBox:SetAutoFocus(false)
+    nameBox:SetMaxLetters(40)
+    nameBox:SetTextInsets(6, 6, 0, 0)
+    nameBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
+
+    -- Placeholder text
+    local placeholder = nameBox:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    placeholder:SetPoint("LEFT", 6, 0)
+    placeholder:SetText(P.tDim .. "Enter profile name...|r")
+    nameBox:SetScript("OnTextChanged", function(self)
+        placeholder:SetShown(self:GetText() == "")
+    end)
+
+    local saveBtn = CreateFrame("Button", nil, pf, "BackdropTemplate")
+    saveBtn:SetSize(80, 24)
+    saveBtn:SetPoint("LEFT", nameBox, "RIGHT", 6, 0)
+    saveBtn:SetBackdrop({
+        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
+        insets = { left=3, right=3, top=3, bottom=3 },
+    })
+    saveBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+    saveBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    local saveLblBtn = saveBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    saveLblBtn:SetAllPoints()
+    saveLblBtn:SetJustifyH("CENTER")
+    saveLblBtn:SetText(P.tGold .. "Save|r")
+    saveBtn:SetScript("OnEnter", function() saveBtn:SetBackdropColor(0.25, 0.12, 0.08, 0.95) end)
+    saveBtn:SetScript("OnLeave", function() saveBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4]) end)
+
+    -- Status text (save feedback)
+    local statusText = pf:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    statusText:SetPoint("TOPLEFT", nameBox, "BOTTOMLEFT", 0, -4)
+    statusText:SetText("")
+    pf.statusText = statusText
+
+    -- Separator
+    local listSep = GoldLine(pf, 1)
+    listSep:SetPoint("TOPLEFT",  pf, "TOPLEFT",  6, -100)
+    listSep:SetPoint("TOPRIGHT", pf, "TOPRIGHT", -6, -100)
+
+    local listLbl = pf:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    listLbl:SetPoint("TOPLEFT", pf, "TOPLEFT", 10, -108)
+    listLbl:SetText(P.tDim .. "SAVED PROFILES|r")
+
+    -- Empty state
+    local emptyText = pf:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    emptyText:SetPoint("CENTER", pf, "CENTER", 0, -40)
+    emptyText:SetText(P.tDim .. "No saved profiles|r")
+    pf.emptyText = emptyText
+
+    -- Scroll frame for profile list
+    local scrollFrame = CreateFrame("ScrollFrame", nil, pf, "UIPanelScrollFrameTemplate")
+    scrollFrame:SetPoint("TOPLEFT",     pf, "TOPLEFT",    4, -122)
+    scrollFrame:SetPoint("BOTTOMRIGHT", pf, "BOTTOMRIGHT", -26, 6)
+
+    local listContent = CreateFrame("Frame", nil, scrollFrame)
+    listContent:SetHeight(1)
+    scrollFrame:SetScrollChild(listContent)
+    scrollFrame:SetScript("OnSizeChanged", function(self, w) listContent:SetWidth(w) end)
+    pf.listContent = listContent
+    pf.rowPool = {}
+
+    local ROW_HEIGHT = 56
+
+    local function CreateProfileRow(parent, index)
+        local row = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+        row:SetHeight(ROW_HEIGHT)
+        row:SetPoint("TOPLEFT",  parent, "TOPLEFT",  6, -(index - 1) * (ROW_HEIGHT + 4))
+        row:SetPoint("TOPRIGHT", parent, "TOPRIGHT", -6, -(index - 1) * (ROW_HEIGHT + 4))
+        row:SetBackdrop({
+            bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
+            insets = { left=3, right=3, top=3, bottom=3 },
+        })
+        row:SetBackdropColor(0.05, 0.02, 0.02, 0.95)
+        row:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 0.3)
+
+        row.nameText = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        row.nameText:SetPoint("TOPLEFT", row, "TOPLEFT", 8, -6)
+        row.nameText:SetPoint("TOPRIGHT", row, "TOPRIGHT", -8, -6)
+        row.nameText:SetJustifyH("LEFT")
+
+        row.infoText = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        row.infoText:SetPoint("TOPLEFT", row.nameText, "BOTTOMLEFT", 0, -2)
+        row.infoText:SetJustifyH("LEFT")
+
+        -- Action buttons
+        local function ActionBtn(label, r, g, b, borderR, borderG, borderB)
+            local btn = CreateFrame("Button", nil, row, "BackdropTemplate")
+            btn:SetSize(60, 20)
+            btn:SetBackdrop({
+                bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
+                insets = { left=3, right=3, top=3, bottom=3 },
+            })
+            btn:SetBackdropColor(r, g, b, 0.95)
+            btn:SetBackdropBorderColor(borderR, borderG, borderB, 0.7)
+            local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+            lbl:SetAllPoints()
+            lbl:SetJustifyH("CENTER")
+            lbl:SetText("|cff" .. string.format("%02x%02x%02x", borderR*255, borderG*255, borderB*255) .. label .. "|r")
+            btn:SetScript("OnEnter", function() btn:SetBackdropColor(r+0.05, g+0.03, b+0.03, 1.0) end)
+            btn:SetScript("OnLeave", function() btn:SetBackdropColor(r, g, b, 0.95) end)
+            return btn
+        end
+
+        row.loadBtn   = ActionBtn("Load",   0.10, 0.23, 0.10, 0.36, 0.72, 0.36)
+        row.renameBtn = ActionBtn("Rename", 0.17, 0.07, 0.03, 0.63, 0.50, 0.31)
+        row.deleteBtn = ActionBtn("Delete", 0.23, 0.06, 0.06, 0.80, 0.36, 0.36)
+
+        row.loadBtn:SetPoint("BOTTOMLEFT", row, "BOTTOMLEFT", 6, 6)
+        row.renameBtn:SetPoint("LEFT", row.loadBtn, "RIGHT", 4, 0)
+        row.deleteBtn:SetPoint("LEFT", row.renameBtn, "RIGHT", 4, 0)
+
+        return row
+    end
+
+    local function RebuildProfileRows()
+        -- Hide all existing rows
+        for _, row in ipairs(pf.rowPool) do row:Hide() end
+
+        local profiles = BiSHelperDB.profiles
+        pf.emptyText:SetShown(#profiles == 0)
+        scrollFrame:SetShown(#profiles > 0)
+
+        for i, profile in ipairs(profiles) do
+            local row = pf.rowPool[i]
+            if not row then
+                row = CreateProfileRow(listContent, i)
+                pf.rowPool[i] = row
+            else
+                row:SetPoint("TOPLEFT",  listContent, "TOPLEFT",  6, -(i - 1) * (ROW_HEIGHT + 4))
+                row:SetPoint("TOPRIGHT", listContent, "TOPRIGHT", -6, -(i - 1) * (ROW_HEIGHT + 4))
+            end
+
+            row.nameText:SetText(P.tCream .. profile.name .. "|r")
+            local dateStr = profile.created and FormatDate(profile.created) or "?"
+            row.infoText:SetText(P.tDim .. (profile.label or profile.key) .. " · " .. dateStr .. "|r")
+
+            -- Load
+            row.loadBtn:SetScript("OnClick", function()
+                local currentKey = GetCurrentDataKey()
+                if not currentKey then return end
+                local currentSpec = GetSpecData()
+                local currentLabel = currentSpec and currentSpec.label or currentKey
+
+                if profile.key ~= currentKey then
+                    local dlg = StaticPopupDialogs["BISHELPER_PROFILE_SPECWARN"]
+                    dlg.OnAccept = function()
+                        LoadProfile(profile)
+                        statusText:SetText(P.tBiS .. "Loaded: " .. profile.name .. "|r")
+                    end
+                    StaticPopup_Show("BISHELPER_PROFILE_SPECWARN", profile.label or profile.key, currentLabel)
+                else
+                    LoadProfile(profile)
+                    statusText:SetText(P.tBiS .. "Loaded: " .. profile.name .. "|r")
+                end
+            end)
+
+            -- Rename
+            row.renameBtn:SetScript("OnClick", function()
+                local dlg = StaticPopupDialogs["BISHELPER_PROFILE_RENAME"]
+                dlg.OnAccept = function(self)
+                    local newName = self.editBox:GetText()
+                    if not newName or newName == "" then return end
+                    local existIdx = FindProfileByName(newName)
+                    if existIdx and existIdx ~= i then
+                        statusText:SetText(P.tMissing .. "Name already in use|r")
+                        return
+                    end
+                    profile.name = newName
+                    RebuildProfileRows()
+                    statusText:SetText(P.tBiS .. "Renamed to: " .. newName .. "|r")
+                end
+                StaticPopup_Show("BISHELPER_PROFILE_RENAME", profile.name, nil, profile.name)
+            end)
+
+            -- Delete
+            row.deleteBtn:SetScript("OnClick", function()
+                local dlg = StaticPopupDialogs["BISHELPER_PROFILE_DELETE"]
+                dlg.OnAccept = function()
+                    table.remove(BiSHelperDB.profiles, i)
+                    RebuildProfileRows()
+                    statusText:SetText(P.tBiS .. "Deleted: " .. profile.name .. "|r")
+                end
+                StaticPopup_Show("BISHELPER_PROFILE_DELETE", profile.name)
+            end)
+
+            row:Show()
+        end
+
+        listContent:SetHeight(math.max(1, #profiles * (ROW_HEIGHT + 4)))
+    end
+    pf.RebuildProfileRows = RebuildProfileRows
+
+    local function DoSave()
+        local name = nameBox:GetText()
+        if not name or name == "" then
+            statusText:SetText(P.tMissing .. "Enter a profile name|r")
+            return
+        end
+        local existIdx = FindProfileByName(name)
+        if existIdx then
+            local dlg = StaticPopupDialogs["BISHELPER_PROFILE_OVERWRITE"]
+            dlg.OnAccept = function()
+                table.remove(BiSHelperDB.profiles, existIdx)
+                if SaveProfile(name) then
+                    nameBox:SetText("")
+                    nameBox:ClearFocus()
+                    RebuildProfileRows()
+                    statusText:SetText(P.tBiS .. "Saved: " .. name .. "|r")
+                end
+            end
+            StaticPopup_Show("BISHELPER_PROFILE_OVERWRITE", name)
+        else
+            if SaveProfile(name) then
+                nameBox:SetText("")
+                nameBox:ClearFocus()
+                RebuildProfileRows()
+                statusText:SetText(P.tBiS .. "Saved: " .. name .. "|r")
+            else
+                statusText:SetText(P.tMissing .. "No spec data available|r")
+            end
+        end
+    end
+
+    saveBtn:SetScript("OnClick", DoSave)
+    nameBox:SetScript("OnEnterPressed", function(self)
+        self:ClearFocus()
+        DoSave()
+    end)
+
+    pf:SetScript("OnShow", function()
+        local specData = GetSpecData()
+        local label = specData and specData.label or "Unknown"
+        local modeLabel = activeMode == "raid" and "Raid" or "Mythic+"
+        pf.subtitleText:SetText(P.tDim .. label .. " · " .. modeLabel .. "|r")
+        statusText:SetText("")
+        nameBox:SetText("")
+        RebuildProfileRows()
+    end)
+
+    return pf
+end
+
 function BiSHelper_OpenSharePanel()
     if not BiSHelperShareFrame then
         BiSHelperShareFrame = CreateShareFrame()
