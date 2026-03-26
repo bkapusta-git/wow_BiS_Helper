@@ -2765,6 +2765,54 @@ StaticPopupDialogs["BISHELPER_IMPORT_CONFIRM"] = {
     preferredIndex = 3,
 }
 
+StaticPopupDialogs["BISHELPER_PROFILE_OVERWRITE"] = {
+    text = "Profile '%s' already exists.\n\nOverwrite?",
+    button1 = "Overwrite",
+    button2 = "Cancel",
+    OnAccept = function() end,  -- replaced at runtime
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+    preferredIndex = 3,
+}
+
+StaticPopupDialogs["BISHELPER_PROFILE_DELETE"] = {
+    text = "Delete profile '%s'?",
+    button1 = "Delete",
+    button2 = "Cancel",
+    OnAccept = function() end,  -- replaced at runtime
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+    preferredIndex = 3,
+}
+
+StaticPopupDialogs["BISHELPER_PROFILE_SPECWARN"] = {
+    text = "This profile was saved for %s.\nYou are currently %s.\n\nLoad anyway?",
+    button1 = "Yes",
+    button2 = "No",
+    OnAccept = function() end,  -- replaced at runtime
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+    preferredIndex = 3,
+}
+
+StaticPopupDialogs["BISHELPER_PROFILE_RENAME"] = {
+    text = "Rename profile '%s':",
+    button1 = "Rename",
+    button2 = "Cancel",
+    hasEditBox = true,
+    OnShow = function(self)
+        self.editBox:SetText(self.data or "")
+    end,
+    OnAccept = function() end,  -- replaced at runtime
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+    preferredIndex = 3,
+}
+
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:RegisterEvent("PLAYER_LOGIN")
