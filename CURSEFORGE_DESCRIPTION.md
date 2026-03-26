@@ -24,6 +24,10 @@ At the bottom there's a progress bar showing how many slots are BiS out of the t
 
 The header shows your spec's stat priority and diminishing returns caps as visual bars — you can see at a glance how close you are to each cap. Both are editable if you disagree with the defaults.
 
+## Profiles
+
+Save your BiS setup under a custom name and load it later — even on a different spec or character. Keep as many profiles as you want. Click the Profiles button in the toolbar to open the manager.
+
 ## Share / Export / Import
 
 Share your BiS profile with friends or save it as a backup. Click the Share button in the toolbar to export your full profile (items, stat priority, DR caps) as an encoded string. Send it via Discord, forums, or paste it anywhere — the recipient can import it with one click.

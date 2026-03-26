@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.0] — 2026-03-26
+
+### Added
+- Profiles panel — save, load, rename, and delete named BiS profiles
+- New "Profiles" toolbar button (between Share and Help)
+- Profiles are universal — save from any spec, load to any spec (with mismatch warning)
+- Unlimited named profiles stored in SavedVariables
+
 ## [0.6.1] — 2026-03-25
 
 ### Changed
