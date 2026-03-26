@@ -669,6 +669,52 @@ local function BuildExportProfile()
 end
 
 -- ============================================================
+-- Profile management
+-- ============================================================
+local MONTH_ABBR = { "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec" }
+
+local function FormatDate(ts)
+    local d = date("*t", ts)
+    return d.day .. " " .. MONTH_ABBR[d.month]
+end
+
+local function SaveProfile(name)
+    local profile = BuildExportProfile()
+    if not profile then return false end
+    local specData = GetSpecData()
+    profile.name    = name
+    profile.label   = specData and specData.label or profile.key
+    profile.created = time()
+    table.insert(BiSHelperDB.profiles, profile)
+    return true
+end
+
+local function LoadProfile(profile)
+    local currentKey = GetCurrentDataKey()
+    if not currentKey then return false end
+
+    -- Apply items as overrides
+    if profile.items then
+        BiSHelperDB.overrides[currentKey] = profile.items
+    end
+
+    -- Apply stats as stat overrides
+    if profile.stats then
+        BiSHelperDB.statOverrides[currentKey] = profile.stats
+    end
+
+    BiSHelper_Refresh()
+    return true
+end
+
+local function FindProfileByName(name)
+    for i, p in ipairs(BiSHelperDB.profiles) do
+        if p.name == name then return i, p end
+    end
+    return nil
+end
+
+-- ============================================================
 -- Edit panel helpers
 -- ============================================================
 local EQUIPTYPE_TO_SLOTS = {
