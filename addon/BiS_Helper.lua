@@ -1365,7 +1365,7 @@ local HELP_TEXT = [[|cff]] .. "f5c842" .. [[BiS Helper|r compares your equipped 
 
 |cff]] .. "f5c842" .. [[STAT PRIORITY|r
   The bar in the header shows stat priority for your spec and mode.
-  Hover over it for detailed notes.
+  Hover over the stat bar to see a tooltip with full details.
   Click Stats to customize priority order and DR caps.]]
 
 local TIPS = {
