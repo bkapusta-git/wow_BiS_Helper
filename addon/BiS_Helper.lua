@@ -1353,7 +1353,20 @@ local HELP_TEXT = [[|cff]] .. "f5c842" .. [[BiS Helper|r compares your equipped 
   Press Ctrl+C to copy, Escape to close.
 
 |cff]] .. "f5c842" .. [[SLASH COMMAND|r
-  /bis        toggle this window]]
+  /bis        toggle this window
+
+|cff]] .. "f5c842" .. [[MINIMAP BUTTON|r
+  Left-click the minimap icon to toggle the BiS Helper window.
+  Drag it to reposition around the minimap.
+
+|cff]] .. "f5c842" .. [[WINDOWS|r
+  All panels (main window, Edit, Stats, Share, Help) can be dragged.
+  Press Escape to close panels one at a time.
+
+|cff]] .. "f5c842" .. [[STAT PRIORITY|r
+  The bar in the header shows stat priority for your spec and mode.
+  Hover over it for detailed notes.
+  Click Stats to customize priority order and DR caps.]]
 
 local TIPS = {
     "Shift+click an item to get its Wowhead link.",
@@ -1375,7 +1388,7 @@ local tipIndex = math.random(1, #TIPS)
 
 local function CreateHelpFrame()
     local hf = CreateFrame("Frame", "BiSHelperHelpFrame", UIParent, "BackdropTemplate")
-    hf:SetSize(400, 420)
+    hf:SetSize(400, 500)
     hf:SetPoint("CENTER")
     hf:SetMovable(true)
     hf:SetClampedToScreen(true)
