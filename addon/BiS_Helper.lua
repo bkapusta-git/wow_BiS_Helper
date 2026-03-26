@@ -2110,6 +2110,17 @@ local function CreateProfilesFrame()
     return pf
 end
 
+function BiSHelper_OpenProfilesPanel()
+    if not BiSHelperProfilesFrame then
+        BiSHelperProfilesFrame = CreateProfilesFrame()
+    end
+    if BiSHelperProfilesFrame:IsShown() then
+        BiSHelperProfilesFrame:Hide()
+    else
+        BiSHelperProfilesFrame:Show()
+    end
+end
+
 function BiSHelper_OpenSharePanel()
     if not BiSHelperShareFrame then
         BiSHelperShareFrame = CreateShareFrame()
@@ -2381,8 +2392,12 @@ local function CreateToolbar(frame)
     helpBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -10, TOOLBAR_Y)
     helpBtn:SetScript("OnClick", function() BiSHelper_OpenHelpPanel() end)
 
+    local profilesBtn = ToolbarBtn(frame, "Profiles", 56, "Save and load named BiS profiles")
+    profilesBtn:SetPoint("RIGHT", helpBtn, "LEFT", -4, 0)
+    profilesBtn:SetScript("OnClick", function() BiSHelper_OpenProfilesPanel() end)
+
     local shareBtn = ToolbarBtn(frame, "Share", 50, "Export or import BiS profile")
-    shareBtn:SetPoint("RIGHT", helpBtn, "LEFT", -4, 0)
+    shareBtn:SetPoint("RIGHT", profilesBtn, "LEFT", -4, 0)
     shareBtn:SetScript("OnClick", function() BiSHelper_OpenSharePanel() end)
 
     local editBtn = ToolbarBtn(frame, "Edit", 42, "Customize BiS items per slot")
