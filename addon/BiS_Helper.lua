@@ -2779,6 +2779,7 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
             BiSHelperDB = BiSHelperDB or {}
             BiSHelperDB.overrides      = BiSHelperDB.overrides     or {}
             BiSHelperDB.statOverrides  = BiSHelperDB.statOverrides or {}
+            BiSHelperDB.profiles       = BiSHelperDB.profiles      or {}
             if BiSHelperDB.filterMissing == nil then BiSHelperDB.filterMissing = false end
             activeMode  = BiSHelperDB.mode or "mythicplus"
             BiSHelperFrame = CreateMainFrame()
