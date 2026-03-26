@@ -1355,6 +1355,24 @@ local HELP_TEXT = [[|cff]] .. "f5c842" .. [[BiS Helper|r compares your equipped 
 |cff]] .. "f5c842" .. [[SLASH COMMAND|r
   /bis        toggle this window]]
 
+local TIPS = {
+    "Shift+click an item to get its Wowhead link.",
+    "Drag the minimap button to reposition it around the minimap.",
+    "Use the Filter button to hide slots where you already have BiS.",
+    "Switch between Raid and M+ lists to see different BiS items.",
+    "Press Escape to close panels one at a time.",
+    "Click Edit to override BiS items for any slot with your own picks.",
+    "Hover over Equipped items to see their full tooltip.",
+    "The Stats button lets you customize stat priority and DR caps.",
+    "Shift+Ctrl+click an item to copy its raw Item ID.",
+    "Use Share to export your BiS profile and send it to friends.",
+    "The progress bar shows how many BiS items you have equipped.",
+    "Hover over the stat priority bar for detailed stat notes.",
+    "All panels (Edit, Stats, Share, Help) can be dragged around.",
+    "Type /bis to toggle the window from anywhere.",
+}
+local tipIndex = math.random(1, #TIPS)
+
 local function CreateHelpFrame()
     local hf = CreateFrame("Frame", "BiSHelperHelpFrame", UIParent, "BackdropTemplate")
     hf:SetSize(400, 420)
@@ -2033,7 +2051,7 @@ local function CreateRowPool(frame)
     local SCROLL_TOP = HEADER_H + 24
     local scrollFrame = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
     scrollFrame:SetPoint("TOPLEFT",     frame, "TOPLEFT",    2, -SCROLL_TOP)
-    scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -26, 28)
+    scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -26, 44)
 
     local content = CreateFrame("Frame", nil, scrollFrame)
     content:SetHeight(#SLOTS * ROW_H)
@@ -2242,8 +2260,8 @@ end
 -- ── Creates the footer progress bar ──────────────────────────
 local function CreateFooter(frame)
     local footer = CreateFrame("Frame", nil, frame)
-    footer:SetPoint("BOTTOMLEFT",  frame, "BOTTOMLEFT",  6, 4)
-    footer:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -6, 4)
+    footer:SetPoint("BOTTOMLEFT",  frame, "BOTTOMLEFT",  6, 20)
+    footer:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -6, 20)
     footer:SetHeight(18)
 
     local footerTrack = footer:CreateTexture(nil, "BACKGROUND")
@@ -2264,6 +2282,13 @@ local function CreateFooter(frame)
     frame.footerBar   = footer
     frame.footerFill  = footerFill
     frame.footerLabel = footerLabel
+
+    local tipText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    tipText:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 10, 4)
+    tipText:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -10, 4)
+    tipText:SetJustifyH("LEFT")
+    tipText:SetText(P.tDim .. "Tip: " .. TIPS[tipIndex] .. "|r")
+    frame.tipText = tipText
 end
 
 -- ============================================================
@@ -2590,6 +2615,11 @@ function BiSHelper_Refresh()
             BiSHelperFrame.footerFill:SetWidth(1)
             BiSHelperFrame.footerBar:Show()
         end
+    end
+    -- Rotate tip
+    if BiSHelperFrame.tipText then
+        tipIndex = (tipIndex % #TIPS) + 1
+        BiSHelperFrame.tipText:SetText(P.tDim .. "Tip: " .. TIPS[tipIndex] .. "|r")
     end
     ApplyRowFilter()
 end
