@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.7.1] — 2026-03-26
+
+### Fixed
+- Fixed "no BiS data" on non-English WoW clients (German, French, etc.) — spec detection now uses locale-independent specID instead of localized spec name
+
 ## [0.7.0] — 2026-03-26
 
 ### Added

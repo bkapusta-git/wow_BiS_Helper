@@ -561,11 +561,45 @@ local activeMode = "mythicplus"
 local pendingOverrideNames = {}  -- [itemID] = {specKey, mode, slotId}
 
 -- ============================================================
--- Spec detection
+-- Spec detection (locale-independent via specID)
 -- ============================================================
+local SPEC_ID_TO_KEY = {
+    -- Death Knight
+    [250] = "DEATHKNIGHT_BLOOD", [251] = "DEATHKNIGHT_FROST", [252] = "DEATHKNIGHT_UNHOLY",
+    -- Demon Hunter
+    [577] = "DEMONHUNTER_HAVOC", [581] = "DEMONHUNTER_VENGEANCE", [1480] = "DEMONHUNTER_DEVOURER",
+    -- Druid
+    [102] = "DRUID_BALANCE", [103] = "DRUID_FERAL", [104] = "DRUID_GUARDIAN", [105] = "DRUID_RESTORATION",
+    -- Evoker
+    [1467] = "EVOKER_DEVASTATION", [1468] = "EVOKER_PRESERVATION", [1473] = "EVOKER_AUGMENTATION",
+    -- Hunter
+    [253] = "HUNTER_BEASTMASTERY", [254] = "HUNTER_MARKSMANSHIP", [255] = "HUNTER_SURVIVAL",
+    -- Mage
+    [62] = "MAGE_ARCANE", [63] = "MAGE_FIRE", [64] = "MAGE_FROST",
+    -- Monk
+    [268] = "MONK_BREWMASTER", [270] = "MONK_MISTWEAVER", [269] = "MONK_WINDWALKER",
+    -- Paladin
+    [65] = "PALADIN_HOLY", [66] = "PALADIN_PROTECTION", [70] = "PALADIN_RETRIBUTION",
+    -- Priest
+    [256] = "PRIEST_DISCIPLINE", [257] = "PRIEST_HOLY", [258] = "PRIEST_SHADOW",
+    -- Rogue
+    [259] = "ROGUE_ASSASSINATION", [260] = "ROGUE_OUTLAW", [261] = "ROGUE_SUBTLETY",
+    -- Shaman
+    [262] = "SHAMAN_ELEMENTAL", [263] = "SHAMAN_ENHANCEMENT", [264] = "SHAMAN_RESTORATION",
+    -- Warlock
+    [265] = "WARLOCK_AFFLICTION", [266] = "WARLOCK_DEMONOLOGY", [267] = "WARLOCK_DESTRUCTION",
+    -- Warrior
+    [71] = "WARRIOR_ARMS", [72] = "WARRIOR_FURY", [73] = "WARRIOR_PROTECTION",
+}
+
 local function GetCurrentDataKey()
     local specIndex = GetSpecialization()
     if not specIndex then return nil end
+    local specID = GetSpecializationInfo(specIndex)
+    if specID and SPEC_ID_TO_KEY[specID] then
+        return SPEC_ID_TO_KEY[specID]
+    end
+    -- Fallback for unknown specs (future-proofing)
     local _, specName = GetSpecializationInfo(specIndex)
     local _, classFile = UnitClass("player")
     if not classFile or not specName then return nil end
