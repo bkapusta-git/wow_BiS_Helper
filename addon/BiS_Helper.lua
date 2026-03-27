@@ -2455,33 +2455,56 @@ end
 
 -- ── Creates column headers and their separators ──────────────
 local function CreateColumnHeaders(frame)
-    ColHeader(frame, "Slot",      38,  64,  "LEFT")
-    ColHeader(frame, "Equipped",  80,  120, "LEFT")
-    ColHeader(frame, "iLvl",      206,  34, "RIGHT")
-    ColHeader(frame, "Enchant",   248,  130, "LEFT")
-    ColHeader(frame, "Gems",      382,  44, "LEFT")
-    ColHeader(frame, "Track",     432, 120, "LEFT")
-    ColHeader(frame, "BiS Item",  558, 130, "LEFT")
-    ColHeader(frame, "Source",    nil,  160, "LEFT", -50)
+    frame.colHeaders = {}
 
+    local function TrackedColHeader(frm, text, x, w, align, rightAnchor)
+        local fs = frm:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        local offset = GetCrestBarOffset()
+        local colY = -(HEADER_H + 6 + offset)
+        if rightAnchor then
+            fs:SetPoint("TOPRIGHT", frm, "TOPRIGHT", rightAnchor, colY)
+            fs.rightAnchorVal = rightAnchor
+        else
+            fs:SetPoint("TOPLEFT", frm, "TOPLEFT", x, colY)
+            fs.xVal = x
+        end
+        fs:SetWidth(w)
+        fs:SetJustifyH(align or "LEFT")
+        fs:SetText(P.tGold .. text .. "|r")
+        frame.colHeaders[#frame.colHeaders + 1] = fs
+        return fs
+    end
+
+    TrackedColHeader(frame, "Slot",      38,  64,  "LEFT")
+    TrackedColHeader(frame, "Equipped",  80,  120, "LEFT")
+    TrackedColHeader(frame, "iLvl",      206,  34, "RIGHT")
+    TrackedColHeader(frame, "Enchant",   248,  130, "LEFT")
+    TrackedColHeader(frame, "Gems",      382,  44, "LEFT")
+    TrackedColHeader(frame, "Track",     432, 120, "LEFT")
+    TrackedColHeader(frame, "BiS Item",  558, 130, "LEFT")
+    TrackedColHeader(frame, "Source",    nil,  160, "LEFT", -50)
+
+    local offset = GetCrestBarOffset()
     local colSep = Rect(frame, "ARTWORK", 1, P.goldDim[1], P.goldDim[2], P.goldDim[3], P.goldDim[4])
     colSep:SetHeight(1)
-    colSep:SetPoint("TOPLEFT",  frame, "TOPLEFT",  2, -(HEADER_H + 20))
-    colSep:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -2, -(HEADER_H + 20))
+    colSep:SetPoint("TOPLEFT",  frame, "TOPLEFT",  2, -(HEADER_H + 20 + offset))
+    colSep:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -2, -(HEADER_H + 20 + offset))
+    frame.colSep = colSep
 
-    -- Vertical separator between equipped columns and BiS columns (x=555)
     local vColSep = Rect(frame, "ARTWORK", 2, P.gold[1], P.gold[2], P.gold[3], 0.45)
     vColSep:SetWidth(2)
-    vColSep:SetPoint("TOP",    frame, "TOPLEFT", 555, -(HEADER_H + 2))
-    vColSep:SetPoint("BOTTOM", frame, "TOPLEFT", 555, -(HEADER_H + 22))
+    vColSep:SetPoint("TOP",    frame, "TOPLEFT", 555, -(HEADER_H + 2 + offset))
+    vColSep:SetPoint("BOTTOM", frame, "TOPLEFT", 555, -(HEADER_H + 22 + offset))
+    frame.vColSep = vColSep
 end
 
 -- ── Creates the scroll frame and all gear rows ───────────────
 local function CreateRowPool(frame)
-    local SCROLL_TOP = HEADER_H + 24
+    local SCROLL_TOP = HEADER_H + 24 + GetCrestBarOffset()
     local scrollFrame = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
     scrollFrame:SetPoint("TOPLEFT",     frame, "TOPLEFT",    2, -SCROLL_TOP)
     scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -26, 44)
+    frame.scrollFrame = scrollFrame
 
     local content = CreateFrame("Frame", nil, scrollFrame)
     content:SetHeight(#SLOTS * ROW_H)
@@ -2872,6 +2895,46 @@ local function RefreshCrestBar()
 
             prevFrame = cf
         end
+    end
+end
+
+-- ── Reposition headers / separators / scroll when crest bar toggles ──
+local function RepositionMainLayout()
+    if not BiSHelperFrame then return end
+    local offset = GetCrestBarOffset()
+    local colY = -(HEADER_H + 6 + offset)
+    local sepY = -(HEADER_H + 20 + offset)
+    local scrollTop = HEADER_H + 24 + offset
+    local vSepTop = -(HEADER_H + 2 + offset)
+    local vSepBot = -(HEADER_H + 22 + offset)
+
+    if BiSHelperFrame.colHeaders then
+        for _, ch in ipairs(BiSHelperFrame.colHeaders) do
+            ch:ClearAllPoints()
+            if ch.rightAnchorVal then
+                ch:SetPoint("TOPRIGHT", BiSHelperFrame, "TOPRIGHT", ch.rightAnchorVal, colY)
+            else
+                ch:SetPoint("TOPLEFT", BiSHelperFrame, "TOPLEFT", ch.xVal, colY)
+            end
+        end
+    end
+
+    if BiSHelperFrame.colSep then
+        BiSHelperFrame.colSep:ClearAllPoints()
+        BiSHelperFrame.colSep:SetPoint("TOPLEFT",  BiSHelperFrame, "TOPLEFT",  2, sepY)
+        BiSHelperFrame.colSep:SetPoint("TOPRIGHT", BiSHelperFrame, "TOPRIGHT", -2, sepY)
+    end
+
+    if BiSHelperFrame.vColSep then
+        BiSHelperFrame.vColSep:ClearAllPoints()
+        BiSHelperFrame.vColSep:SetPoint("TOP",    BiSHelperFrame, "TOPLEFT", 555, vSepTop)
+        BiSHelperFrame.vColSep:SetPoint("BOTTOM", BiSHelperFrame, "TOPLEFT", 555, vSepBot)
+    end
+
+    if BiSHelperFrame.scrollFrame then
+        BiSHelperFrame.scrollFrame:ClearAllPoints()
+        BiSHelperFrame.scrollFrame:SetPoint("TOPLEFT",     BiSHelperFrame, "TOPLEFT",    2, -scrollTop)
+        BiSHelperFrame.scrollFrame:SetPoint("BOTTOMRIGHT", BiSHelperFrame, "BOTTOMRIGHT", -26, 44)
     end
 end
 
