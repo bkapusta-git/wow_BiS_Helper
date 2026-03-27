@@ -32,10 +32,15 @@ Save your BiS setup under a custom name and load it later — even on a differen
 
 Share your BiS profile with friends or save it as a backup. Click the Share button in the toolbar to export your full profile (items, stat priority, DR caps) as an encoded string. Send it via Discord, forums, or paste it anywhere — the recipient can import it with one click.
 
+## Dawncrest Tracker
+
+A compact bar above the gear table shows your Dawncrest progress for all 5 tiers — current amount in bags, total earned this season, and the season cap. Crests that hit the cap turn green. Hover for details including drop sources.
+
 ## Customization
 
 - Override any BiS item per slot (Edit panel — paste a Wowhead item ID)
 - Adjust stat priority and DR caps (Stats panel)
+- Show/hide individual crest tiers or the entire crest bar (Settings panel)
 - Filter to show only missing slots (Filter button)
 - Window is resizable, movable, position saved between sessions
 

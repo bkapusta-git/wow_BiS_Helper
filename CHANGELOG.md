@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.8.0] — 2026-03-27
+
+### Added
+- Dawncrest progress bar — shows all 5 crest tiers (Adventurer, Veteran, Champion, Hero, Myth) with current quantity, season earned, and season cap
+- Crest bar sits between toolbar and gear table, updates live via CURRENCY_DISPLAY_UPDATE
+- Tooltips with full details: in bags count, earned/cap, status (remaining or CAPPED), and drop sources
+- Settings panel — new "Settings" toolbar button opens a configuration panel
+- Per-crest visibility toggles and master show/hide toggle in Settings
+- Settings persist across sessions in SavedVariables
+
 ## [0.7.1] — 2026-03-26
 
 ### Fixed
