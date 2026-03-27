@@ -2818,6 +2818,63 @@ local function CreateCrestBar(frame)
     frame.crestBar = bar
 end
 
+local function RefreshCrestBar()
+    if not BiSHelperFrame or not BiSHelperFrame.crestBar then return end
+    local bar = BiSHelperFrame.crestBar
+    local settings = BiSHelperDB.settings and BiSHelperDB.settings.crests
+
+    if not IsCrestBarVisible() then
+        bar:Hide()
+        return
+    end
+    bar:Show()
+
+    local prevFrame = nil
+    for _, crestData in ipairs(DAWNCREST_DATA) do
+        local cf = bar.crestFrames[crestData.id]
+        if not cf then break end
+
+        local visible = settings and settings.visible and settings.visible[crestData.id]
+        if not visible then
+            cf:Hide()
+        else
+            cf:Show()
+            local info = C_CurrencyInfo.GetCurrencyInfo(crestData.id)
+            if info and info.discovered then
+                cf.icon:SetTexture(info.iconFileID)
+                cf.qtyText:SetText(P.tCream .. info.quantity .. "|r")
+                local earned = info.totalEarned or 0
+                local cap = info.maxQuantity or 0
+                local capped = earned >= cap and cap > 0
+                if capped then
+                    cf.capText:SetText(P.tBiS .. earned .. "/" .. cap .. "|r")
+                else
+                    cf.capText:SetText(P.tDim .. earned .. "/" .. cap .. "|r")
+                end
+            else
+                cf.icon:SetTexture("Interface/ICONS/INV_Misc_QuestionMark")
+                cf.qtyText:SetText(P.tDim .. "—|r")
+                cf.capText:SetText("")
+            end
+
+            -- Re-anchor visible frames left-to-right
+            cf:ClearAllPoints()
+            if prevFrame then
+                cf:SetPoint("LEFT", prevFrame, "RIGHT", 16, 0)
+            else
+                cf:SetPoint("LEFT", bar, "LEFT", 4, 0)
+            end
+
+            -- Auto-width: icon(16) + gap(4) + qtyText + gap(2) + capText + pad(4)
+            local qw = cf.qtyText:GetStringWidth() or 20
+            local cw = cf.capText:GetStringWidth() or 30
+            cf:SetWidth(16 + 4 + qw + 2 + cw + 4)
+
+            prevFrame = cf
+        end
+    end
+end
+
 -- ============================================================
 -- Main window assembly
 -- ============================================================
