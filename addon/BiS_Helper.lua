@@ -2549,6 +2549,10 @@ local function CreateToolbar(frame)
     local statsBtn = ToolbarBtn(frame, "Stats", 50, "Edit stat priority & DR caps")
     statsBtn:SetPoint("RIGHT", editBtn, "LEFT", -4, 0)
     statsBtn:SetScript("OnClick", function() BiSHelper_OpenStatsPanel() end)
+
+    local settingsBtn = ToolbarBtn(frame, "Settings", 56, "Open addon settings")
+    settingsBtn:SetPoint("RIGHT", statsBtn, "LEFT", -4, 0)
+    settingsBtn:SetScript("OnClick", function() BiSHelper_OpenSettingsPanel() end)
 end
 
 -- ── Creates column headers and their separators ──────────────
