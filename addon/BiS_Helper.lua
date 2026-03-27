@@ -2895,20 +2895,20 @@ local function CreateCrestBar(frame)
             if info then
                 GameTooltip:AddLine(P.tGold .. info.name .. "|r")
                 GameTooltip:AddLine(" ")
-                GameTooltip:AddLine("In bags: " .. info.quantity, 0.93, 0.90, 0.78)
+                GameTooltip:AddLine("In bags: " .. info.quantity, 0.93, 0.86, 0.78)
                 local earned = info.totalEarned or 0
                 local cap = info.maxQuantity or 0
                 local capped = earned >= cap and cap > 0
                 if capped then
-                    GameTooltip:AddLine("Earned this season: " .. earned .. " / " .. cap, P.neonGreen[1], P.neonGreen[2], P.neonGreen[3])
-                    GameTooltip:AddLine("Status: CAPPED", P.neonGreen[1], P.neonGreen[2], P.neonGreen[3])
+                    GameTooltip:AddLine("Earned this season: " .. earned .. " / " .. cap, 0.31, 0.88, 0.31)
+                    GameTooltip:AddLine("Status: CAPPED", 0.31, 0.88, 0.31)
                 else
-                    GameTooltip:AddLine("Earned this season: " .. earned .. " / " .. cap, 0.93, 0.90, 0.78)
+                    GameTooltip:AddLine("Earned this season: " .. earned .. " / " .. cap, 0.93, 0.86, 0.78)
                     local remaining = cap - earned
-                    GameTooltip:AddLine("Status: " .. remaining .. " remaining", 0.54, 0.45, 0.39)
+                    GameTooltip:AddLine("Status: " .. remaining .. " remaining", 0.54, 0.45, 0.38)
                 end
                 GameTooltip:AddLine(" ")
-                GameTooltip:AddLine("Sources: " .. self.crestSources, 0.54, 0.45, 0.39, true)
+                GameTooltip:AddLine("Sources: " .. self.crestSources, 0.54, 0.45, 0.38, true)
             end
             GameTooltip:Show()
         end)
@@ -2945,26 +2945,20 @@ local function RefreshCrestBar()
         if not cf then break end
 
         local visible = settings and settings.visible and settings.visible[crestData.id]
-        if not visible then
+        local info = visible and C_CurrencyInfo.GetCurrencyInfo(crestData.id)
+        if not visible or not info or not info.discovered then
             cf:Hide()
         else
             cf:Show()
-            local info = C_CurrencyInfo.GetCurrencyInfo(crestData.id)
-            if info and info.discovered then
-                cf.icon:SetTexture(info.iconFileID)
-                cf.qtyText:SetText(P.tCream .. info.quantity .. "|r")
-                local earned = info.totalEarned or 0
-                local cap = info.maxQuantity or 0
-                local capped = earned >= cap and cap > 0
-                if capped then
-                    cf.capText:SetText(P.tBiS .. earned .. "/" .. cap .. "|r")
-                else
-                    cf.capText:SetText(P.tDim .. earned .. "/" .. cap .. "|r")
-                end
+            cf.icon:SetTexture(info.iconFileID)
+            cf.qtyText:SetText(P.tCream .. info.quantity .. "|r")
+            local earned = info.totalEarned or 0
+            local cap = info.maxQuantity or 0
+            local capped = earned >= cap and cap > 0
+            if capped then
+                cf.capText:SetText(P.tBiS .. earned .. "/" .. cap .. "|r")
             else
-                cf.icon:SetTexture("Interface/ICONS/INV_Misc_QuestionMark")
-                cf.qtyText:SetText(P.tDim .. "—|r")
-                cf.capText:SetText("")
+                cf.capText:SetText(P.tDim .. earned .. "/" .. cap .. "|r")
             end
 
             -- Re-anchor visible frames left-to-right
