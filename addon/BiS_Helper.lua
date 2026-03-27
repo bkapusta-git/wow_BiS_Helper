@@ -2945,6 +2945,7 @@ local function CreateMainFrame()
     local frame = CreateFrameBase()
     CreateFrameHeader(frame)
     CreateToolbar(frame)
+    CreateCrestBar(frame)
     CreateColumnHeaders(frame)
     CreateRowPool(frame)
     CreateFooter(frame)
@@ -3221,6 +3222,7 @@ function BiSHelper_Refresh()
         BiSHelperFrame.specLabel:SetText("|cffff4444No BiS data for: " .. (GetCurrentDataKey() or "unknown") .. "|r")
         RebuildStatBars()
     end
+    RefreshCrestBar()
     if BiSHelperFrame.modeButtons then for _, b in ipairs(BiSHelperFrame.modeButtons) do b.updateLook() end end
     for i, slot in ipairs(SLOTS) do UpdateRow(i, slot.id) end
 
@@ -3471,6 +3473,7 @@ eventFrame:RegisterEvent("PLAYER_LOGIN")
 eventFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 eventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 eventFrame:RegisterEvent("GET_ITEM_INFO_RECEIVED")
+eventFrame:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
 
 eventFrame:SetScript("OnEvent", function(self, event, ...)
     if event == "ADDON_LOADED" then
@@ -3508,6 +3511,10 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
         local slotId = ...
         if BiSHelperFrame and BiSHelperFrame:IsShown() then
             for i, slot in ipairs(SLOTS) do if slot.id == slotId then UpdateRow(i, slotId) break end end
+        end
+    elseif event == "CURRENCY_DISPLAY_UPDATE" then
+        if BiSHelperFrame and BiSHelperFrame:IsShown() then
+            RefreshCrestBar()
         end
     elseif event == "GET_ITEM_INFO_RECEIVED" then
         local itemID, success = ...
