@@ -2372,21 +2372,6 @@ local function ModeButton(frame, label, mode, anchor, anchorPoint, offsetX)
     return btn
 end
 
-local COL_Y_OFFSET = -(HEADER_H + 6)
-
-local function ColHeader(frame, text, x, w, align, rightAnchor)
-    local fs = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    if rightAnchor then
-        fs:SetPoint("TOPRIGHT", frame, "TOPRIGHT", rightAnchor, COL_Y_OFFSET)
-    else
-        fs:SetPoint("TOPLEFT", frame, "TOPLEFT", x, COL_Y_OFFSET)
-    end
-    fs:SetWidth(w)
-    fs:SetJustifyH(align or "LEFT")
-    fs:SetText(P.tGold .. text .. "|r")
-    return fs
-end
-
 -- ── Creates the base frame: size, drag, resize, backdrop ────
 local function CreateFrameBase()
     local frame = CreateFrame("Frame", "BiSHelperFrame", UIParent, "BackdropTemplate")
