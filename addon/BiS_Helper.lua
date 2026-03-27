@@ -85,6 +85,16 @@ local DR_STAT_CR = {
     ["vers"]             = 29,
 }
 
+local CREST_BAR_H = 22
+
+local DAWNCREST_DATA = {
+    { id = 3383, tier = 1, label = "Adventurer", sources = "Outdoor events, Tier 4 Delves" },
+    { id = 3341, tier = 2, label = "Veteran",    sources = "LFR, Heroic dungeons, Delves T5-6" },
+    { id = 3343, tier = 3, label = "Champion",   sources = "Normal raid, M+ 2-3, Delves T7-10" },
+    { id = 3345, tier = 4, label = "Hero",       sources = "Heroic raid, M+ 4-8, Delves T11" },
+    { id = 3347, tier = 5, label = "Myth",       sources = "Mythic raid, M+ 9+" },
+}
+
 local function Trim(s) return s:match("^%s*(.-)%s*$") end
 
 -- ── Copy-to-clipboard popup ────────────────────────────────
