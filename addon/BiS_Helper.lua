@@ -2722,6 +2722,103 @@ local function CreateFooter(frame)
 end
 
 -- ============================================================
+-- Crest Bar helpers
+-- ============================================================
+local function IsCrestBarVisible()
+    if not BiSHelperDB.settings then return false end
+    local cs = BiSHelperDB.settings.crests
+    if not cs or not cs.showBar then return false end
+    if not cs.visible then return false end
+    for _, crest in ipairs(DAWNCREST_DATA) do
+        if cs.visible[crest.id] then return true end
+    end
+    return false
+end
+
+local function GetCrestBarOffset()
+    return IsCrestBarVisible() and CREST_BAR_H + 2 or 0
+end
+
+local function CreateCrestBar(frame)
+    local bar = CreateFrame("Frame", nil, frame)
+    bar:SetPoint("TOPLEFT",  frame, "TOPLEFT",  6, -(HEADER_H + 1))
+    bar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -6, -(HEADER_H + 1))
+    bar:SetHeight(CREST_BAR_H)
+
+    local bg = Rect(bar, "BACKGROUND", 0, P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], P.bgHeader[4])
+    bg:SetAllPoints()
+
+    local sep = Rect(bar, "ARTWORK", 1, P.goldDim[1], P.goldDim[2], P.goldDim[3], P.goldDim[4])
+    sep:SetHeight(1)
+    sep:SetPoint("BOTTOMLEFT",  bar, "BOTTOMLEFT",  0, 0)
+    sep:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 0, 0)
+
+    bar.crestFrames = {}
+    local prevFrame = nil
+
+    for _, crestData in ipairs(DAWNCREST_DATA) do
+        local cf = CreateFrame("Frame", nil, bar)
+        cf:SetHeight(CREST_BAR_H)
+        cf:EnableMouse(true)
+        cf.crestId = crestData.id
+        cf.crestSources = crestData.sources
+        cf.crestLabel = crestData.label
+
+        local icon = cf:CreateTexture(nil, "ARTWORK")
+        icon:SetSize(16, 16)
+        icon:SetPoint("LEFT", cf, "LEFT", 2, 0)
+        icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+        cf.icon = icon
+
+        local qtyText = cf:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        qtyText:SetPoint("LEFT", icon, "RIGHT", 4, 0)
+        cf.qtyText = qtyText
+
+        local capText = cf:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        capText:SetPoint("LEFT", qtyText, "RIGHT", 2, 0)
+        cf.capText = capText
+
+        -- Tooltip
+        cf:SetScript("OnEnter", function(self)
+            GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+            local info = C_CurrencyInfo.GetCurrencyInfo(self.crestId)
+            if info then
+                GameTooltip:AddLine(P.tGold .. info.name .. "|r")
+                GameTooltip:AddLine(" ")
+                GameTooltip:AddLine("In bags: " .. info.quantity, 0.93, 0.90, 0.78)
+                local earned = info.totalEarned or 0
+                local cap = info.maxQuantity or 0
+                local capped = earned >= cap and cap > 0
+                if capped then
+                    GameTooltip:AddLine("Earned this season: " .. earned .. " / " .. cap, P.neonGreen[1], P.neonGreen[2], P.neonGreen[3])
+                    GameTooltip:AddLine("Status: CAPPED", P.neonGreen[1], P.neonGreen[2], P.neonGreen[3])
+                else
+                    GameTooltip:AddLine("Earned this season: " .. earned .. " / " .. cap, 0.93, 0.90, 0.78)
+                    local remaining = cap - earned
+                    GameTooltip:AddLine("Status: " .. remaining .. " remaining", 0.54, 0.45, 0.39)
+                end
+                GameTooltip:AddLine(" ")
+                GameTooltip:AddLine("Sources: " .. self.crestSources, 0.54, 0.45, 0.39, true)
+            end
+            GameTooltip:Show()
+        end)
+        cf:SetScript("OnLeave", function() GameTooltip:Hide() end)
+
+        -- Positioning: chain left-to-right
+        if prevFrame then
+            cf:SetPoint("LEFT", prevFrame, "RIGHT", 16, 0)
+        else
+            cf:SetPoint("LEFT", bar, "LEFT", 4, 0)
+        end
+
+        bar.crestFrames[crestData.id] = cf
+        prevFrame = cf
+    end
+
+    frame.crestBar = bar
+end
+
+-- ============================================================
 -- Main window assembly
 -- ============================================================
 local function CreateMainFrame()
