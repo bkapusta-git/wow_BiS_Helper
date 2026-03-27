@@ -2165,6 +2165,104 @@ function BiSHelper_OpenProfilesPanel()
     end
 end
 
+-- ============================================================
+-- Settings panel
+-- ============================================================
+local function CreateSettingsFrame()
+    local sf = CreateFrame("Frame", "BiSHelperSettingsFrame", UIParent, "BackdropTemplate")
+    sf:SetSize(250, 320)
+    sf:SetPoint("CENTER")
+    sf:SetMovable(true)
+    sf:SetClampedToScreen(true)
+    sf:SetFrameStrata("DIALOG")
+    sf:EnableMouse(true)
+    sf:RegisterForDrag("LeftButton")
+    sf:SetScript("OnDragStart", sf.StartMoving)
+    sf:SetScript("OnDragStop",  sf.StopMovingOrSizing)
+    sf:Hide()
+
+    sf:SetBackdrop({
+        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 16,
+        insets = { left=4, right=4, top=4, bottom=4 },
+    })
+    sf:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
+    sf:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+
+    local hdrBg = Rect(sf, "BACKGROUND", 2, P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], P.bgHeader[4])
+    hdrBg:SetPoint("TOPLEFT",  sf, "TOPLEFT",  1, -1)
+    hdrBg:SetPoint("TOPRIGHT", sf, "TOPRIGHT", -1, -1)
+    hdrBg:SetHeight(36)
+    local hdrSep = GoldLine(sf, 1)
+    hdrSep:SetPoint("TOPLEFT",  sf, "TOPLEFT",  2, -36)
+    hdrSep:SetPoint("TOPRIGHT", sf, "TOPRIGHT", -2, -36)
+
+    local title = sf:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    title:SetPoint("TOPLEFT", sf, "TOPLEFT", 10, -10)
+    title:SetText(P.tGold .. "Settings|r")
+
+    local closeBtn = CreateFrame("Button", nil, sf, "UIPanelCloseButton")
+    closeBtn:SetPoint("TOPRIGHT", sf, "TOPRIGHT", -2, -2)
+    closeBtn:SetScript("OnClick", function() sf:Hide() end)
+
+    sf:EnableKeyboard(true)
+    sf:SetScript("OnKeyDown", function(self, key)
+        if key == "ESCAPE" then
+            self:SetPropagateKeyboardInput(false)
+            self:Hide()
+        else
+            self:SetPropagateKeyboardInput(true)
+        end
+    end)
+
+    -- Section: DAWNCRESTS
+    local sectionLabel = sf:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    sectionLabel:SetPoint("TOPLEFT", sf, "TOPLEFT", 14, -48)
+    sectionLabel:SetText(P.tGold .. "DAWNCRESTS|r")
+
+    -- Master toggle: Show crest progress bar
+    local masterCb = CreateFrame("CheckButton", "BiSHelperSettingsCrestMaster", sf, "UICheckButtonTemplate")
+    masterCb:SetPoint("TOPLEFT", sectionLabel, "BOTTOMLEFT", -4, -8)
+    masterCb.text = masterCb.text or _G[masterCb:GetName() .. "Text"] or masterCb:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    masterCb.text:SetText(P.tCream .. "Show crest progress bar|r")
+    masterCb:SetChecked(BiSHelperDB.settings.crests.showBar)
+    masterCb:SetScript("OnClick", function(self)
+        BiSHelperDB.settings.crests.showBar = self:GetChecked()
+        RefreshCrestBar()
+        RepositionMainLayout()
+    end)
+
+    -- Per-crest checkboxes
+    sf.crestCheckboxes = {}
+    local prevCb = masterCb
+    for _, crestData in ipairs(DAWNCREST_DATA) do
+        local cb = CreateFrame("CheckButton", "BiSHelperSettingsCrest" .. crestData.id, sf, "UICheckButtonTemplate")
+        cb:SetPoint("TOPLEFT", prevCb, "BOTTOMLEFT", 0, -4)
+        cb.text = cb.text or _G[cb:GetName() .. "Text"] or cb:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        cb.text:SetText(P.tCream .. crestData.label .. " Dawncrest|r")
+        cb:SetChecked(BiSHelperDB.settings.crests.visible[crestData.id])
+        cb:SetScript("OnClick", function(self)
+            BiSHelperDB.settings.crests.visible[crestData.id] = self:GetChecked()
+            RefreshCrestBar()
+            RepositionMainLayout()
+        end)
+        sf.crestCheckboxes[crestData.id] = cb
+        prevCb = cb
+    end
+
+    return sf
+end
+
+function BiSHelper_OpenSettingsPanel()
+    if not BiSHelperSettingsFrame then
+        BiSHelperSettingsFrame = CreateSettingsFrame()
+    end
+    if BiSHelperSettingsFrame:IsShown() then
+        BiSHelperSettingsFrame:Hide()
+    else
+        BiSHelperSettingsFrame:Show()
+    end
+end
+
 function BiSHelper_OpenSharePanel()
     if not BiSHelperShareFrame then
         BiSHelperShareFrame = CreateShareFrame()
