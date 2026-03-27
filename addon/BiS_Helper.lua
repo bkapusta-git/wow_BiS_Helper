@@ -2540,6 +2540,22 @@ local function CreateToolbar(frame)
     settingsBtn:SetScript("OnClick", function() BiSHelper_OpenSettingsPanel() end)
 end
 
+-- ── Crest bar visibility helpers (must precede CreateColumnHeaders) ──
+local function IsCrestBarVisible()
+    if not BiSHelperDB.settings then return false end
+    local cs = BiSHelperDB.settings.crests
+    if not cs or not cs.showBar then return false end
+    if not cs.visible then return false end
+    for _, crest in ipairs(DAWNCREST_DATA) do
+        if cs.visible[crest.id] then return true end
+    end
+    return false
+end
+
+local function GetCrestBarOffset()
+    return IsCrestBarVisible() and CREST_BAR_H + 2 or 0
+end
+
 -- ── Creates column headers and their separators ──────────────
 local function CreateColumnHeaders(frame)
     frame.colHeaders = {}
@@ -2832,23 +2848,6 @@ local function CreateFooter(frame)
 end
 
 -- ============================================================
--- Crest Bar helpers
--- ============================================================
-local function IsCrestBarVisible()
-    if not BiSHelperDB.settings then return false end
-    local cs = BiSHelperDB.settings.crests
-    if not cs or not cs.showBar then return false end
-    if not cs.visible then return false end
-    for _, crest in ipairs(DAWNCREST_DATA) do
-        if cs.visible[crest.id] then return true end
-    end
-    return false
-end
-
-local function GetCrestBarOffset()
-    return IsCrestBarVisible() and CREST_BAR_H + 2 or 0
-end
-
 local function CreateCrestBar(frame)
     local bar = CreateFrame("Frame", nil, frame)
     bar:SetPoint("TOPLEFT",  frame, "TOPLEFT",  6, -(HEADER_H + 1))
