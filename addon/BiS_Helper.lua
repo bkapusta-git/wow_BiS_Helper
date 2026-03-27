@@ -97,6 +97,10 @@ local DAWNCREST_DATA = {
 
 local function Trim(s) return s:match("^%s*(.-)%s*$") end
 
+-- Forward declarations (defined later, used in Settings panel closures)
+local RefreshCrestBar
+local RepositionMainLayout
+
 -- ── Copy-to-clipboard popup ────────────────────────────────
 local copyFrame
 
@@ -2927,7 +2931,7 @@ local function CreateCrestBar(frame)
     frame.crestBar = bar
 end
 
-local function RefreshCrestBar()
+RefreshCrestBar = function()
     if not BiSHelperFrame or not BiSHelperFrame.crestBar then return end
     local bar = BiSHelperFrame.crestBar
     local settings = BiSHelperDB.settings and BiSHelperDB.settings.crests
@@ -2979,7 +2983,7 @@ local function RefreshCrestBar()
 end
 
 -- ── Reposition headers / separators / scroll when crest bar toggles ──
-local function RepositionMainLayout()
+RepositionMainLayout = function()
     if not BiSHelperFrame then return end
     local offset = GetCrestBarOffset()
     local colY = -(HEADER_H + 6 + offset)
