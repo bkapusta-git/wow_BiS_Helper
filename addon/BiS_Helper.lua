@@ -3230,6 +3230,24 @@ StaticPopupDialogs["BISHELPER_PROFILE_RENAME"] = {
     preferredIndex = 3,
 }
 
+local function InitSettingsDefaults()
+    if not BiSHelperDB.settings then
+        BiSHelperDB.settings = {}
+    end
+    if not BiSHelperDB.settings.crests then
+        BiSHelperDB.settings.crests = {}
+    end
+    if BiSHelperDB.settings.crests.showBar == nil then
+        BiSHelperDB.settings.crests.showBar = true
+    end
+    if not BiSHelperDB.settings.crests.visible then
+        BiSHelperDB.settings.crests.visible = {}
+        for _, crest in ipairs(DAWNCREST_DATA) do
+            BiSHelperDB.settings.crests.visible[crest.id] = true
+        end
+    end
+end
+
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:RegisterEvent("PLAYER_LOGIN")
@@ -3246,6 +3264,7 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
             BiSHelperDB.statOverrides  = BiSHelperDB.statOverrides or {}
             BiSHelperDB.profiles       = BiSHelperDB.profiles      or {}
             if BiSHelperDB.filterMissing == nil then BiSHelperDB.filterMissing = false end
+            InitSettingsDefaults()
             activeMode  = BiSHelperDB.mode or "mythicplus"
             BiSHelperFrame = CreateMainFrame()
             CreateMinimapButton()
