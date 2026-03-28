@@ -3210,11 +3210,321 @@ local function CreateLootBrowserFrame()
 
     -- Count label (updated by filter logic)
     local countLabel = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    countLabel:SetPoint("TOPRIGHT", f, "TOPRIGHT", -40, -46)
     f.countLabel = countLabel
 
-    -- Stub ApplyFilters (replaced in Task 6)
-    function f:ApplyFilters() end
+    -- Filter bar
+    local filterY = -40
+    local filterBg = Rect(f, "BACKGROUND", 2, P.bgCardAlt[1], P.bgCardAlt[2], P.bgCardAlt[3], P.bgCardAlt[4])
+    filterBg:SetPoint("TOPLEFT",  f, "TOPLEFT",  2, filterY - 2)
+    filterBg:SetPoint("TOPRIGHT", f, "TOPRIGHT", -2, filterY - 2)
+    filterBg:SetHeight(FILTER_H)
+    local filterSep = GoldLine(f, 1)
+    filterSep:SetPoint("TOPLEFT",  f, "TOPLEFT",  2, filterY - FILTER_H - 2)
+    filterSep:SetPoint("TOPRIGHT", f, "TOPRIGHT", -2, filterY - FILTER_H - 2)
+
+    -- Search box
+    local searchBox = CreateFrame("EditBox", "BiSHelperLootSearch", f, "InputBoxTemplate")
+    searchBox:SetSize(140, 20)
+    searchBox:SetPoint("TOPLEFT", f, "TOPLEFT", 14, filterY - 8)
+    searchBox:SetAutoFocus(false)
+    searchBox:SetFontObject(GameFontHighlightSmall)
+    searchBox:SetTextInsets(4, 4, 0, 0)
+
+    local searchPlaceholder = searchBox:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    searchPlaceholder:SetPoint("LEFT", searchBox, "LEFT", 6, 0)
+    searchPlaceholder:SetText(P.tDim .. "Search name...|r")
+    searchBox:SetScript("OnTextChanged", function(self)
+        local text = self:GetText()
+        if text == "" then searchPlaceholder:Show() else searchPlaceholder:Hide() end
+        f:ApplyFilters()
+    end)
+    searchBox:SetScript("OnEditFocusGained", function() searchPlaceholder:Hide() end)
+    searchBox:SetScript("OnEditFocusLost", function(self)
+        if self:GetText() == "" then searchPlaceholder:Show() end
+    end)
+    searchBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
+    f.searchBox = searchBox
+
+    -- Determine player armor type
+    local _, playerClass = UnitClass("player")
+    local playerArmor = CLASS_ARMOR[playerClass] or "All"
+
+    -- Slot dropdown
+    local slotOptions = {"All", "Head", "Neck", "Shoulder", "Back", "Chest", "Wrist",
+        "Hands", "Waist", "Legs", "Feet", "Finger", "Trinket", "Weapon"}
+    local slotDD = CreateDropdown(f, 80, slotOptions, "All", function() f:ApplyFilters() end)
+    slotDD:SetPoint("LEFT", searchBox, "RIGHT", 8, 0)
+    f.slotDD = slotDD
+
+    -- Armor Type dropdown
+    local armorOptions = {"All", "Cloth", "Leather", "Mail", "Plate"}
+    local armorDD = CreateDropdown(f, 80, armorOptions, playerArmor, function() f:ApplyFilters() end)
+    armorDD:SetPoint("LEFT", slotDD, "RIGHT", 6, 0)
+    f.armorDD = armorDD
+
+    -- Dungeon dropdown
+    local dungeonOptions = {"All", "Algeth'ar Academy", "Magister's Terrace",
+        "Maisara Caverns", "Nexus-Point Xenas", "Pit of Saron",
+        "Seat of the Triumvirate", "Skyreach", "Windrunner Spire"}
+    local dungeonDD = CreateDropdown(f, 130, dungeonOptions, "All", function() f:ApplyFilters() end)
+    dungeonDD:SetPoint("LEFT", armorDD, "RIGHT", 6, 0)
+    f.dungeonDD = dungeonDD
+
+    -- Stat dropdown
+    local statOptions = {"All", "Crit", "Haste", "Mastery", "Vers"}
+    local statDD = CreateDropdown(f, 75, statOptions, "All", function() f:ApplyFilters() end)
+    statDD:SetPoint("LEFT", dungeonDD, "RIGHT", 6, 0)
+    f.statDD = statDD
+
+    countLabel:ClearAllPoints()
+    countLabel:SetPoint("RIGHT", statDD, "RIGHT", 60, 0)
+
+    -- Column headers
+    local colY = filterY - FILTER_H - 4
+    local colBg = Rect(f, "BACKGROUND", 2, P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], 0.5)
+    colBg:SetPoint("TOPLEFT",  f, "TOPLEFT",  2, colY)
+    colBg:SetPoint("TOPRIGHT", f, "TOPRIGHT", -2, colY)
+    colBg:SetHeight(COL_H)
+
+    local colDefs = {
+        { label = "",       x = 8,   width = 24  },
+        { label = "ITEM",   x = 34,  width = 180 },
+        { label = "SLOT",   x = 216, width = 60  },
+        { label = "STATS",  x = 278, width = 110 },
+        { label = "DUNGEON",x = 390, width = 150 },
+        { label = "BOSS",   x = 542, width = 150 },
+    }
+    for _, col in ipairs(colDefs) do
+        if col.label ~= "" then
+            local ch = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+            ch:SetPoint("TOPLEFT", f, "TOPLEFT", col.x, colY - 3)
+            ch:SetWidth(col.width)
+            ch:SetJustifyH("LEFT")
+            ch:SetText(P.tGold .. col.label .. "|r")
+        end
+    end
+
+    -- Scroll frame
+    local scrollTop = colY - COL_H - 2
+    local scrollFrame = CreateFrame("ScrollFrame", nil, f, "UIPanelScrollFrameTemplate")
+    scrollFrame:SetPoint("TOPLEFT",     f, "TOPLEFT",    2, scrollTop)
+    scrollFrame:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -26, 32)
+    f.scrollFrame = scrollFrame
+
+    local content = CreateFrame("Frame", nil, scrollFrame)
+    content:SetHeight(1)
+    scrollFrame:SetScrollChild(content)
+    scrollFrame:SetScript("OnSizeChanged", function(self, w) content:SetWidth(w) end)
+    f.scrollContent = content
+
+    -- Row pool
+    f.rows = {}
+    f.maxVisibleRows = 40
+    for i = 1, f.maxVisibleRows do
+        local row = CreateFrame("Frame", nil, content)
+        row:SetHeight(LOOT_ROW_H)
+        row:SetPoint("TOPLEFT",  content, "TOPLEFT",  0, -(i - 1) * LOOT_ROW_H)
+        row:SetPoint("TOPRIGHT", content, "TOPRIGHT", 0, -(i - 1) * LOOT_ROW_H)
+        row:EnableMouse(true)
+
+        local bg = Rect(row, "BACKGROUND", 0,
+            i % 2 == 0 and P.bgCard[1] or P.bgCardAlt[1],
+            i % 2 == 0 and P.bgCard[2] or P.bgCardAlt[2],
+            i % 2 == 0 and P.bgCard[3] or P.bgCardAlt[3],
+            i % 2 == 0 and P.bgCard[4] or P.bgCardAlt[4])
+        bg:SetAllPoints()
+
+        -- Highlight on hover
+        local highlight = Rect(row, "BACKGROUND", 1, P.gold[1], P.gold[2], P.gold[3], 0)
+        highlight:SetAllPoints()
+        row.highlight = highlight
+
+        -- Icon
+        local icon = row:CreateTexture(nil, "ARTWORK")
+        icon:SetSize(20, 20)
+        icon:SetPoint("LEFT", row, "LEFT", 8, 0)
+        row.icon = icon
+
+        -- Item name (epic purple)
+        local nameText = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        nameText:SetPoint("LEFT", row, "LEFT", 34, 0)
+        nameText:SetWidth(180)
+        nameText:SetJustifyH("LEFT")
+        row.nameText = nameText
+
+        -- Slot
+        local slotText = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        slotText:SetPoint("LEFT", row, "LEFT", 216, 0)
+        slotText:SetWidth(60)
+        slotText:SetJustifyH("LEFT")
+        row.slotText = slotText
+
+        -- Stats
+        local statsText = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        statsText:SetPoint("LEFT", row, "LEFT", 278, 0)
+        statsText:SetWidth(110)
+        statsText:SetJustifyH("LEFT")
+        row.statsText = statsText
+
+        -- Dungeon
+        local dungeonText = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        dungeonText:SetPoint("LEFT", row, "LEFT", 390, 0)
+        dungeonText:SetWidth(150)
+        dungeonText:SetJustifyH("LEFT")
+        row.dungeonText = dungeonText
+
+        -- Boss
+        local bossText = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        bossText:SetPoint("LEFT", row, "LEFT", 542, 0)
+        bossText:SetWidth(150)
+        bossText:SetJustifyH("LEFT")
+        row.bossText = bossText
+
+        -- Hover: GameTooltip
+        row:SetScript("OnEnter", function(self)
+            self.highlight:SetColorTexture(P.gold[1], P.gold[2], P.gold[3], 0.08)
+            if self.itemID then
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                GameTooltip:SetItemByID(self.itemID)
+                GameTooltip:Show()
+            end
+        end)
+        row:SetScript("OnLeave", function(self)
+            self.highlight:SetColorTexture(P.gold[1], P.gold[2], P.gold[3], 0)
+            GameTooltip:Hide()
+        end)
+
+        -- Click: CopyPopup with itemID
+        row:SetScript("OnMouseDown", function(self)
+            if self.itemID then
+                ShowCopyPopup(self, self.itemID, true)
+            end
+        end)
+
+        row:Hide()
+        f.rows[i] = row
+    end
+
+    function f:ApplyFilters()
+        local items = BiSHelper_MplusLoot and BiSHelper_MplusLoot.items or {}
+        local searchText = strlower(strtrim(self.searchBox:GetText()))
+        local slotFilter = self.slotDD.selected
+        local armorFilter = self.armorDD.selected
+        local dungeonFilter = self.dungeonDD.selected
+        local statFilter = self.statDD.selected
+
+        -- Build filtered list
+        local filtered = {}
+        for _, item in ipairs(items) do
+            local pass = true
+
+            -- Search filter (name substring, case-insensitive)
+            if searchText ~= "" then
+                if not strfind(strlower(item.name or ""), searchText, 1, true) then
+                    pass = false
+                end
+            end
+
+            -- Slot filter
+            if pass and slotFilter ~= "All" then
+                if item.slot ~= slotFilter then pass = false end
+            end
+
+            -- Armor type filter: show matching armor + accessories/weapons (armorType == nil)
+            if pass and armorFilter ~= "All" then
+                if item.armorType ~= nil and item.armorType ~= armorFilter then
+                    pass = false
+                end
+            end
+
+            -- Dungeon filter
+            if pass and dungeonFilter ~= "All" then
+                if item.dungeon ~= dungeonFilter then pass = false end
+            end
+
+            -- Stat filter (substring in stats string)
+            if pass and statFilter ~= "All" then
+                if not item.stats or not strfind(item.stats, statFilter, 1, true) then
+                    pass = false
+                end
+            end
+
+            if pass then
+                filtered[#filtered + 1] = item
+            end
+        end
+
+        -- Update count label
+        self.countLabel:SetText(P.tDim .. #filtered .. " items|r")
+
+        -- Store filtered results for scroll-based rendering
+        self.filteredItems = filtered
+        self.scrollContent:SetHeight(math.max(1, #filtered * LOOT_ROW_H))
+
+        -- Populate visible rows
+        self:PopulateVisibleRows()
+    end
+
+    function f:PopulateVisibleRows()
+        local filtered = self.filteredItems or {}
+        local scrollOffset = self.scrollFrame:GetVerticalScroll()
+        local firstVisible = math.floor(scrollOffset / LOOT_ROW_H) + 1
+
+        for i = 1, self.maxVisibleRows do
+            local row = self.rows[i]
+            local dataIdx = firstVisible + i - 1
+            local item = filtered[dataIdx]
+            if item then
+                row.itemID = item.itemID
+
+                local iconID = C_Item.GetItemIconByID(item.itemID)
+                if iconID then
+                    row.icon:SetTexture(iconID)
+                else
+                    row.icon:SetColorTexture(P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], 1)
+                end
+
+                row.nameText:SetText("|cffa855f7" .. (item.name or "?") .. "|r")
+                row.slotText:SetText(P.tDim .. (item.slot or "") .. "|r")
+                row.statsText:SetText(P.tCream .. (item.stats or "") .. "|r")
+                row.dungeonText:SetText(P.tGold .. (item.dungeon or "") .. "|r")
+                row.bossText:SetText(P.tDim .. (item.boss or "") .. "|r")
+
+                -- Re-position row relative to scroll content
+                row:ClearAllPoints()
+                row:SetPoint("TOPLEFT",  self.scrollContent, "TOPLEFT",  0, -(dataIdx - 1) * LOOT_ROW_H)
+                row:SetPoint("TOPRIGHT", self.scrollContent, "TOPRIGHT", 0, -(dataIdx - 1) * LOOT_ROW_H)
+
+                -- Alternate row background based on data index
+                local bg = select(1, row:GetRegions())
+                if dataIdx % 2 == 0 then
+                    bg:SetColorTexture(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+                else
+                    bg:SetColorTexture(P.bgCardAlt[1], P.bgCardAlt[2], P.bgCardAlt[3], P.bgCardAlt[4])
+                end
+
+                row:Show()
+            else
+                row:Hide()
+            end
+        end
+    end
+
+    -- Hook scroll to update visible rows
+    local scrollDirty = false
+    scrollFrame:HookScript("OnVerticalScroll", function()
+        scrollDirty = true
+    end)
+    scrollFrame:SetScript("OnUpdate", function()
+        if scrollDirty then
+            scrollDirty = false
+            f:PopulateVisibleRows()
+        end
+    end)
+
+    f:SetScript("OnShow", function(self)
+        self:ApplyFilters()
+    end)
 
     lootBrowserFrame = f
     return f
