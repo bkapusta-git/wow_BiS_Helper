@@ -2656,6 +2656,11 @@ local function CreateToolbar(frame)
     local settingsBtn = ToolbarBtn(frame, "Settings", 56, "Open addon settings")
     settingsBtn:SetPoint("RIGHT", statsBtn, "LEFT", -4, 0)
     settingsBtn:SetScript("OnClick", function() BiSHelper_OpenSettingsPanel() end)
+
+    local lootSep = ToolbarSep(frame, settingsBtn)
+    local lootBtn = ToolbarBtn(frame, "Loot", 44, "Browse M+ dungeon loot")
+    lootBtn:SetPoint("LEFT", lootSep, "RIGHT", 8, 0)
+    lootBtn:SetScript("OnClick", function() BiSHelper_OpenLootBrowser() end)
 end
 
 -- ── Crest bar visibility helpers (must precede CreateColumnHeaders) ──
@@ -4166,7 +4171,12 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
 end)
 
 SLASH_BISHELPER1 = "/bis"
-SlashCmdList["BISHELPER"] = function()
+SlashCmdList["BISHELPER"] = function(msg)
+    local cmd = strtrim(strlower(msg or ""))
+    if cmd == "loot" then
+        BiSHelper_OpenLootBrowser()
+        return
+    end
     if not BiSHelperFrame then return end
     if BiSHelperFrame:IsShown() then BiSHelperFrame:Hide() else BiSHelper_Refresh() BiSHelperFrame:Show() end
 end
