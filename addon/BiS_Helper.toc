@@ -49,4 +49,5 @@ data\warlock_destruction.lua
 data\warrior_arms.lua
 data\warrior_fury.lua
 data\warrior_protection.lua
+data\mplus_loot.lua
 BiS_Helper.lua
