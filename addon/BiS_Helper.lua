@@ -329,6 +329,113 @@ local function GoldLine(parent, thickness)
     return t
 end
 
+local activeDropdowns = {}
+
+local function CreateDropdown(parent, width, options, defaultVal, onChange)
+    local dd = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+    dd:SetSize(width, 22)
+    dd:SetBackdrop({
+        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
+        insets = { left=3, right=3, top=3, bottom=3 },
+    })
+    dd:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+    dd:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+
+    dd.selected = defaultVal or options[1]
+
+    local label = dd:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    label:SetPoint("LEFT", dd, "LEFT", 6, 0)
+    label:SetPoint("RIGHT", dd, "RIGHT", -14, 0)
+    label:SetJustifyH("LEFT")
+    label:SetText(P.tCream .. dd.selected .. "|r")
+    dd.label = label
+
+    local arrow = dd:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    arrow:SetPoint("RIGHT", dd, "RIGHT", -4, 0)
+    arrow:SetText(P.tGold .. "▾|r")
+
+    -- List frame (hidden by default)
+    local list = CreateFrame("Frame", nil, dd, "BackdropTemplate")
+    list:SetFrameStrata("FULLSCREEN_DIALOG")
+    list:SetBackdrop({
+        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
+        insets = { left=3, right=3, top=3, bottom=3 },
+    })
+    list:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], 0.98)
+    list:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    list:SetPoint("TOPLEFT", dd, "BOTTOMLEFT", 0, -2)
+    list:SetWidth(width)
+    list:Hide()
+    dd.list = list
+
+    -- Close on outside click
+    list:SetScript("OnShow", function(self)
+        self:SetScript("OnUpdate", function()
+            if not dd:IsMouseOver() and not list:IsMouseOver() then
+                if IsMouseButtonDown("LeftButton") then
+                    list:Hide()
+                end
+            end
+        end)
+    end)
+    list:SetScript("OnHide", function(self)
+        self:SetScript("OnUpdate", nil)
+    end)
+
+    local listButtons = {}
+    for i, opt in ipairs(options) do
+        local btn = CreateFrame("Button", nil, list)
+        btn:SetHeight(18)
+        btn:SetPoint("TOPLEFT", list, "TOPLEFT", 4, -4 - (i - 1) * 18)
+        btn:SetPoint("TOPRIGHT", list, "TOPRIGHT", -4, -4 - (i - 1) * 18)
+        local btnText = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        btnText:SetAllPoints()
+        btnText:SetJustifyH("LEFT")
+        btnText:SetText(P.tCream .. opt .. "|r")
+        btn:SetScript("OnEnter", function()
+            btnText:SetText(P.tGold .. opt .. "|r")
+        end)
+        btn:SetScript("OnLeave", function()
+            btnText:SetText(P.tCream .. opt .. "|r")
+        end)
+        btn:SetScript("OnClick", function()
+            dd.selected = opt
+            label:SetText(P.tCream .. opt .. "|r")
+            list:Hide()
+            if onChange then onChange(opt) end
+        end)
+        listButtons[i] = btn
+    end
+    list:SetHeight(8 + #options * 18)
+
+    dd:EnableMouse(true)
+    dd:SetScript("OnMouseDown", function()
+        if list:IsShown() then
+            list:Hide()
+        else
+            for _, otherList in ipairs(activeDropdowns) do
+                if otherList ~= list then otherList:Hide() end
+            end
+            list:Show()
+        end
+    end)
+    dd:SetScript("OnEnter", function()
+        dd:SetBackdropColor(0.25, 0.12, 0.08, 0.95)
+    end)
+    dd:SetScript("OnLeave", function()
+        dd:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
+    end)
+
+    function dd:SetSelected(val)
+        dd.selected = val
+        label:SetText(P.tCream .. val .. "|r")
+    end
+
+    activeDropdowns[#activeDropdowns + 1] = list
+
+    return dd
+end
+
 -- ============================================================
 -- Base64 encode / decode
 -- ============================================================
@@ -3571,6 +3678,9 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
             InitSettingsDefaults()
             activeMode  = BiSHelperDB.mode or "mythicplus"
             BiSHelperFrame = CreateMainFrame()
+            BiSHelperFrame.statBarContainer:SetScript("OnSizeChanged", function()
+                RebuildStatBars()
+            end)
             CreateMinimapButton()
             if BiSHelperDB.point and BiSHelperDB.x and BiSHelperDB.y then
                 BiSHelperFrame:ClearAllPoints()
