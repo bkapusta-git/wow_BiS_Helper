@@ -3595,6 +3595,7 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
         local slotId = ...
         if BiSHelperFrame and BiSHelperFrame:IsShown() then
             for i, slot in ipairs(SLOTS) do if slot.id == slotId then UpdateRow(i, slotId) break end end
+            ApplyRowFilter()
         end
     elseif event == "CURRENCY_DISPLAY_UPDATE" then
         if BiSHelperFrame and BiSHelperFrame:IsShown() then
