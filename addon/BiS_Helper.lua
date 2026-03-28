@@ -3251,7 +3251,7 @@ local function UpdateRow(rowIndex, slotId)
     
     -- Store enchantID for the tooltip
     if link then
-        row.enchantID = link:match("item:%d+:(%d+)")
+        row.enchantID = tonumber(link:match("item:%d+:(%d+)"))
     else
         row.enchantID = nil
     end
