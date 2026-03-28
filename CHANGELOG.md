@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.8.5] — 2026-03-29
+
+### Added
+- **Loot Browser (beta)** — new standalone window for browsing all 190 Mythic+ items from Midnight Season 1
+- Search items by name, filter by slot, armor type, dungeon, and secondary stat
+- Armor type filter defaults to your class (e.g. Cloth for Mage) — shows accessories and weapons for all classes
+- Hover any item for a full GameTooltip, click to copy itemID
+- New "Loot" button in toolbar (next to Mythic+) and `/bis loot` slash command
+- Custom dropdown menu component for filter controls
+- Item data sourced from Wowhead and bundled as addon data file
+
+### Fixed
+- Fixed Loot button overlapping other toolbar buttons — moved to left side of toolbar
+
 ## [0.8.0] — 2026-03-27
 
 ### Added

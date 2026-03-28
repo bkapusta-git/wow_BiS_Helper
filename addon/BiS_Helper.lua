@@ -2631,7 +2631,11 @@ local function CreateToolbar(frame)
     local btnMplus = ModeButton(frame, "Mythic+", "mythicplus", btnRaid, "RIGHT", 4)
     frame.modeButtons = { btnRaid, btnMplus }
 
-    ToolbarSep(frame, btnMplus)
+    local sep2 = ToolbarSep(frame, btnMplus)
+
+    local lootBtn = ToolbarBtn(frame, "Loot", 44, "Browse M+ dungeon loot")
+    lootBtn:SetPoint("LEFT", sep2, "RIGHT", 8, 0)
+    lootBtn:SetScript("OnClick", function() BiSHelper_OpenLootBrowser() end)
 
     local helpBtn = ToolbarBtn(frame, "?", 22, "Show help & feature overview")
     helpBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -10, TOOLBAR_Y)
@@ -2656,11 +2660,6 @@ local function CreateToolbar(frame)
     local settingsBtn = ToolbarBtn(frame, "Settings", 56, "Open addon settings")
     settingsBtn:SetPoint("RIGHT", statsBtn, "LEFT", -4, 0)
     settingsBtn:SetScript("OnClick", function() BiSHelper_OpenSettingsPanel() end)
-
-    local lootSep = ToolbarSep(frame, settingsBtn)
-    local lootBtn = ToolbarBtn(frame, "Loot", 44, "Browse M+ dungeon loot")
-    lootBtn:SetPoint("LEFT", lootSep, "RIGHT", 8, 0)
-    lootBtn:SetScript("OnClick", function() BiSHelper_OpenLootBrowser() end)
 end
 
 -- ── Crest bar visibility helpers (must precede CreateColumnHeaders) ──
