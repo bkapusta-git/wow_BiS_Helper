@@ -63,6 +63,13 @@ local WHITE_TEX = "Interface/Buttons/WHITE8X8"
 local BORDER_TEX = "Interface/Tooltips/UI-Tooltip-Border"
 local ROW_H     = 30
 local HEADER_H  = 130
+local CLASS_ARMOR = {
+    MAGE = "Cloth", PRIEST = "Cloth", WARLOCK = "Cloth",
+    MONK = "Leather", ROGUE = "Leather", DRUID = "Leather",
+    DEMONHUNTER = "Leather", EVOKER = "Mail", HUNTER = "Mail",
+    SHAMAN = "Mail", WARRIOR = "Plate", PALADIN = "Plate",
+    DEATHKNIGHT = "Plate",
+}
 
 -- Gear track colours (highest → lowest)
 local TRACK_COLOR = {
@@ -3126,6 +3133,101 @@ RepositionMainLayout = function()
         BiSHelperFrame.scrollFrame:ClearAllPoints()
         BiSHelperFrame.scrollFrame:SetPoint("TOPLEFT",     BiSHelperFrame, "TOPLEFT",    2, -scrollTop)
         BiSHelperFrame.scrollFrame:SetPoint("BOTTOMRIGHT", BiSHelperFrame, "BOTTOMRIGHT", -26, 44)
+    end
+end
+
+-- ============================================================
+-- Loot Browser frame
+-- ============================================================
+local lootBrowserFrame
+
+local function CreateLootBrowserFrame()
+    local LOOT_ROW_H = 24
+    local LOOT_W = 720
+    local LOOT_H = 500
+    local FILTER_H = 32
+    local COL_H = 20
+
+    local f = CreateFrame("Frame", "BiSHelperLootBrowser", UIParent, "BackdropTemplate")
+    f:SetSize(LOOT_W, LOOT_H)
+    f:SetPoint("CENTER")
+    f:SetMovable(true)
+    f:SetClampedToScreen(true)
+    f:SetFrameStrata("DIALOG")
+    f:EnableMouse(true)
+    f:RegisterForDrag("LeftButton")
+    f:SetScript("OnDragStart", f.StartMoving)
+    f:SetScript("OnDragStop",  f.StopMovingOrSizing)
+    f:Hide()
+
+    f:SetBackdrop({
+        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 16,
+        insets = { left=4, right=4, top=4, bottom=4 },
+    })
+    f:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
+    f:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+
+    -- ESC to close
+    f:EnableKeyboard(true)
+    f:SetScript("OnKeyDown", function(self, key)
+        if key == "ESCAPE" then
+            self:SetPropagateKeyboardInput(false)
+            self:Hide()
+        else
+            self:SetPropagateKeyboardInput(true)
+        end
+    end)
+
+    -- Header
+    local hdrBg = Rect(f, "BACKGROUND", 2, P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], P.bgHeader[4])
+    hdrBg:SetPoint("TOPLEFT",  f, "TOPLEFT",  1, -1)
+    hdrBg:SetPoint("TOPRIGHT", f, "TOPRIGHT", -1, -1)
+    hdrBg:SetHeight(36)
+    local hdrSep = GoldLine(f, 1)
+    hdrSep:SetPoint("TOPLEFT",  f, "TOPLEFT",  2, -36)
+    hdrSep:SetPoint("TOPRIGHT", f, "TOPRIGHT", -2, -36)
+
+    local title = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    title:SetPoint("TOPLEFT", f, "TOPLEFT", 10, -10)
+    title:SetText(P.tGold .. "Loot Browser — Midnight S1 M+|r")
+
+    local closeBtn = CreateFrame("Button", nil, f, "UIPanelCloseButton")
+    closeBtn:SetPoint("TOPRIGHT", f, "TOPRIGHT", -2, -2)
+    closeBtn:SetScript("OnClick", function() f:Hide() end)
+
+    -- Footer
+    local footerSep = GoldLine(f, 1)
+    footerSep:SetPoint("BOTTOMLEFT",  f, "BOTTOMLEFT",  2, 28)
+    footerSep:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -2, 28)
+
+    local footerLeft = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    footerLeft:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 10, 10)
+    footerLeft:SetText(P.tDim .. "Hover: tooltip  |  Click: copy itemID|r")
+
+    local footerRight = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    footerRight:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -10, 10)
+    footerRight:SetText(P.tDim .. "Source: Wowhead|r")
+
+    -- Count label (updated by filter logic)
+    local countLabel = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    countLabel:SetPoint("TOPRIGHT", f, "TOPRIGHT", -40, -46)
+    f.countLabel = countLabel
+
+    -- Stub ApplyFilters (replaced in Task 6)
+    function f:ApplyFilters() end
+
+    lootBrowserFrame = f
+    return f
+end
+
+function BiSHelper_OpenLootBrowser()
+    if not lootBrowserFrame then
+        CreateLootBrowserFrame()
+    end
+    if lootBrowserFrame:IsShown() then
+        lootBrowserFrame:Hide()
+    else
+        lootBrowserFrame:Show()
     end
 end
 
