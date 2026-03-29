@@ -114,7 +114,7 @@ local copyFrame
 local function CreateCopyPopup()
     local f = CreateFrame("Frame", "BiSHelperCopyFrame", UIParent, "BackdropTemplate")
     f:SetSize(320, 50)
-    f:SetFrameStrata("DIALOG")
+    f:SetFrameStrata("TOOLTIP")
     f:SetClampedToScreen(true)
     f:EnableKeyboard(true)
     f:SetScript("OnKeyDown", function(self, key)
@@ -3210,7 +3210,7 @@ local function CreateLootBrowserFrame()
 
     local footerRight = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     footerRight:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -10, 10)
-    footerRight:SetText(P.tDim .. "Source: Wowhead|r")
+    footerRight:SetText(P.tDim .. "Source: Blizzard API|r")
 
     -- Count label (updated by filter logic)
     local countLabel = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
