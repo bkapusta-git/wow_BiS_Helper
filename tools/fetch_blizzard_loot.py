@@ -92,6 +92,110 @@ def api_url(region, path, namespace="static", locale="en_US"):
     return f"{base}?{params}"
 
 
+def detect_season(token, region, locale, override_id=None):
+    """Detect current M+ season or use override. Returns (season_id, season_name)."""
+    if override_id:
+        url = api_url(region, f"/data/wow/mythic-keystone/season/{override_id}", "dynamic", locale)
+        data = api_get(url, token)
+        return override_id, data.get("season_name", {}).get("name", f"Season {override_id}")
+
+    url = api_url(region, "/data/wow/mythic-keystone/season/index", "dynamic", locale)
+    data = api_get(url, token)
+    seasons = data.get("seasons", [])
+    if not seasons:
+        print("ERROR: No M+ seasons found.")
+        sys.exit(1)
+    # Latest season = highest ID
+    latest = max(seasons, key=lambda s: s["id"])
+    season_id = latest["id"]
+
+    # Fetch season name
+    url = api_url(region, f"/data/wow/mythic-keystone/season/{season_id}", "dynamic", locale)
+    season_data = api_get(url, token)
+    season_name = season_data.get("season_name", {}).get("name", f"Season {season_id}")
+
+    return season_id, season_name
+
+
+def normalize_name(name):
+    """Normalize dungeon name for comparison — lowercase, strip 'the ' prefix."""
+    n = name.lower().strip()
+    if n.startswith("the "):
+        n = n[4:]
+    return n
+
+
+# Hardcoded overrides for known name mismatches between M+ and Journal APIs
+DUNGEON_NAME_OVERRIDES = {
+    # "normalized m+ name": journal_instance_id
+    # Add entries here if name-based lookup fails for specific dungeons
+}
+
+
+def discover_dungeons(token, region, locale, season_id):
+    """Get dungeon list for a season and map to journal instance IDs.
+    Returns list of dicts: {name, journal_instance_id}
+    """
+    # Get dungeons from season
+    url = api_url(region, f"/data/wow/mythic-keystone/season/{season_id}", "dynamic", locale)
+    season_data = api_get(url, token)
+
+    periods = season_data.get("periods", [])
+    if not periods:
+        print("ERROR: No periods found for this season.")
+        sys.exit(1)
+
+    # Collect M+ dungeon IDs
+    mk_dungeons = []
+    for d in season_data.get("dungeons", []):
+        dk_id = d["id"]
+        dk_name = d.get("name", "")
+        # Fetch dungeon detail to find journal instance link
+        dk_url = api_url(region, f"/data/wow/mythic-keystone/dungeon/{dk_id}", "dynamic", locale)
+        dk_data = api_get(dk_url, token)
+        time.sleep(0.1)
+
+        dungeon_name = dk_data.get("dungeon", {}).get("name", dk_name)
+        instance_id = dk_data.get("dungeon", {}).get("id")
+
+        if instance_id:
+            mk_dungeons.append({"name": dungeon_name, "journal_instance_id": instance_id})
+        else:
+            mk_dungeons.append({"name": dungeon_name, "journal_instance_id": None})
+
+    # For dungeons without direct journal instance ID, try name-based lookup
+    missing = [d for d in mk_dungeons if d["journal_instance_id"] is None]
+    if missing:
+        # Check overrides first
+        still_missing = []
+        for d in missing:
+            norm = normalize_name(d["name"])
+            if norm in DUNGEON_NAME_OVERRIDES:
+                d["journal_instance_id"] = DUNGEON_NAME_OVERRIDES[norm]
+            else:
+                still_missing.append(d)
+
+        if still_missing:
+            # Fetch full journal instance index for name lookup
+            ji_url = api_url(region, "/data/wow/journal-instance/index", "static", locale)
+            ji_data = api_get(ji_url, token)
+            ji_instances = ji_data.get("instances", [])
+
+            # Build normalized name → id map
+            ji_map = {}
+            for inst in ji_instances:
+                ji_map[normalize_name(inst["name"])] = inst["id"]
+
+            for d in still_missing:
+                norm = normalize_name(d["name"])
+                if norm in ji_map:
+                    d["journal_instance_id"] = ji_map[norm]
+                else:
+                    print(f"  WARNING: Could not find journal instance for dungeon '{d['name']}'")
+
+    return [d for d in mk_dungeons if d["journal_instance_id"] is not None]
+
+
 def main():
     parser = argparse.ArgumentParser(description="Fetch M+ loot from Blizzard API")
     parser.add_argument("--season-id", type=int, default=None, help="Override M+ season ID")
@@ -116,6 +220,18 @@ def main():
     print("Authenticating...", end=" ", flush=True)
     token = get_access_token(client_id, client_secret, region)
     print("OK")
+
+    # Detect season
+    print("Detecting current M+ season...", end=" ", flush=True)
+    season_id, season_name = detect_season(token, region, locale, args.season_id)
+    print(f"{season_name} (id={season_id})")
+
+    # Discover dungeons
+    print("Discovering dungeons...", end=" ", flush=True)
+    dungeons = discover_dungeons(token, region, locale, season_id)
+    print(f"Found {len(dungeons)} dungeons")
+    for d in dungeons:
+        print(f"  - {d['name']} (journal id={d['journal_instance_id']})")
 
 
 if __name__ == "__main__":
