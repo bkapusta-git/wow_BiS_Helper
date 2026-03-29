@@ -3293,8 +3293,20 @@ local function CreateLootBrowserFrame()
     f.statDD = statDD
     AddFilterLabel("Stat", statDD, 4)
 
+    -- Current-only checkbox
+    local currentCB = CreateFrame("CheckButton", nil, f, "UICheckButtonTemplate")
+    currentCB:SetSize(22, 22)
+    currentCB:SetPoint("LEFT", statDD, "RIGHT", 10, 0)
+    currentCB:SetChecked(true)
+    currentCB:SetScript("OnClick", function() f:ApplyFilters() end)
+    f.currentCB = currentCB
+
+    local currentLabel = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    currentLabel:SetPoint("LEFT", currentCB, "RIGHT", 0, 0)
+    currentLabel:SetText(P.tCream .. "Current only|r")
+
     countLabel:ClearAllPoints()
-    countLabel:SetPoint("RIGHT", statDD, "RIGHT", 60, 0)
+    countLabel:SetPoint("LEFT", currentLabel, "RIGHT", 10, 0)
 
     -- Column headers
     local colY = filterY - FILTER_H - 4
@@ -3429,6 +3441,7 @@ local function CreateLootBrowserFrame()
         local armorFilter = self.armorDD.selected
         local dungeonFilter = self.dungeonDD.selected
         local statFilter = self.statDD.selected
+        local currentOnly = self.currentCB:GetChecked()
 
         -- Build filtered list
         local filtered = {}
@@ -3464,6 +3477,11 @@ local function CreateLootBrowserFrame()
                 if not item.stats or not strfind(item.stats, statFilter, 1, true) then
                     pass = false
                 end
+            end
+
+            -- Current season filter
+            if pass and currentOnly then
+                if not item.current then pass = false end
             end
 
             if pass then
