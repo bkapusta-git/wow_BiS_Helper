@@ -44,6 +44,7 @@ def main():
     parser = argparse.ArgumentParser(description="Generate mplus_loot.lua from JSON")
     parser.add_argument("--input", type=str, default=None, help="Path to JSON loot file")
     parser.add_argument("--output", type=str, default=DEFAULT_LUA_PATH, help="Output Lua path")
+    parser.add_argument("--min-ilvl", type=int, default=100, help="Min ilvl for current-season flag (default: 100)")
     args = parser.parse_args()
 
     json_path = args.input or find_latest_json()
@@ -74,6 +75,7 @@ def main():
         slot_raw = item.get("slot")
         slot = SLOT_NORMALIZE.get(slot_raw, slot_raw)
         ilvl = item.get("ilvl", 0)
+        current = ilvl >= args.min_ilvl
         armor_type = item.get("armorType")
         weapon_type = item.get("weaponType")
         stats = item.get("stats")
@@ -90,6 +92,7 @@ def main():
             f"stats={lua_str(stats)}",
             f"dungeon={lua_str(dungeon)}",
             f"boss={lua_str(boss)}",
+            f"current={'true' if current else 'false'}",
         ]
         lines.append(f"        {{ {', '.join(parts)} }},")
 
