@@ -196,6 +196,72 @@ def discover_dungeons(token, region, locale, season_id):
     return [d for d in mk_dungeons if d["journal_instance_id"] is not None]
 
 
+def collect_items_from_journal(token, region, locale, dungeons):
+    """Traverse journal instances and encounters to collect all item IDs.
+    Returns list of dicts: {itemID, dungeon, boss}
+    Items appearing under multiple bosses get all bosses collected.
+    """
+    # item_id -> {itemID, dungeon, bosses: [list]}
+    item_map = {}
+    total_encounters = 0
+
+    for i, dg in enumerate(dungeons):
+        inst_id = dg["journal_instance_id"]
+        dg_name = dg["name"]
+
+        # Fetch journal instance
+        url = api_url(region, f"/data/wow/journal-instance/{inst_id}", "static", locale)
+        inst_data = api_get(url, token)
+        time.sleep(0.1)
+
+        encounters = inst_data.get("encounters", [])
+
+        for enc_ref in encounters:
+            enc_id = enc_ref["id"]
+            enc_url = api_url(region, f"/data/wow/journal-encounter/{enc_id}", "static", locale)
+            enc_data = api_get(enc_url, token)
+            time.sleep(0.1)
+
+            enc_name = enc_data.get("name", "Unknown")
+            total_encounters += 1
+
+            items = enc_data.get("items", [])
+            for item_entry in items:
+                item_obj = item_entry.get("item", {})
+                item_id = item_obj.get("id")
+                if not item_id:
+                    continue
+
+                if item_id in item_map:
+                    # Add boss if not already listed
+                    entry = item_map[item_id]
+                    if enc_name not in entry["bosses"]:
+                        entry["bosses"].append(enc_name)
+                    # If different dungeon, note that too
+                    if dg_name not in entry["dungeons"]:
+                        entry["dungeons"].append(dg_name)
+                else:
+                    item_map[item_id] = {
+                        "itemID": item_id,
+                        "dungeons": [dg_name],
+                        "bosses": [enc_name],
+                    }
+
+        print(f"  [{i+1}/{len(dungeons)}] {dg_name}: {len(encounters)} encounters")
+
+    # Flatten bosses/dungeons to joined strings
+    result = []
+    for entry in item_map.values():
+        result.append({
+            "itemID": entry["itemID"],
+            "dungeon": " / ".join(entry["dungeons"]),
+            "boss": " / ".join(entry["bosses"]),
+        })
+
+    print(f"  Total: {total_encounters} encounters, {len(result)} unique items")
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description="Fetch M+ loot from Blizzard API")
     parser.add_argument("--season-id", type=int, default=None, help="Override M+ season ID")
@@ -232,6 +298,10 @@ def main():
     print(f"Found {len(dungeons)} dungeons")
     for d in dungeons:
         print(f"  - {d['name']} (journal id={d['journal_instance_id']})")
+
+    # Collect items from journal
+    print("Fetching journal data...")
+    raw_items = collect_items_from_journal(token, region, locale, dungeons)
 
 
 if __name__ == "__main__":
