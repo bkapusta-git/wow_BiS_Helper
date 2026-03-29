@@ -35,13 +35,20 @@ INVENTORY_TYPE_MAP = {
     "SHIELD": "Off Hand",
     "HOLDABLE": "Off Hand",
     "HELD_IN_OFF_HAND": "Off Hand",
+    "WEAPON": "One-Hand",
+    "WEAPONMAINHAND": "Main Hand",
     "MAIN_HAND": "Main Hand",
     "ONE_HAND": "One-Hand",
     "TWO_HAND": "Two-Hand",
+    "TWOHAND": "Two-Hand",
     "TWOHWEAPON": "Two-Hand",
+    "TWOHHAND": "Two-Hand",
     "RANGED": "Ranged",
     "RANGEDRIGHT": "Ranged",
 }
+
+# item_class IDs for equippable gear (used to filter out quest items, recipes, etc.)
+EQUIPPABLE_ITEM_CLASSES = {"Armor", "Weapon"}
 
 # Blizzard API stat type.type -> short display name
 STAT_TYPE_MAP = {
@@ -157,7 +164,8 @@ def detect_season(token, region, locale, override_id=None):
     if override_id:
         url = api_url(region, f"/data/wow/mythic-keystone/season/{override_id}", "dynamic", locale)
         data = api_get(url, token)
-        return override_id, data.get("season_name", {}).get("name", f"Season {override_id}")
+        raw_name = data.get("season_name", f"Season {override_id}")
+        return override_id, raw_name if isinstance(raw_name, str) else raw_name.get("name", f"Season {override_id}")
 
     url = api_url(region, "/data/wow/mythic-keystone/season/index", "dynamic", locale)
     data = api_get(url, token)
@@ -172,7 +180,8 @@ def detect_season(token, region, locale, override_id=None):
     # Fetch season name
     url = api_url(region, f"/data/wow/mythic-keystone/season/{season_id}", "dynamic", locale)
     season_data = api_get(url, token)
-    season_name = season_data.get("season_name", {}).get("name", f"Season {season_id}")
+    raw_name = season_data.get("season_name", f"Season {season_id}")
+    season_name = raw_name if isinstance(raw_name, str) else raw_name.get("name", f"Season {season_id}")
 
     return season_id, season_name
 
@@ -193,65 +202,60 @@ DUNGEON_NAME_OVERRIDES = {
 
 
 def discover_dungeons(token, region, locale, season_id):
-    """Get dungeon list for a season and map to journal instance IDs.
+    """Get dungeon list for current M+ rotation and map to journal instance IDs.
+    Uses is_tracked field from dungeon detail to identify active rotation.
     Returns list of dicts: {name, journal_instance_id}
     """
-    # Get dungeons from season
-    url = api_url(region, f"/data/wow/mythic-keystone/season/{season_id}", "dynamic", locale)
-    season_data = api_get(url, token)
+    # Fetch all M+ dungeons from the index
+    url = api_url(region, "/data/wow/mythic-keystone/dungeon/index", "dynamic", locale)
+    index_data = api_get(url, token)
+    all_dungeons = index_data.get("dungeons", [])
 
-    periods = season_data.get("periods", [])
-    if not periods:
-        print("ERROR: No periods found for this season.")
+    if not all_dungeons:
+        print("ERROR: No dungeons found in mythic-keystone index.")
         sys.exit(1)
 
-    # Collect M+ dungeon IDs
+    # Check each dungeon for is_tracked=true (current rotation)
     mk_dungeons = []
-    for d in season_data.get("dungeons", []):
+    for d in all_dungeons:
         dk_id = d["id"]
-        dk_name = d.get("name", "")
-        # Fetch dungeon detail to find journal instance link
         dk_url = api_url(region, f"/data/wow/mythic-keystone/dungeon/{dk_id}", "dynamic", locale)
         dk_data = api_get(dk_url, token)
         time.sleep(0.1)
 
-        dungeon_name = dk_data.get("dungeon", {}).get("name", dk_name)
+        if not dk_data.get("is_tracked"):
+            continue
+
+        dungeon_name = dk_data.get("dungeon", {}).get("name", d.get("name", ""))
         instance_id = dk_data.get("dungeon", {}).get("id")
 
         if instance_id:
             mk_dungeons.append({"name": dungeon_name, "journal_instance_id": instance_id})
         else:
-            mk_dungeons.append({"name": dungeon_name, "journal_instance_id": None})
+            # Fallback: check hardcoded overrides or name-based lookup
+            norm = normalize_name(dungeon_name)
+            if norm in DUNGEON_NAME_OVERRIDES:
+                mk_dungeons.append({"name": dungeon_name, "journal_instance_id": DUNGEON_NAME_OVERRIDES[norm]})
+            else:
+                mk_dungeons.append({"name": dungeon_name, "journal_instance_id": None})
 
-    # For dungeons without direct journal instance ID, try name-based lookup
+    # For dungeons without journal instance ID, try name-based lookup
     missing = [d for d in mk_dungeons if d["journal_instance_id"] is None]
     if missing:
-        # Check overrides first
-        still_missing = []
+        ji_url = api_url(region, "/data/wow/journal-instance/index", "static", locale)
+        ji_data = api_get(ji_url, token)
+        ji_instances = ji_data.get("instances", [])
+
+        ji_map = {}
+        for inst in ji_instances:
+            ji_map[normalize_name(inst["name"])] = inst["id"]
+
         for d in missing:
             norm = normalize_name(d["name"])
-            if norm in DUNGEON_NAME_OVERRIDES:
-                d["journal_instance_id"] = DUNGEON_NAME_OVERRIDES[norm]
+            if norm in ji_map:
+                d["journal_instance_id"] = ji_map[norm]
             else:
-                still_missing.append(d)
-
-        if still_missing:
-            # Fetch full journal instance index for name lookup
-            ji_url = api_url(region, "/data/wow/journal-instance/index", "static", locale)
-            ji_data = api_get(ji_url, token)
-            ji_instances = ji_data.get("instances", [])
-
-            # Build normalized name → id map
-            ji_map = {}
-            for inst in ji_instances:
-                ji_map[normalize_name(inst["name"])] = inst["id"]
-
-            for d in still_missing:
-                norm = normalize_name(d["name"])
-                if norm in ji_map:
-                    d["journal_instance_id"] = ji_map[norm]
-                else:
-                    print(f"  WARNING: Could not find journal instance for dungeon '{d['name']}'")
+                print(f"  WARNING: Could not find journal instance for dungeon '{d['name']}'")
 
     return [d for d in mk_dungeons if d["journal_instance_id"] is not None]
 
@@ -352,6 +356,14 @@ def enrich_items(token, region, locale, raw_items):
             time.sleep(0.1)
             continue
 
+        # Filter: skip non-equippable items (quest items, recipes, mounts, etc.)
+        item_class_name = data.get("item_class", {}).get("name", "")
+        if isinstance(item_class_name, dict):
+            item_class_name = item_class_name.get(locale, item_class_name.get("en_US", ""))
+        if item_class_name not in EQUIPPABLE_ITEM_CLASSES:
+            time.sleep(0.1)
+            continue
+
         # Name
         name = data.get("name", {})
         if isinstance(name, dict):
@@ -372,19 +384,16 @@ def enrich_items(token, region, locale, raw_items):
         inv_type_key = inv_type.get("type", "")
         slot = INVENTORY_TYPE_MAP.get(inv_type_key)
 
-        # Armor type / weapon type
-        item_class = data.get("item_class", {}).get("name", "")
-        if isinstance(item_class, dict):
-            item_class = item_class.get(locale, item_class.get("en_US", ""))
+        # Armor type / weapon type (item_class_name already extracted above for filtering)
         item_subclass = data.get("item_subclass", {}).get("name", "")
         if isinstance(item_subclass, dict):
             item_subclass = item_subclass.get(locale, item_subclass.get("en_US", ""))
 
         armor_type = None
         weapon_type = None
-        if item_class == "Armor" and item_subclass in ARMOR_SUBCLASS_MAP:
+        if item_class_name == "Armor" and item_subclass in ARMOR_SUBCLASS_MAP:
             armor_type = ARMOR_SUBCLASS_MAP[item_subclass]
-        elif item_class == "Weapon":
+        elif item_class_name == "Weapon":
             weapon_type = item_subclass
 
         # Stats from preview_item
