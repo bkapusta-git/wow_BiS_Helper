@@ -3149,7 +3149,7 @@ local function CreateLootBrowserFrame()
     local LOOT_ROW_H = 24
     local LOOT_W = 720
     local LOOT_H = 500
-    local FILTER_H = 32
+    local FILTER_H = 44
     local COL_H = 20
 
     local f = CreateFrame("Frame", "BiSHelperLootBrowser", UIParent, "BackdropTemplate")
@@ -3229,7 +3229,7 @@ local function CreateLootBrowserFrame()
     -- Search box
     local searchBox = CreateFrame("EditBox", "BiSHelperLootSearch", f, "InputBoxTemplate")
     searchBox:SetSize(140, 20)
-    searchBox:SetPoint("TOPLEFT", f, "TOPLEFT", 14, filterY - 8)
+    searchBox:SetPoint("TOPLEFT", f, "TOPLEFT", 14, filterY - 20)
     searchBox:SetAutoFocus(false)
     searchBox:SetFontObject(GameFontHighlightSmall)
     searchBox:SetTextInsets(4, 4, 0, 0)
@@ -3249,6 +3249,15 @@ local function CreateLootBrowserFrame()
     searchBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
     f.searchBox = searchBox
 
+    -- Filter labels
+    local function AddFilterLabel(text, anchorFrame, offsetX)
+        local lbl = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        lbl:SetPoint("BOTTOMLEFT", anchorFrame, "TOPLEFT", offsetX or 0, 2)
+        lbl:SetText(P.tDim .. text .. "|r")
+        return lbl
+    end
+    AddFilterLabel("Search", searchBox, 2)
+
     -- Determine player armor type
     local _, playerClass = UnitClass("player")
     local playerArmor = CLASS_ARMOR[playerClass] or "All"
@@ -3259,12 +3268,14 @@ local function CreateLootBrowserFrame()
     local slotDD = CreateDropdown(f, 80, slotOptions, "All", function() f:ApplyFilters() end)
     slotDD:SetPoint("LEFT", searchBox, "RIGHT", 8, 0)
     f.slotDD = slotDD
+    AddFilterLabel("Slot", slotDD, 4)
 
     -- Armor Type dropdown
     local armorOptions = {"All", "Cloth", "Leather", "Mail", "Plate"}
     local armorDD = CreateDropdown(f, 80, armorOptions, playerArmor, function() f:ApplyFilters() end)
     armorDD:SetPoint("LEFT", slotDD, "RIGHT", 6, 0)
     f.armorDD = armorDD
+    AddFilterLabel("Armor", armorDD, 4)
 
     -- Dungeon dropdown
     local dungeonOptions = {"All", "Algeth'ar Academy", "Magister's Terrace",
@@ -3273,12 +3284,14 @@ local function CreateLootBrowserFrame()
     local dungeonDD = CreateDropdown(f, 130, dungeonOptions, "All", function() f:ApplyFilters() end)
     dungeonDD:SetPoint("LEFT", armorDD, "RIGHT", 6, 0)
     f.dungeonDD = dungeonDD
+    AddFilterLabel("Dungeon", dungeonDD, 4)
 
     -- Stat dropdown
     local statOptions = {"All", "Crit", "Haste", "Mastery", "Vers"}
     local statDD = CreateDropdown(f, 75, statOptions, "All", function() f:ApplyFilters() end)
     statDD:SetPoint("LEFT", dungeonDD, "RIGHT", 6, 0)
     f.statDD = statDD
+    AddFilterLabel("Stat", statDD, 4)
 
     countLabel:ClearAllPoints()
     countLabel:SetPoint("RIGHT", statDD, "RIGHT", 60, 0)
