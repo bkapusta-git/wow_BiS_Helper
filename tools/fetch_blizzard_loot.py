@@ -483,6 +483,7 @@ def main():
     parser.add_argument("--locale", type=str, default=None, help="Locale for item names")
     parser.add_argument("--no-lua", action="store_true", help="Skip Lua generation")
     parser.add_argument("--output-dir", type=str, default=SCRIPT_DIR, help="JSON output directory")
+    parser.add_argument("--min-ilvl", type=int, default=None, help="Min ilvl for current-season flag (passed to Lua generator)")
     args = parser.parse_args()
 
     # Load config
@@ -531,10 +532,10 @@ def main():
         print("Generating Lua...", end=" ", flush=True)
         lua_script = os.path.join(SCRIPT_DIR, "generate_loot_lua.py")
         import subprocess
-        result = subprocess.run(
-            [sys.executable, lua_script, "--input", json_path],
-            capture_output=True, text=True,
-        )
+        cmd = [sys.executable, lua_script, "--input", json_path]
+        if args.min_ilvl is not None:
+            cmd.extend(["--min-ilvl", str(args.min_ilvl)])
+        result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode == 0:
             print("done")
             if result.stdout.strip():
