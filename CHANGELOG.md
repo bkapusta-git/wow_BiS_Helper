@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.9] — 2026-03-29
+
+### Added
+- **Filter labels** — each filter in Loot Browser now has a visible label above it (Search, Slot, Armor, Dungeon, Stat)
+- **"Current only" checkbox** — filters out legacy items from previous expansions, enabled by default
+- Current-season flag (`current`) added to loot data pipeline (`--min-ilvl` parameter in generator)
+
+### Fixed
+- Copy popup now renders above the Loot Browser window (was hidden behind it)
+- Footer data source corrected from "Wowhead" to "Blizzard API"
+
 ## [0.8.8] — 2026-03-29
 
 ### Changed
