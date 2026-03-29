@@ -15,6 +15,66 @@ import urllib.request
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# Blizzard API inventory_type.type -> display slot name
+INVENTORY_TYPE_MAP = {
+    "HEAD": "Head",
+    "NECK": "Neck",
+    "SHOULDER": "Shoulder",
+    "BODY": "Shirt",
+    "CHEST": "Chest",
+    "ROBE": "Chest",
+    "WAIST": "Waist",
+    "LEGS": "Legs",
+    "FEET": "Feet",
+    "WRIST": "Wrist",
+    "HAND": "Hands",
+    "HANDS": "Hands",
+    "FINGER": "Finger",
+    "TRINKET": "Trinket",
+    "CLOAK": "Back",
+    "SHIELD": "Off Hand",
+    "HOLDABLE": "Off Hand",
+    "HELD_IN_OFF_HAND": "Off Hand",
+    "MAIN_HAND": "Main Hand",
+    "ONE_HAND": "One-Hand",
+    "TWO_HAND": "Two-Hand",
+    "TWOHWEAPON": "Two-Hand",
+    "RANGED": "Ranged",
+    "RANGEDRIGHT": "Ranged",
+}
+
+# Blizzard API stat type.type -> short display name
+STAT_TYPE_MAP = {
+    "CRIT_RATING": "Crit",
+    "HASTE_RATING": "Haste",
+    "MASTERY_RATING": "Mastery",
+    "VERSATILITY": "Vers",
+    "INTELLECT": "Intellect",
+    "AGILITY": "Agility",
+    "STRENGTH": "Strength",
+    "STAMINA": "Stamina",
+}
+
+# Blizzard API item_subclass names -> armor type
+ARMOR_SUBCLASS_MAP = {
+    "Cloth": "Cloth",
+    "Leather": "Leather",
+    "Mail": "Mail",
+    "Plate": "Plate",
+}
+
+# Quality ID -> name
+QUALITY_MAP = {
+    0: "Poor",
+    1: "Common",
+    2: "Uncommon",
+    3: "Rare",
+    4: "Epic",
+    5: "Legendary",
+}
+
+SECONDARY_STATS = {"CRIT_RATING", "HASTE_RATING", "MASTERY_RATING", "VERSATILITY"}
+
 
 def load_env():
     """Load key=value pairs from tools/.env file."""
@@ -262,6 +322,107 @@ def collect_items_from_journal(token, region, locale, dungeons):
     return result
 
 
+def enrich_items(token, region, locale, raw_items):
+    """Fetch full item details from Item API for each item.
+    Returns list of enriched item dicts.
+    """
+    enriched = []
+
+    for i, raw in enumerate(raw_items):
+        item_id = raw["itemID"]
+        url = api_url(region, f"/data/wow/item/{item_id}", "static", locale)
+
+        try:
+            data = api_get(url, token)
+        except Exception as e:
+            print(f"  WARNING: Failed to fetch item {item_id}: {e}")
+            enriched.append({
+                "itemID": item_id,
+                "name": f"Unknown (ID: {item_id})",
+                "quality": "Unknown",
+                "ilvl": 0,
+                "slot": None,
+                "armorType": None,
+                "weaponType": None,
+                "stats": None,
+                "statsValues": None,
+                "dungeon": raw["dungeon"],
+                "boss": raw["boss"],
+            })
+            time.sleep(0.1)
+            continue
+
+        # Name
+        name = data.get("name", {})
+        if isinstance(name, dict):
+            name = name.get(locale, name.get("en_US", str(name)))
+        name = str(name)
+
+        # Quality
+        quality_info = data.get("quality", {})
+        quality = quality_info.get("name", QUALITY_MAP.get(quality_info.get("type"), "Unknown"))
+        if isinstance(quality, dict):
+            quality = quality.get(locale, quality.get("en_US", "Unknown"))
+
+        # Item level
+        ilvl = data.get("level", 0)
+
+        # Slot
+        inv_type = data.get("inventory_type", {})
+        inv_type_key = inv_type.get("type", "")
+        slot = INVENTORY_TYPE_MAP.get(inv_type_key)
+
+        # Armor type / weapon type
+        item_class = data.get("item_class", {}).get("name", "")
+        if isinstance(item_class, dict):
+            item_class = item_class.get(locale, item_class.get("en_US", ""))
+        item_subclass = data.get("item_subclass", {}).get("name", "")
+        if isinstance(item_subclass, dict):
+            item_subclass = item_subclass.get(locale, item_subclass.get("en_US", ""))
+
+        armor_type = None
+        weapon_type = None
+        if item_class == "Armor" and item_subclass in ARMOR_SUBCLASS_MAP:
+            armor_type = ARMOR_SUBCLASS_MAP[item_subclass]
+        elif item_class == "Weapon":
+            weapon_type = item_subclass
+
+        # Stats from preview_item
+        preview = data.get("preview_item", {})
+        stats_list = preview.get("stats", [])
+
+        secondary_stats = {}
+        for stat in stats_list:
+            stat_type = stat.get("type", {}).get("type", "")
+            if stat_type in SECONDARY_STATS:
+                display_name = STAT_TYPE_MAP.get(stat_type, stat_type)
+                secondary_stats[display_name] = stat.get("value", 0)
+
+        stats_str = " / ".join(sorted(secondary_stats.keys())) if secondary_stats else None
+        stats_values = secondary_stats if secondary_stats else None
+
+        enriched.append({
+            "itemID": item_id,
+            "name": name,
+            "quality": quality,
+            "ilvl": ilvl,
+            "slot": slot,
+            "armorType": armor_type,
+            "weaponType": weapon_type,
+            "stats": stats_str,
+            "statsValues": stats_values,
+            "dungeon": raw["dungeon"],
+            "boss": raw["boss"],
+        })
+
+        if (i + 1) % 25 == 0 or i + 1 == len(raw_items):
+            print(f"  [{i+1}/{len(raw_items)}] items enriched")
+
+        time.sleep(0.1)
+
+    return enriched
+
+
 def main():
     parser = argparse.ArgumentParser(description="Fetch M+ loot from Blizzard API")
     parser.add_argument("--season-id", type=int, default=None, help="Override M+ season ID")
@@ -302,6 +463,11 @@ def main():
     # Collect items from journal
     print("Fetching journal data...")
     raw_items = collect_items_from_journal(token, region, locale, dungeons)
+
+    # Enrich items
+    print("Fetching item details...")
+    items = enrich_items(token, region, locale, raw_items)
+    print(f"  {len(items)} items enriched")
 
 
 if __name__ == "__main__":
