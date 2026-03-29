@@ -423,6 +423,50 @@ def enrich_items(token, region, locale, raw_items):
     return enriched
 
 
+def make_season_slug(season_name):
+    """Convert season name to filesystem-safe slug. e.g. 'Midnight Season 1' -> 'midnight_s1'"""
+    slug = season_name.lower().strip()
+    slug = slug.replace("season ", "s")
+    slug = slug.replace(" ", "_")
+    # Remove non-alphanumeric chars except underscore
+    slug = "".join(c for c in slug if c.isalnum() or c == "_")
+    return slug
+
+
+def save_json(items, season_name, season_id, dungeons, output_dir):
+    """Save enriched items to JSON file. Returns the output file path."""
+    slug = make_season_slug(season_name)
+    dungeon_names = sorted(set(d["name"] for d in dungeons))
+
+    # Sort items by slot, then armor type, then name
+    slot_order = ["Head", "Neck", "Shoulder", "Back", "Chest", "Wrist",
+                  "Hands", "Waist", "Legs", "Feet", "Finger", "Trinket",
+                  "Main Hand", "One-Hand", "Two-Hand", "Off Hand", "Ranged"]
+
+    def sort_key(item):
+        slot = item.get("slot") or "zzz"
+        slot_idx = slot_order.index(slot) if slot in slot_order else 99
+        return (slot_idx, item.get("armorType") or "zzz", item.get("name") or "")
+
+    items.sort(key=sort_key)
+
+    output = {
+        "source": "Blizzard Game Data API",
+        "season": season_name,
+        "season_id": season_id,
+        "fetched_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "total_items": len(items),
+        "dungeons": dungeon_names,
+        "items": items,
+    }
+
+    outfile = os.path.join(output_dir, f"mplus_loot_{slug}.json")
+    with open(outfile, "w", encoding="utf-8") as f:
+        json.dump(output, f, indent=2, ensure_ascii=False)
+
+    return outfile
+
+
 def main():
     parser = argparse.ArgumentParser(description="Fetch M+ loot from Blizzard API")
     parser.add_argument("--season-id", type=int, default=None, help="Override M+ season ID")
@@ -468,6 +512,27 @@ def main():
     print("Fetching item details...")
     items = enrich_items(token, region, locale, raw_items)
     print(f"  {len(items)} items enriched")
+
+    # Save JSON
+    json_path = save_json(items, season_name, season_id, dungeons, args.output_dir)
+    print(f"Saved {json_path} ({len(items)} items)")
+
+    # Generate Lua
+    if not args.no_lua:
+        print("Generating Lua...", end=" ", flush=True)
+        lua_script = os.path.join(SCRIPT_DIR, "generate_loot_lua.py")
+        import subprocess
+        result = subprocess.run(
+            [sys.executable, lua_script, "--input", json_path],
+            capture_output=True, text=True,
+        )
+        if result.returncode == 0:
+            print("done")
+            if result.stdout.strip():
+                print(f"  {result.stdout.strip()}")
+        else:
+            print("FAILED")
+            print(f"  {result.stderr.strip()}")
 
 
 if __name__ == "__main__":
