@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.8.8] — 2026-03-29
+
+### Changed
+- **Loot Browser data source** — switched from Wowhead scraper to official Blizzard Game Data API
+- Loot list expanded from 190 to 464 items (complete dungeon drop tables from all 8 M+ dungeons)
+- Each item now includes base item level (ilvl) field
+- New Python tooling: `tools/fetch_blizzard_loot.py` replaces old `scrape_mplus_loot.py` + `parse_loot.py`
+- Auto-detects current M+ season and active dungeon rotation via API
+- Multi-boss items show all source bosses (e.g. "Kael'thas / Delrissa")
+
 ## [0.8.5] — 2026-03-29
 
 ### Added
