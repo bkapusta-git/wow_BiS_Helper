@@ -30,11 +30,12 @@ A compact bar above the gear table tracks your Dawncrest progress:
 - Shows current amount in bags, total earned this season, and the season cap.
 - Hover for detailed tooltips on drop sources.
 
-### Loot Browser (beta)
+### Loot Browser
 Browse all Mythic+ loot drops from Midnight Season 1 directly in-game:
-- **190 items** from all 8 M+ dungeons, searchable and filterable.
+- **464 items** from all 8 M+ dungeons, searchable and filterable.
 - **Smart Filters:** Search by name, filter by slot, armor type, dungeon, or secondary stat.
-- **Class-Aware:** Armor type defaults to your class — accessories and weapons always shown.
+- **Current Season:** Toggle to show only items from the current M+ rotation.
+- **My Class:** Filter to show only items your class can equip.
 - **Quick Access:** Open with the **Loot** toolbar button or `/bis loot`.
 
 ---

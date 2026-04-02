@@ -3149,7 +3149,7 @@ local function CreateLootBrowserFrame()
     local LOOT_ROW_H = 24
     local LOOT_W = 720
     local LOOT_H = 500
-    local FILTER_H = 44
+    local FILTER_H = 72
     local COL_H = 20
 
     local f = CreateFrame("Frame", "BiSHelperLootBrowser", UIParent, "BackdropTemplate")
@@ -3293,20 +3293,35 @@ local function CreateLootBrowserFrame()
     f.statDD = statDD
     AddFilterLabel("Stat", statDD, 4)
 
-    -- Current-only checkbox
+    -- Second row: checkboxes + count
+    local row2Y = filterY - 46
+
+    -- Current season checkbox
     local currentCB = CreateFrame("CheckButton", nil, f, "UICheckButtonTemplate")
     currentCB:SetSize(22, 22)
-    currentCB:SetPoint("LEFT", statDD, "RIGHT", 10, 0)
+    currentCB:SetPoint("TOPLEFT", f, "TOPLEFT", 10, row2Y)
     currentCB:SetChecked(true)
     currentCB:SetScript("OnClick", function() f:ApplyFilters() end)
     f.currentCB = currentCB
 
     local currentLabel = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     currentLabel:SetPoint("LEFT", currentCB, "RIGHT", 0, 0)
-    currentLabel:SetText(P.tCream .. "Current only|r")
+    currentLabel:SetText(P.tCream .. "Current season|r")
+
+    -- My class checkbox
+    local classCB = CreateFrame("CheckButton", nil, f, "UICheckButtonTemplate")
+    classCB:SetSize(22, 22)
+    classCB:SetPoint("LEFT", currentLabel, "RIGHT", 10, 0)
+    classCB:SetChecked(false)
+    classCB:SetScript("OnClick", function() f:ApplyFilters() end)
+    f.classCB = classCB
+
+    local classLabel = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    classLabel:SetPoint("LEFT", classCB, "RIGHT", 0, 0)
+    classLabel:SetText(P.tCream .. "My class|r")
 
     countLabel:ClearAllPoints()
-    countLabel:SetPoint("LEFT", currentLabel, "RIGHT", 10, 0)
+    countLabel:SetPoint("LEFT", classLabel, "RIGHT", 10, 0)
 
     -- Column headers
     local colY = filterY - FILTER_H - 4
@@ -3442,6 +3457,9 @@ local function CreateLootBrowserFrame()
         local dungeonFilter = self.dungeonDD.selected
         local statFilter = self.statDD.selected
         local currentOnly = self.currentCB:GetChecked()
+        local classOnly = self.classCB:GetChecked()
+        local _, playerClass = UnitClass("player")
+        local myArmor = CLASS_ARMOR[playerClass]
 
         -- Build filtered list
         local filtered = {}
@@ -3482,6 +3500,13 @@ local function CreateLootBrowserFrame()
             -- Current season filter
             if pass and currentOnly then
                 if not item.current then pass = false end
+            end
+
+            -- My class filter: show items matching player's armor type + accessories/weapons (armorType == nil)
+            if pass and classOnly and myArmor then
+                if item.armorType ~= nil and item.armorType ~= myArmor then
+                    pass = false
+                end
             end
 
             if pass then
