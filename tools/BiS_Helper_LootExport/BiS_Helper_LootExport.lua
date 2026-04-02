@@ -5,24 +5,31 @@ BiSHelperLootExportDB = BiSHelperLootExportDB or {}
 
 local MYTHIC_DIFFICULTY = 23  -- DifficultyID for Mythic 5-man dungeon
 
--- Slot name from EJ filterType (maps to C_EncounterJournal loot filterType constants)
-local SLOT_BY_FILTER = {
-    [Enum.ItemSlotFilterType.Head]     = "Head",
-    [Enum.ItemSlotFilterType.Neck]     = "Neck",
-    [Enum.ItemSlotFilterType.Shoulder] = "Shoulder",
-    [Enum.ItemSlotFilterType.Chest]    = "Chest",
-    [Enum.ItemSlotFilterType.Waist]    = "Waist",
-    [Enum.ItemSlotFilterType.Legs]     = "Legs",
-    [Enum.ItemSlotFilterType.Feet]     = "Feet",
-    [Enum.ItemSlotFilterType.Wrist]    = "Wrist",
-    [Enum.ItemSlotFilterType.Hand]     = "Hands",
-    [Enum.ItemSlotFilterType.Finger]   = "Finger",
-    [Enum.ItemSlotFilterType.Trinket]  = "Trinket",
-    [Enum.ItemSlotFilterType.Back]     = "Back",
-    [Enum.ItemSlotFilterType.MainHand] = "Main Hand",
-    [Enum.ItemSlotFilterType.OffHand]  = "Off Hand",
-    [Enum.ItemSlotFilterType.Other]    = "Other",
+-- Slot name from EJ filterType — built dynamically to avoid nil enum keys
+local SLOT_BY_FILTER = {}
+local slotDefs = {
+    { "Head",      "Head" },
+    { "Neck",      "Neck" },
+    { "Shoulder",  "Shoulder" },
+    { "Chest",     "Chest" },
+    { "Waist",     "Waist" },
+    { "Legs",      "Legs" },
+    { "Feet",      "Feet" },
+    { "Wrist",     "Wrist" },
+    { "Hand",      "Hands" },
+    { "Finger",    "Finger" },
+    { "Trinket",   "Trinket" },
+    { "Back",      "Back" },
+    { "MainHand",  "Main Hand" },
+    { "OffHand",   "Off Hand" },
+    { "Other",     "Other" },
 }
+for _, def in ipairs(slotDefs) do
+    local enumVal = Enum.ItemSlotFilterType and Enum.ItemSlotFilterType[def[1]]
+    if enumVal then
+        SLOT_BY_FILTER[enumVal] = def[2]
+    end
+end
 
 local function FindJournalInstanceID(dungeonName)
     -- Iterate all EJ tiers to find a matching instance by name
@@ -30,7 +37,7 @@ local function FindJournalInstanceID(dungeonName)
         EJ_SelectTier(tierIdx)
         local instanceIdx = 1
         while true do
-            local id, name = EJ_GetInstanceByIndex(instanceIdx, true)  -- true = dungeon
+            local id, name = EJ_GetInstanceByIndex(instanceIdx, false)  -- false = dungeon (true = raid)
             if not id then break end
             if name == dungeonName then
                 return id
@@ -111,10 +118,43 @@ local function ExportLoot()
     print("|cff00ff00[LootExport]|r Log out or /reload to save. Then run: python tools/parse_loot_export.py")
 end
 
--- Slash command
+-- Debug command: show M+ names vs EJ names for troubleshooting
+local function DebugNames()
+    print("|cff00ff00[LootExport DEBUG]|r M+ dungeon names from C_ChallengeMode:")
+    local mapIDs = C_ChallengeMode.GetMapTable() or {}
+    for _, mapID in ipairs(mapIDs) do
+        local name = C_ChallengeMode.GetMapUIInfo(mapID)
+        print("  M+ mapID=" .. mapID .. " name=" .. tostring(name))
+    end
+
+    print("|cff00ff00[LootExport DEBUG]|r EJ dungeon names (all tiers):")
+    for tierIdx = 1, EJ_GetNumTiers() do
+        EJ_SelectTier(tierIdx)
+        local tierName = EJ_GetTierInfo(tierIdx)
+        local instanceIdx = 1
+        local found = false
+        while true do
+            local id, name = EJ_GetInstanceByIndex(instanceIdx, false)
+            if not id then break end
+            if not found then
+                print("  -- Tier: " .. tostring(tierName) .. " (dungeons)")
+                found = true
+            end
+            print("    EJ id=" .. id .. " name=" .. tostring(name))
+            instanceIdx = instanceIdx + 1
+        end
+    end
+end
+
+-- Slash commands
 SLASH_BISEXPORT1 = "/bisexport"
 SlashCmdList["BISEXPORT"] = function()
     ExportLoot()
+end
+
+SLASH_BISEXPORTDEBUG1 = "/bisexportdebug"
+SlashCmdList["BISEXPORTDEBUG"] = function()
+    DebugNames()
 end
 
 -- Notify on load

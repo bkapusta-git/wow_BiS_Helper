@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.9.0] — 2026-04-02
+
+### Added
+- **"My class" checkbox** in Loot Browser — filters items to your armor type (+ accessories/weapons visible for all)
+- **LootExport helper addon** (`tools/BiS_Helper_LootExport/`) — exports current M+ loot from in-game Encounter Journal to SavedVariables for accurate current-season item detection
+- **Whitelist-based current flag** — `generate_loot_lua.py --whitelist` uses EJ-exported item list instead of ilvl heuristic
+- `parse_loot_export.py` — parses LootExport SavedVariables into whitelist JSON
+
+### Changed
+- "Current only" checkbox renamed to **"Current season"**
+- Loot Browser filter bar split into **two rows** for better layout (dropdowns on top, checkboxes below)
+- Current-season detection now based on in-game Encounter Journal data (was ilvl threshold)
+
 ## [0.8.9] — 2026-03-29
 
 ### Added
