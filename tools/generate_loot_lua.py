@@ -45,6 +45,8 @@ def main():
     parser.add_argument("--input", type=str, default=None, help="Path to JSON loot file")
     parser.add_argument("--output", type=str, default=DEFAULT_LUA_PATH, help="Output Lua path")
     parser.add_argument("--min-ilvl", type=int, default=100, help="Min ilvl for current-season flag (default: 100)")
+    parser.add_argument("--whitelist", type=str, default=None,
+                        help="Path to whitelist JSON (from parse_loot_export.py). Overrides --min-ilvl for current flag.")
     args = parser.parse_args()
 
     json_path = args.input or find_latest_json()
@@ -56,6 +58,18 @@ def main():
         data = json.load(f)
 
     items = data["items"]
+
+    # Load whitelist if provided
+    whitelist_ids = None
+    if args.whitelist:
+        if not os.path.exists(args.whitelist):
+            print(f"ERROR: Whitelist file not found: {args.whitelist}")
+            return
+        with open(args.whitelist, "r", encoding="utf-8") as wf:
+            wl_data = json.load(wf)
+        whitelist_ids = set(wl_data.get("itemIDs", []))
+        print(f"Using whitelist: {len(whitelist_ids)} item IDs from {args.whitelist}")
+
     season = data.get("season", "Unknown")
     source = data.get("source", "Unknown")
 
@@ -75,7 +89,10 @@ def main():
         slot_raw = item.get("slot")
         slot = SLOT_NORMALIZE.get(slot_raw, slot_raw)
         ilvl = item.get("ilvl", 0)
-        current = ilvl >= args.min_ilvl
+        if whitelist_ids is not None:
+            current = item_id in whitelist_ids
+        else:
+            current = ilvl >= args.min_ilvl
         armor_type = item.get("armorType")
         weapon_type = item.get("weaponType")
         stats = item.get("stats")
