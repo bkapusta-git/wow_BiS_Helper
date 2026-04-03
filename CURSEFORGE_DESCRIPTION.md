@@ -1,56 +1,75 @@
 # BiS Helper
 
-BiS Helper is a lightweight gear checker that compares your current equipment against Best-in-Slot lists for your spec. It eliminates the need to constantly alt-tab to Wowhead or class discords during raids or mythic+ runs.
+I got tired of alt-tabbing to Wowhead to check what I should be wearing, so I made this. BiS Helper shows your current gear next to your Best-in-Slot list for every slot, tells you where each piece drops, and tracks your stats.
 
-The addon automatically detects your specialization and updates the gear list as soon as you respec.
+Works for all 40 specs. Detects your class and spec automatically, updates when you respec.
 
----
-
-## Core Features
-
-### Gear Comparison Table
-The main window (`/bis`) provides a complete breakdown of all 16 equipment slots:
-- **Match Status:** Instant visual feedback (Green/Red) on whether your item is BiS.
-- **Detailed Info:** View item names, icons, item levels, enchants, and gems.
-- **Upgrade Paths:** Displays current upgrade tracks (e.g. Hero 2/6) directly in the list.
-- **Drop Sources:** Shows where your BiS items drop so you know what to farm next.
-
-### Stat Priorities and DR Caps
-Stay optimized with built-in stat tracking:
-- **Visual Progress:** Bars showing how close you are to Diminishing Returns (DR) caps.
-- **Customizable:** You can manually edit stat priorities and caps in the settings if you prefer a custom build.
-
-### Profile Management
-- **Multiple Profiles:** Save different BiS setups for various scenarios (e.g. Single Target vs AoE).
-- **Import/Export:** Share your entire profile (items, stats, and caps) as an encoded string. Copy-paste to share with friends or guildmates.
-
-### Dawncrest Tracker
-A compact bar above the gear table tracks your Dawncrest progress:
-- Monitor all 5 tiers of crests.
-- Shows current amount in bags, total earned this season, and the season cap.
-- Hover for detailed tooltips on drop sources.
-
-### Loot Browser
-Browse all Mythic+ loot drops from Midnight Season 1 directly in-game:
-- **464 items** from all 8 M+ dungeons, searchable and filterable.
-- **Smart Filters:** Search by name, filter by slot, armor type, dungeon, or secondary stat.
-- **Current Season:** Toggle to show only items from the current M+ rotation.
-- **My Class:** Filter to show only items your class can equip.
-- **Quick Access:** Open with the **Loot** toolbar button or `/bis loot`.
+`/bis` to open. I have it on a CTRL+C macro, but you'll need to set that up yourself.
 
 ---
 
-## Customization and Compatibility
-- **Manual Overrides:** Use Wowhead item IDs to set custom BiS items for any slot.
-- **UI Settings:** The window is resizable and movable; position and scale are saved between sessions.
-- **Full Spec Support:** Pre-loaded data for all 40 specs in Midnight Season 1, including Devourer Demon Hunter.
-- **No Dependencies:** Built with performance in mind. No external libraries or heavy frameworks required.
+## Gear Comparison
 
-## Quick Start
-1. Open the panel with `/bis` or use the minimap icon.
-2. Toggle between **Raid** and **Mythic+** lists.
-3. Check your progress: **Green rows** are complete, **Red rows** still need upgrades.
+The main window shows all 16 equipment slots: what you have equipped vs. what your BiS is (you can override any slot with your own pick).
+
+- Green = BiS. Red = not yet.
+- Shows item names, icons, ilvl, enchants, gems, and upgrade track (e.g. Hero 2/6).
+- Drop source next to every BiS item, so you know where to go.
+- **Filter** button hides the slots you've already completed.
+
+BiS data pre-loaded for all 40 specs in Midnight Season 1 (including Devourer DH).
 
 ---
 
-*Found a bug? Report it on the CurseForge issue tracker.*
+## Stat Priorities
+
+Stat priorities for Raid and Mythic+ come with each spec. DR cap bars show where you're at relative to Diminishing Returns thresholds.
+
+You can edit everything: stat order, cap values, notes. If you sim differently than the defaults, just change them.
+
+---
+
+## Loot Browser
+
+Browse loot from M+ dungeons and raids in one place. 178 current M+ items from 8 dungeons, plus 85 raid items from The Voidspire, The Dreamrift, and Midnight.
+
+- Filter by slot, armor type, source (dungeon or raid), or secondary stats. Or just search by name.
+- **Type** filter to show All, M+ only, or Raid only.
+- **My Class** shows only gear your class can equip. Way better than the Dungeon Journal for quickly finding what's relevant.
+- **Current Season** toggle hides old expansion items.
+
+`/bis loot` to open (or button in UI)
+
+---
+
+## Dawncrest Tracker
+
+Bar above the gear table showing your crest progress across all 5 tiers: how many you have, how many you've earned this season, and the cap. Hover for drop source tooltips. Handy for tracking when a track hits 6/6 and the next tier upgrade becomes free.
+
+---
+
+## Share
+
+Export your profile (items + stats + DR caps) as a string. Paste it to a guildie or import someone else's setup. Useful for alts or sharing builds in Discord.
+
+You can also override individual slots with Wowhead item IDs if you want a custom BiS.
+
+---
+
+## Other Details
+
+- No dependencies. No Ace3, no LibStub.
+- Minimap button and Addon Compartment supported.
+- `/bis` for the main window, `/bis loot` for the Loot Browser.
+
+---
+
+## Getting Started
+
+1. `/bis` or click the minimap icon.
+2. Pick **Raid** or **Mythic+**.
+3. Green rows are done, red rows need work.
+
+---
+
+*Bug reports and suggestions welcome — just leave a comment on the addon page.*
