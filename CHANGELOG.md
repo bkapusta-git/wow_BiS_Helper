@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.9.1] — 2026-04-03
+
+### Added
+- **Raid loot in Loot Browser** — 85 items from 3 Midnight S1 raids (The Voidspire, The Dreamrift, Midnight) now browsable alongside M+ loot
+- **"Source" dropdown** — replaces "Dungeon" filter, shows grouped M+ dungeons and raids with section headers
+- **"Type" filter** — new dropdown to filter by All / M+ / Raid
+- `fetch_raid_loot.py` — fetches raid loot from Blizzard Game Data API
+- `generate_raid_loot_lua.py` — generates `raid_loot.lua` from JSON
+- `blizzard_api.py` — shared Blizzard API utilities (extracted from fetch scripts)
+
+### Changed
+- Loot Browser title: "Midnight S1" (was "Midnight S1 M+")
+- Column header: "SOURCE" (was "DUNGEON")
+- M+ loot items now include `sourceType` field for filtering
+
 ## [0.9.0] — 2026-04-02
 
 ### Added
