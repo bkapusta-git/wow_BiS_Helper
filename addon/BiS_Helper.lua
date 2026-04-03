@@ -398,14 +398,26 @@ local function CreateDropdown(parent, width, options, defaultVal, onChange)
         local btnText = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         btnText:SetAllPoints()
         btnText:SetJustifyH("LEFT")
-        btnText:SetText(P.tCream .. opt .. "|r")
+        local isHeader = strfind(opt, "^──")
+        if isHeader then
+            btnText:SetText(P.tDim .. opt .. "|r")
+        else
+            btnText:SetText(P.tCream .. opt .. "|r")
+        end
         btn:SetScript("OnEnter", function()
-            btnText:SetText(P.tGold .. opt .. "|r")
+            if not isHeader then
+                btnText:SetText(P.tGold .. opt .. "|r")
+            end
         end)
         btn:SetScript("OnLeave", function()
-            btnText:SetText(P.tCream .. opt .. "|r")
+            if isHeader then
+                btnText:SetText(P.tDim .. opt .. "|r")
+            else
+                btnText:SetText(P.tCream .. opt .. "|r")
+            end
         end)
         btn:SetScript("OnClick", function()
+            if strfind(opt, "^──") then return end
             dd.selected = opt
             label:SetText(P.tCream .. opt .. "|r")
             list:Hide()
@@ -3193,7 +3205,7 @@ local function CreateLootBrowserFrame()
 
     local title = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     title:SetPoint("TOPLEFT", f, "TOPLEFT", 10, -10)
-    title:SetText(P.tGold .. "Loot Browser — Midnight S1 M+|r")
+    title:SetText(P.tGold .. "Loot Browser — Midnight S1|r")
 
     local closeBtn = CreateFrame("Button", nil, f, "UIPanelCloseButton")
     closeBtn:SetPoint("TOPRIGHT", f, "TOPRIGHT", -2, -2)
@@ -3277,19 +3289,51 @@ local function CreateLootBrowserFrame()
     f.armorDD = armorDD
     AddFilterLabel("Armor", armorDD, 4)
 
-    -- Dungeon dropdown
-    local dungeonOptions = {"All", "Algeth'ar Academy", "Magister's Terrace",
-        "Maisara Caverns", "Nexus-Point Xenas", "Pit of Saron",
-        "Seat of the Triumvirate", "Skyreach", "Windrunner Spire"}
-    local dungeonDD = CreateDropdown(f, 130, dungeonOptions, "All", function() f:ApplyFilters() end)
-    dungeonDD:SetPoint("LEFT", armorDD, "RIGHT", 6, 0)
-    f.dungeonDD = dungeonDD
-    AddFilterLabel("Dungeon", dungeonDD, 4)
+    -- Source dropdown (replaces Dungeon — includes M+ dungeons + raids)
+    local sourceOptions = {"All"}
+    local mplusItems = BiSHelper_MplusLoot and BiSHelper_MplusLoot.items or {}
+    local raidItems = BiSHelper_RaidLoot and BiSHelper_RaidLoot.items or {}
+
+    local mplusSources, mplusSeen = {}, {}
+    for _, item in ipairs(mplusItems) do
+        if item.dungeon and not mplusSeen[item.dungeon] then
+            mplusSeen[item.dungeon] = true
+            mplusSources[#mplusSources + 1] = item.dungeon
+        end
+    end
+    table.sort(mplusSources)
+
+    local raidSources, raidSeen = {}, {}
+    for _, item in ipairs(raidItems) do
+        if item.dungeon and not raidSeen[item.dungeon] then
+            raidSeen[item.dungeon] = true
+            raidSources[#raidSources + 1] = item.dungeon
+        end
+    end
+    table.sort(raidSources)
+
+    if #mplusSources > 0 then
+        sourceOptions[#sourceOptions + 1] = "── M+ Dungeons ──"
+        for _, name in ipairs(mplusSources) do
+            sourceOptions[#sourceOptions + 1] = name
+        end
+    end
+    if #raidSources > 0 then
+        sourceOptions[#sourceOptions + 1] = "── Raids ──"
+        for _, name in ipairs(raidSources) do
+            sourceOptions[#sourceOptions + 1] = name
+        end
+    end
+
+    local sourceDD = CreateDropdown(f, 140, sourceOptions, "All", function() f:ApplyFilters() end)
+    sourceDD:SetPoint("LEFT", armorDD, "RIGHT", 6, 0)
+    f.sourceDD = sourceDD
+    AddFilterLabel("Source", sourceDD, 4)
 
     -- Stat dropdown
     local statOptions = {"All", "Crit", "Haste", "Mastery", "Vers"}
     local statDD = CreateDropdown(f, 75, statOptions, "All", function() f:ApplyFilters() end)
-    statDD:SetPoint("LEFT", dungeonDD, "RIGHT", 6, 0)
+    statDD:SetPoint("LEFT", sourceDD, "RIGHT", 6, 0)
     f.statDD = statDD
     AddFilterLabel("Stat", statDD, 4)
 
@@ -3320,8 +3364,14 @@ local function CreateLootBrowserFrame()
     classLabel:SetPoint("LEFT", classCB, "RIGHT", 0, 0)
     classLabel:SetText(P.tCream .. "My class|r")
 
+    -- Type dropdown (M+ / Raid filter)
+    local typeOptions = {"All", "M+", "Raid"}
+    local typeDD = CreateDropdown(f, 70, typeOptions, "All", function() f:ApplyFilters() end)
+    typeDD:SetPoint("LEFT", classLabel, "RIGHT", 12, 0)
+    f.typeDD = typeDD
+
     countLabel:ClearAllPoints()
-    countLabel:SetPoint("LEFT", classLabel, "RIGHT", 10, 0)
+    countLabel:SetPoint("LEFT", typeDD, "RIGHT", 10, 0)
 
     -- Column headers
     local colY = filterY - FILTER_H - 4
@@ -3335,7 +3385,7 @@ local function CreateLootBrowserFrame()
         { label = "ITEM",   x = 34,  width = 180 },
         { label = "SLOT",   x = 216, width = 60  },
         { label = "STATS",  x = 278, width = 110 },
-        { label = "DUNGEON",x = 390, width = 150 },
+        { label = "SOURCE", x = 390, width = 150 },
         { label = "BOSS",   x = 542, width = 150 },
     }
     for _, col in ipairs(colDefs) do
@@ -3450,14 +3500,25 @@ local function CreateLootBrowserFrame()
     end
 
     function f:ApplyFilters()
-        local items = BiSHelper_MplusLoot and BiSHelper_MplusLoot.items or {}
+        -- Merge M+ and Raid loot
+        local mplusItems = BiSHelper_MplusLoot and BiSHelper_MplusLoot.items or {}
+        local raidItems = BiSHelper_RaidLoot and BiSHelper_RaidLoot.items or {}
+        local items = {}
+        for _, item in ipairs(mplusItems) do
+            items[#items + 1] = item
+        end
+        for _, item in ipairs(raidItems) do
+            items[#items + 1] = item
+        end
+
         local searchText = strlower(strtrim(self.searchBox:GetText()))
         local slotFilter = self.slotDD.selected
         local armorFilter = self.armorDD.selected
-        local dungeonFilter = self.dungeonDD.selected
+        local sourceFilter = self.sourceDD.selected
         local statFilter = self.statDD.selected
         local currentOnly = self.currentCB:GetChecked()
         local classOnly = self.classCB:GetChecked()
+        local typeFilter = self.typeDD.selected
         local _, playerClass = UnitClass("player")
         local myArmor = CLASS_ARMOR[playerClass]
 
@@ -3485,9 +3546,9 @@ local function CreateLootBrowserFrame()
                 end
             end
 
-            -- Dungeon filter
-            if pass and dungeonFilter ~= "All" then
-                if item.dungeon ~= dungeonFilter then pass = false end
+            -- Source filter (replaces Dungeon filter)
+            if pass and sourceFilter ~= "All" then
+                if item.dungeon ~= sourceFilter then pass = false end
             end
 
             -- Stat filter (substring in stats string)
@@ -3505,6 +3566,16 @@ local function CreateLootBrowserFrame()
             -- My class filter: show items matching player's armor type + accessories/weapons (armorType == nil)
             if pass and classOnly and myArmor then
                 if item.armorType ~= nil and item.armorType ~= myArmor then
+                    pass = false
+                end
+            end
+
+            -- Type filter (M+ / Raid)
+            if pass and typeFilter ~= "All" then
+                local itemType = item.sourceType or "mythicplus"
+                if typeFilter == "M+" and itemType ~= "mythicplus" then
+                    pass = false
+                elseif typeFilter == "Raid" and itemType ~= "raid" then
                     pass = false
                 end
             end
