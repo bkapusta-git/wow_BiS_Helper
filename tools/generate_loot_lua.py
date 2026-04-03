@@ -110,6 +110,7 @@ def main():
             f"dungeon={lua_str(dungeon)}",
             f"boss={lua_str(boss)}",
             f"current={'true' if current else 'false'}",
+            'sourceType="mythicplus"',
         ]
         lines.append(f"        {{ {', '.join(parts)} }},")
 
