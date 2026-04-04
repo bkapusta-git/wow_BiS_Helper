@@ -636,7 +636,7 @@ local function Deserialize(str)
 
         elseif ch == "-" or ch:match("%d") then
             -- Number
-            local numStr = str:match("^-?%d+%.?%d*", pos)
+            local numStr = str:sub(pos):match("^-?%d+%.?%d*")
             pos = pos + #numStr
             return tonumber(numStr)
 
