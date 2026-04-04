@@ -78,7 +78,7 @@ local function ExportLoot()
                     EJ_SelectEncounter(eID)
                     local numLoot = EJ_GetNumLoot()
 
-                    for lootIdx = 1, numLoot do
+                    for lootIdx = 0, numLoot - 1 do
                         local info = C_EncounterJournal.GetLootInfoByIndex(lootIdx)
                         if info and info.itemID and not seenItems[info.itemID] then
                             seenItems[info.itemID] = true
