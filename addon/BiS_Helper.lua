@@ -3358,8 +3358,7 @@ local function CreateLootBrowserFrame()
             i % 2 == 0 and P.bgCard[3] or P.bgCardAlt[3],
             i % 2 == 0 and P.bgCard[4] or P.bgCardAlt[4])
         bg:SetAllPoints()
-
-        -- Highlight on hover
+        row.bg = bg
         local highlight = Rect(row, "BACKGROUND", 1, P.gold[1], P.gold[2], P.gold[3], 0)
         highlight:SetAllPoints()
         row.highlight = highlight
@@ -3560,7 +3559,7 @@ local function CreateLootBrowserFrame()
                 row:SetPoint("TOPRIGHT", self.scrollContent, "TOPRIGHT", 0, -(dataIdx - 1) * LOOT_ROW_H)
 
                 -- Alternate row background based on data index
-                local bg = select(1, row:GetRegions())
+                local bg = row.bg
                 if dataIdx % 2 == 0 then
                     bg:SetColorTexture(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
                 else
