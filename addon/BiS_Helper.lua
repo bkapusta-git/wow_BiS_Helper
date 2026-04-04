@@ -3009,7 +3009,7 @@ RefreshCrestBar = function()
     local prevFrame = nil
     for _, crestData in ipairs(DAWNCREST_DATA) do
         local cf = bar.crestFrames[crestData.id]
-        if not cf then break end
+        if not cf then goto continue end
 
         local visible = settings and settings.visible and settings.visible[crestData.id]
         local info = visible and C_CurrencyInfo.GetCurrencyInfo(crestData.id)
@@ -3043,6 +3043,7 @@ RefreshCrestBar = function()
 
             prevFrame = cf
         end
+        ::continue::
     end
 end
 
@@ -3480,7 +3481,7 @@ local function CreateLootBrowserFrame()
 
             -- Source filter (replaces Dungeon filter)
             if pass and sourceFilter ~= "All" then
-                if item.dungeon ~= sourceFilter then pass = false end
+                if not item.dungeon or not strfind(item.dungeon, sourceFilter, 1, true) then pass = false end
             end
 
             -- Stat filter (substring in stats string)
