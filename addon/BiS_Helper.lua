@@ -3935,7 +3935,7 @@ local function UpdateRow(rowIndex, slotId)
     if equippedID == bisEntry.itemID then
         SetRowVisualStatus(row, "bis")
         row.bisName:SetText(P.tBiS .. bisEntry.name .. "|r")
-        row.bisHover.bisItemID = nil
+        row.bisHover.bisItemID = bisEntry.itemID
         row.bisItemID = bisEntry.itemID
     else
         SetRowVisualStatus(row, "missing")
