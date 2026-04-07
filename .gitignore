@@ -1,5 +1,6 @@
-# Claude Code local settings
-.claude/settings.local.json
+# Claude Code
+.claude/
+CLAUDE.md
 
 # Blizzard API credentials
 tools/.env
@@ -19,3 +20,6 @@ old/
 # Superpowers docs (local only)
 docs/superpowers/
 .superpowers/
+
+# Dev documentation
+docs/
