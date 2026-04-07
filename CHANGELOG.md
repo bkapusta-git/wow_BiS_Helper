@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.2] — 2026-04-07
+
+### Fixed
+- **Mythic item levels** — raid loot and current M+ items now show Mythic ilvl (272, Myth 1/6) instead of base API values
+- **Mythic ilvl in tooltips** — BiS item tooltips and Loot Browser tooltips display "Mythic ilvl: 272" line
+- **DR bar colors** — stat bars now match the colors used in stat priority text (was using parent color for compound entries like "Crit / Mastery")
+
 ## [0.9.1] — 2026-04-03
 
 ### Added
