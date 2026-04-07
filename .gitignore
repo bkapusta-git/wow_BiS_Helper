@@ -3,3 +3,19 @@
 
 # Blizzard API credentials
 tools/.env
+
+# Build artifacts
+*.zip
+
+# Python cache
+tools/__pycache__/
+
+# Generated JSON artifacts
+tools/*.json
+
+# Old/archive files
+old/
+
+# Superpowers docs (local only)
+docs/superpowers/
+.superpowers/

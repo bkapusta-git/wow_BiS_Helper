@@ -11,6 +11,10 @@ import time
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_LUA_PATH = os.path.join(SCRIPT_DIR, "..", "addon", "data", "mplus_loot.lua")
 
+# Mythic ilvl override — Blizzard API returns base ilvl, not in-game mythic ilvl.
+# Midnight S1: 272 = Myth 1/6 track (Great Vault from M+10). Update each season.
+MYTHIC_ILVL = 272
+
 SLOT_NORMALIZE = {
     "Main Hand": "Weapon",
     "Off Hand": "Weapon",
@@ -88,11 +92,12 @@ def main():
         name = item.get("name", "Unknown")
         slot_raw = item.get("slot")
         slot = SLOT_NORMALIZE.get(slot_raw, slot_raw)
-        ilvl = item.get("ilvl", 0)
+        ilvl_raw = item.get("ilvl", 0)
         if whitelist_ids is not None:
             current = item_id in whitelist_ids
         else:
-            current = ilvl >= args.min_ilvl
+            current = ilvl_raw >= args.min_ilvl
+        ilvl = MYTHIC_ILVL if current else ilvl_raw
         armor_type = item.get("armorType")
         weapon_type = item.get("weaponType")
         stats = item.get("stats")

@@ -2,6 +2,10 @@ local ADDON_NAME = "BiS_Helper"
 
 -- ============================================================
 -- Slot definitions
+-- Mythic ilvl displayed in tooltips (Blizzard API returns base ilvl).
+-- Midnight S1: 272 = Myth 1/6 track. Update each season.
+local MYTHIC_ILVL = 272
+
 -- ============================================================
 local SLOTS = {
     { id = 1,  label = "Head"      },
@@ -2929,6 +2933,8 @@ local function CreateRowPool(frame)
             if self.bisItemID then
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetHyperlink("item:" .. self.bisItemID)
+                GameTooltip:AddLine(" ")
+                GameTooltip:AddLine("Mythic ilvl: " .. MYTHIC_ILVL, 0.0, 1.0, 0.0)
                 GameTooltip:Show()
             end
         end)
@@ -3480,6 +3486,8 @@ local function CreateLootBrowserFrame()
             if self.itemID then
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetItemByID(self.itemID)
+                GameTooltip:AddLine(" ")
+                GameTooltip:AddLine("Mythic ilvl: " .. MYTHIC_ILVL, 0.0, 1.0, 0.0)
                 GameTooltip:Show()
             end
         end)
@@ -3761,9 +3769,14 @@ local function RebuildStatBars()
     if sp.dr then
         -- Expand compound entries (e.g. "Crit / Mastery") into individual bars
         local expanded = {}
+        local specData = GetSpecData()
         for _, d in ipairs(sp.dr) do
             local entries = ExpandDREntry(d)
-            for _, e in ipairs(entries) do expanded[#expanded + 1] = e end
+            for _, e in ipairs(entries) do
+                local sr, sg, sb = GetStatColor(e.name, specData)
+                e.r, e.g, e.b = sr, sg, sb
+                expanded[#expanded + 1] = e
+            end
         end
 
         local BAR_H    = 12
