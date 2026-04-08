@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.9.3] — 2026-04-08
+
+### Added
+- **Average ilvl display** — shows overall and equipped item level (e.g. "ilvl 278 / 275") in the stat priority area, right-aligned
+
 ## [0.9.2] — 2026-04-07
 
 ### Fixed
