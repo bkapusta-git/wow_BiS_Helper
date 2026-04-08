@@ -2598,6 +2598,10 @@ local function CreateFrameHeader(frame)
     frame.statBarContainer:SetPoint("TOPLEFT",  frame, "TOPLEFT",  14, -60)
     frame.statBarContainer:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -14, -60)
     frame.statBarContainer:SetHeight(66)
+
+    frame.ilvlText = frame.statBarContainer:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    frame.ilvlText:SetPoint("TOPRIGHT", frame.statBarContainer, "TOPRIGHT", 0, 0)
+    frame.ilvlText:SetJustifyH("RIGHT")
 end
 
 -- ── Creates the toolbar: Filter, Refresh, mode buttons, panel buttons ──
@@ -3958,9 +3962,21 @@ local function UpdateRow(rowIndex, slotId)
     end
 end
 
+local function RefreshIlvlDisplay()
+    if not BiSHelperFrame or not BiSHelperFrame.ilvlText then return end
+    local overall, equipped = GetAverageItemLevel()
+    BiSHelperFrame.ilvlText:SetText(
+        P.tDim .. "ilvl " .. "|r" ..
+        P.tGold .. math.floor(overall) .. "|r" ..
+        P.tDim .. " / " .. "|r" ..
+        P.tGold .. math.floor(equipped) .. "|r"
+    )
+end
+
 function BiSHelper_Refresh()
     if not BiSHelperFrame then return end
     wipe(pendingItems)
+    RefreshIlvlDisplay()
     local specData = GetSpecData()
     if specData then
         BiSHelperFrame.specLabel:SetText(P.tCream .. specData.label .. "|r")
