@@ -1,5 +1,5 @@
 local ADDON_NAME = "BiS_Helper"
-local addonName, ns = ...
+local _, ns = ...
 
 -- ============================================================
 -- Slot definitions
@@ -48,10 +48,12 @@ local P
 -- InitSettingsDefaults, przed CreateMainFrame. Fallback na silvermoon,
 -- jeśli klucz wskazuje nieistniejący motyw.
 local function ApplyActiveTheme()
+    if not (ns.Themes and ns.Themes.silvermoon) then
+        error("BiS Helper: theme registry missing — is themes.lua loaded?")
+    end
     local key = (BiSHelperDB and BiSHelperDB.settings and BiSHelperDB.settings.theme)
                 or "silvermoon"
-    local theme = ns.Themes[key] or ns.Themes.silvermoon
-    P = theme
+    P = ns.Themes[key] or ns.Themes.silvermoon
 end
 
 local WHITE_TEX = "Interface/Buttons/WHITE8X8"
