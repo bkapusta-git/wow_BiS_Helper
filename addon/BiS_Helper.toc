@@ -51,4 +51,5 @@ data\warrior_fury.lua
 data\warrior_protection.lua
 data\raid_loot.lua
 data\mplus_loot.lua
+themes.lua
 BiS_Helper.lua
