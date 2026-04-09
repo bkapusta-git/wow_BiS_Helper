@@ -1,4 +1,5 @@
 local ADDON_NAME = "BiS_Helper"
+local _, ns = ...
 
 -- ============================================================
 -- Slot definitions
@@ -37,34 +38,25 @@ local QUALITY_HEX = {
 }
 
 -- ============================================================
--- Color palette — Silvermoon / Sin'dorei warm mahogany & gold
+-- Theme palette — forward declared, populated in ADDON_LOADED
+-- by ApplyActiveTheme() from ns.Themes (see themes.lua).
 -- ============================================================
-local P = {
-    -- Backgrounds (dark mahogany — Silvermoon interior)
-    bg          = { 0.08, 0.04, 0.03, 0.97 },
-    bgCard      = { 0.13, 0.07, 0.06, 1.00 },
-    bgCardAlt   = { 0.10, 0.05, 0.04, 1.00 },
-    bgHeader    = { 0.15, 0.08, 0.07, 1.00 },
-    -- Borders (ornamental gold — Silvermoon filigree)
-    gold        = { 0.85, 0.68, 0.25, 0.90 },
-    goldDim     = { 0.55, 0.40, 0.15, 0.45 },
-    -- Status (warmed)
-    neonGreen   = { 0.30, 0.88, 0.40, 1.00 },
-    neonRed     = { 0.90, 0.22, 0.18, 1.00 },
-    neonGrey    = { 0.30, 0.22, 0.20, 1.00 },
-    glowGreen   = { 0.30, 0.88, 0.40, 0.14 },
-    glowRed     = { 0.90, 0.22, 0.18, 0.10 },
-    -- Text (parchment/cream)
-    tGold       = "|cfff5c842",
-    tCream      = "|cffeddcc8",
-    tDim        = "|cff8a7262",
-    tWhite      = "|cfff0e6d8",
-    tBiS        = "|cff4ee050",
-    tMissing    = "|cffe63830",
-}
+local P
+
+-- ApplyActiveTheme: odczytuje wybrany motyw z SavedVariables i przypisuje
+-- do forward-declared `local P`. Wywoływane w ADDON_LOADED po
+-- InitSettingsDefaults, przed CreateMainFrame. Fallback na silvermoon,
+-- jeśli klucz wskazuje nieistniejący motyw.
+local function ApplyActiveTheme()
+    if not (ns.Themes and ns.Themes.silvermoon) then
+        error("BiS Helper: theme registry missing — is themes.lua loaded?")
+    end
+    local key = (BiSHelperDB and BiSHelperDB.settings and BiSHelperDB.settings.theme)
+                or "silvermoon"
+    P = ns.Themes[key] or ns.Themes.silvermoon
+end
 
 local WHITE_TEX = "Interface/Buttons/WHITE8X8"
-local BORDER_TEX = "Interface/Tooltips/UI-Tooltip-Border"
 local ROW_H     = 30
 local HEADER_H  = 130
 local CLASS_ARMOR = {
@@ -131,12 +123,7 @@ local function CreateCopyPopup()
     end)
     f:Hide()
 
-    f:SetBackdrop({
-        bgFile   = WHITE_TEX,
-        edgeFile = BORDER_TEX,
-        edgeSize = 12,
-        insets   = { left = 2, right = 2, top = 2, bottom = 2 },
-    })
+    SetupBackdrop(f, 12, 2)
     f:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], 0.97)
     f:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
 
@@ -340,17 +327,35 @@ local function GoldLine(parent, thickness)
     return t
 end
 
+-- ── Theme helpers ────────────────────────────────────────────
+-- SetupBackdrop: zastępuje boilerplate SetBackdrop({ bgFile, edgeFile,
+-- edgeSize, insets }). Domyślnie edgeSize z P.borderSize i inset liczony
+-- jako floor(edgeSize / 4), co pokrywa oba używane wzorce: 16→4 i 12→3.
+-- Trzeci argument pozwala wymusić inny inset (np. copy popup: edgeSize=12, inset=2).
+-- Wymaga: frame utworzony z mixinem "BackdropTemplate".
+local function SetupBackdrop(frame, edgeSize, inset)
+    edgeSize = edgeSize or P.borderSize
+    inset = inset or math.floor(edgeSize / 4)
+    frame:SetBackdrop({
+        bgFile   = WHITE_TEX,
+        edgeFile = P.borderFile,
+        edgeSize = edgeSize,
+        insets   = { left = inset, right = inset, top = inset, bottom = inset },
+    })
+end
+
+local function SetBackdropColors(frame, bg, border)
+    frame:SetBackdropColor(bg[1], bg[2], bg[3], bg[4])
+    frame:SetBackdropBorderColor(border[1], border[2], border[3], border[4])
+end
+
 local activeDropdowns = {}
 
 local function CreateDropdown(parent, width, options, defaultVal, onChange)
     local dd = CreateFrame("Frame", nil, parent, "BackdropTemplate")
     dd:SetSize(width, 22)
-    dd:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
-        insets = { left=3, right=3, top=3, bottom=3 },
-    })
-    dd:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-    dd:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    SetupBackdrop(dd, 12)
+    SetBackdropColors(dd, P.bgCard, P.gold)
 
     dd.selected = defaultVal or options[1]
 
@@ -368,10 +373,7 @@ local function CreateDropdown(parent, width, options, defaultVal, onChange)
     -- List frame (hidden by default)
     local list = CreateFrame("Frame", nil, dd, "BackdropTemplate")
     list:SetFrameStrata("FULLSCREEN_DIALOG")
-    list:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
-        insets = { left=3, right=3, top=3, bottom=3 },
-    })
+    SetupBackdrop(list, 12)
     list:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], 0.98)
     list:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
     list:SetPoint("TOPLEFT", dd, "BOTTOMLEFT", 0, -2)
@@ -443,7 +445,7 @@ local function CreateDropdown(parent, width, options, defaultVal, onChange)
         end
     end)
     dd:SetScript("OnEnter", function()
-        dd:SetBackdropColor(0.25, 0.12, 0.08, 0.95)
+        dd:SetBackdropColor(P.bgHover[1], P.bgHover[2], P.bgHover[3], P.bgHover[4])
     end)
     dd:SetScript("OnLeave", function()
         dd:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
@@ -1040,12 +1042,8 @@ local function CreateEditFrame()
     ef:SetScript("OnDragStop",  ef.StopMovingOrSizing)
     ef:Hide()
 
-    ef:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 16,
-        insets = { left=4, right=4, top=4, bottom=4 },
-    })
-    ef:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
-    ef:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    SetupBackdrop(ef, 16)
+    SetBackdropColors(ef, P.bg, P.gold)
 
     -- Header (36px)
     local hdrBg = Rect(ef, "BACKGROUND", 2, P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], P.bgHeader[4])
@@ -1082,11 +1080,8 @@ local function CreateEditFrame()
     local inputBox = CreateFrame("EditBox", nil, ef, "BackdropTemplate")
     inputBox:SetSize(140, 22)
     inputBox:SetPoint("TOPLEFT", ef, "TOPLEFT", 68, -41)
-    inputBox:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
-        insets = { left=3, right=3, top=3, bottom=3 },
-    })
-    inputBox:SetBackdropColor(0.08, 0.04, 0.03, 1)
+    SetupBackdrop(inputBox, 12)
+    inputBox:SetBackdropColor(P.bgSolid[1], P.bgSolid[2], P.bgSolid[3], P.bgSolid[4])
     inputBox:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 1)
     inputBox:SetFontObject("ChatFontNormal")
     inputBox:SetAutoFocus(false)
@@ -1098,16 +1093,12 @@ local function CreateEditFrame()
     local addBtn = CreateFrame("Button", nil, ef, "BackdropTemplate")
     addBtn:SetSize(50, 22)
     addBtn:SetPoint("LEFT", inputBox, "RIGHT", 4, 0)
-    addBtn:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
-        insets = { left=3, right=3, top=3, bottom=3 },
-    })
-    addBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-    addBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    SetupBackdrop(addBtn, 12)
+    SetBackdropColors(addBtn, P.bgCard, P.gold)
     local addBtnLbl = addBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     addBtnLbl:SetAllPoints() addBtnLbl:SetJustifyH("CENTER")
     addBtnLbl:SetText(P.tGold .. "Add|r")
-    addBtn:SetScript("OnEnter", function() addBtn:SetBackdropColor(0.25, 0.12, 0.08, 0.95) end)
+    addBtn:SetScript("OnEnter", function() addBtn:SetBackdropColor(P.bgHover[1], P.bgHover[2], P.bgHover[3], P.bgHover[4]) end)
     addBtn:SetScript("OnLeave", function() addBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4]) end)
 
     local function TryAdd()
@@ -1149,15 +1140,11 @@ local function CreateEditFrame()
         local pb = CreateFrame("Button", nil, picker, "BackdropTemplate")
         pb:SetSize(84, 22)
         pb:SetPoint("LEFT", picker, "LEFT", 82 + (i-1)*90, -2)
-        pb:SetBackdrop({
-            bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
-            insets = { left=3, right=3, top=3, bottom=3 },
-        })
-        pb:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-        pb:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+        SetupBackdrop(pb, 12)
+        SetBackdropColors(pb, P.bgCard, P.gold)
         pb.lbl = pb:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         pb.lbl:SetAllPoints() pb.lbl:SetJustifyH("CENTER")
-        pb:SetScript("OnEnter", function() pb:SetBackdropColor(0.25, 0.12, 0.08, 0.95) end)
+        pb:SetScript("OnEnter", function() pb:SetBackdropColor(P.bgHover[1], P.bgHover[2], P.bgHover[3], P.bgHover[4]) end)
         pb:SetScript("OnLeave", function() pb:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4]) end)
         local idx = i
         pb:SetScript("OnClick", function()
@@ -1199,16 +1186,12 @@ local function CreateEditFrame()
     local resetBtn = CreateFrame("Button", nil, ef, "BackdropTemplate")
     resetBtn:SetSize(80, 22)
     resetBtn:SetPoint("BOTTOMRIGHT", ef, "BOTTOMRIGHT", -6, 5)
-    resetBtn:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
-        insets = { left=3, right=3, top=3, bottom=3 },
-    })
-    resetBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-    resetBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    SetupBackdrop(resetBtn, 12)
+    SetBackdropColors(resetBtn, P.bgCard, P.gold)
     local resetLbl = resetBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     resetLbl:SetAllPoints() resetLbl:SetJustifyH("CENTER")
     resetLbl:SetText(P.tDim .. "Reset All|r")
-    resetBtn:SetScript("OnEnter", function() resetBtn:SetBackdropColor(0.25, 0.12, 0.08, 0.95) end)
+    resetBtn:SetScript("OnEnter", function() resetBtn:SetBackdropColor(P.bgHover[1], P.bgHover[2], P.bgHover[3], P.bgHover[4]) end)
     resetBtn:SetScript("OnLeave", function() resetBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4]) end)
     resetBtn:SetScript("OnClick", function() BiSHelper_ResetOverrides() end)
 
@@ -1357,12 +1340,8 @@ local function CreateStatsFrame()
     sf:SetScript("OnDragStop",  sf.StopMovingOrSizing)
     sf:Hide()
 
-    sf:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 16,
-        insets = { left=4, right=4, top=4, bottom=4 },
-    })
-    sf:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
-    sf:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    SetupBackdrop(sf, 16)
+    SetBackdropColors(sf, P.bg, P.gold)
 
     -- Header (36px)
     local hdrBg = Rect(sf, "BACKGROUND", 2, P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], P.bgHeader[4])
@@ -1403,11 +1382,8 @@ local function CreateStatsFrame()
     local statBox = CreateFrame("EditBox", nil, sf, "BackdropTemplate")
     statBox:SetSize(438, 24)
     statBox:SetPoint("TOPLEFT", sf, "TOPLEFT", 10, -62)
-    statBox:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
-        insets = { left=3, right=3, top=3, bottom=3 },
-    })
-    statBox:SetBackdropColor(0.08, 0.04, 0.03, 1)
+    SetupBackdrop(statBox, 12)
+    statBox:SetBackdropColor(P.bgSolid[1], P.bgSolid[2], P.bgSolid[3], P.bgSolid[4])
     statBox:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 1)
     statBox:SetFontObject("ChatFontNormal")
     statBox:SetAutoFocus(false)
@@ -1452,16 +1428,12 @@ local function CreateStatsFrame()
         local btn = CreateFrame("Button", nil, sf, "BackdropTemplate")
         btn:SetSize(w, 22)
         btn:SetPoint("BOTTOMRIGHT", sf, "BOTTOMRIGHT", offsetX, 5)
-        btn:SetBackdrop({
-            bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
-            insets = { left=3, right=3, top=3, bottom=3 },
-        })
-        btn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-        btn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+        SetupBackdrop(btn, 12)
+        SetBackdropColors(btn, P.bgCard, P.gold)
         local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         lbl:SetAllPoints() lbl:SetJustifyH("CENTER")
         lbl:SetText(label)
-        btn:SetScript("OnEnter", function() btn:SetBackdropColor(0.25, 0.12, 0.08, 0.95) end)
+        btn:SetScript("OnEnter", function() btn:SetBackdropColor(P.bgHover[1], P.bgHover[2], P.bgHover[3], P.bgHover[4]) end)
         btn:SetScript("OnLeave", function() btn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4]) end)
         btn:SetScript("OnClick", clickFn)
         return btn
@@ -1623,12 +1595,8 @@ local function CreateHelpFrame()
     hf:SetScript("OnDragStop",  hf.StopMovingOrSizing)
     hf:Hide()
 
-    hf:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 16,
-        insets = { left=4, right=4, top=4, bottom=4 },
-    })
-    hf:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
-    hf:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    SetupBackdrop(hf, 16)
+    SetBackdropColors(hf, P.bg, P.gold)
 
     local hdrBg = Rect(hf, "BACKGROUND", 2, P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], P.bgHeader[4])
     hdrBg:SetPoint("TOPLEFT",  hf, "TOPLEFT",  1, -1)
@@ -1702,12 +1670,8 @@ local function CreateShareFrame()
     sf:SetScript("OnDragStop",  sf.StopMovingOrSizing)
     sf:Hide()
 
-    sf:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 16,
-        insets = { left=4, right=4, top=4, bottom=4 },
-    })
-    sf:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
-    sf:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    SetupBackdrop(sf, 16)
+    SetBackdropColors(sf, P.bg, P.gold)
 
     -- Header (36px)
     local hdrBg = Rect(sf, "BACKGROUND", 2, P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], P.bgHeader[4])
@@ -1738,10 +1702,7 @@ local function CreateShareFrame()
         else
             btn:SetPoint("TOPLEFT", sf, "TOPLEFT", 10, -44)
         end
-        btn:SetBackdrop({
-            bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
-            insets = { left=3, right=3, top=3, bottom=3 },
-        })
+        SetupBackdrop(btn, 12)
         local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         lbl:SetAllPoints()
         lbl:SetJustifyH("CENTER")
@@ -1749,11 +1710,11 @@ local function CreateShareFrame()
         btn.tabKey = tabKey
         function btn:UpdateLook()
             if activeTab == tabKey then
-                self:SetBackdropColor(0.25, 0.12, 0.08, 0.95)
+                self:SetBackdropColor(P.bgHover[1], P.bgHover[2], P.bgHover[3], P.bgHover[4])
                 self:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], 1.0)
                 lbl:SetText(P.tGold .. label .. "|r")
             else
-                self:SetBackdropColor(0.08, 0.04, 0.03, 0.90)
+                self:SetBackdropColor(P.bgOverlay[1], P.bgOverlay[2], P.bgOverlay[3], P.bgOverlay[4])
                 self:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 0.6)
                 lbl:SetText(P.tDim .. label .. "|r")
             end
@@ -1786,14 +1747,15 @@ local function CreateShareFrame()
     sf.editBox = editBox
 
     -- EditBox background
-    local editBg = Rect(sf, "BACKGROUND", 1, 0.08, 0.04, 0.03, 1.00)
+    local editBg = Rect(sf, "BACKGROUND", 1, P.bgSolid[1], P.bgSolid[2], P.bgSolid[3], P.bgSolid[4])
     editBg:SetPoint("TOPLEFT",  editScroll, "TOPLEFT",  -4, 4)
     editBg:SetPoint("BOTTOMRIGHT", editScroll, "BOTTOMRIGHT", 20, -4)
     local editBorder = CreateFrame("Frame", nil, sf, "BackdropTemplate")
     editBorder:SetPoint("TOPLEFT",  editBg, "TOPLEFT",  -1, 1)
     editBorder:SetPoint("BOTTOMRIGHT", editBg, "BOTTOMRIGHT", 1, -1)
+    -- Border-only frame: no bgFile key, so SetupBackdrop helper cannot be used here.
     editBorder:SetBackdrop({
-        edgeFile = BORDER_TEX, edgeSize = 12,
+        edgeFile = P.borderFile, edgeSize = 12,
         insets = { left=3, right=3, top=3, bottom=3 },
     })
     editBorder:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 1)
@@ -1802,16 +1764,12 @@ local function CreateShareFrame()
     local actionBtn = CreateFrame("Button", nil, sf, "BackdropTemplate")
     actionBtn:SetSize(120, 24)
     actionBtn:SetPoint("BOTTOMLEFT", sf, "BOTTOMLEFT", 12, 36)
-    actionBtn:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
-        insets = { left=3, right=3, top=3, bottom=3 },
-    })
-    actionBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-    actionBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    SetupBackdrop(actionBtn, 12)
+    SetBackdropColors(actionBtn, P.bgCard, P.gold)
     local actionBtnLbl = actionBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     actionBtnLbl:SetAllPoints()
     actionBtnLbl:SetJustifyH("CENTER")
-    actionBtn:SetScript("OnEnter", function() actionBtn:SetBackdropColor(0.25, 0.12, 0.08, 0.95) end)
+    actionBtn:SetScript("OnEnter", function() actionBtn:SetBackdropColor(P.bgHover[1], P.bgHover[2], P.bgHover[3], P.bgHover[4]) end)
     actionBtn:SetScript("OnLeave", function() actionBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4]) end)
     sf.actionBtn = actionBtn
     sf.actionBtnLbl = actionBtnLbl
@@ -1992,12 +1950,8 @@ local function CreateProfilesFrame()
     pf:SetScript("OnDragStop",  pf.StopMovingOrSizing)
     pf:Hide()
 
-    pf:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 16,
-        insets = { left=4, right=4, top=4, bottom=4 },
-    })
-    pf:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
-    pf:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    SetupBackdrop(pf, 16)
+    SetBackdropColors(pf, P.bg, P.gold)
 
     -- Header
     local hdrBg = Rect(pf, "BACKGROUND", 2, P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], P.bgHeader[4])
@@ -2037,14 +1991,11 @@ local function CreateProfilesFrame()
     local nameBox = CreateFrame("EditBox", nil, pf, "BackdropTemplate")
     nameBox:SetSize(224, 24)
     nameBox:SetPoint("TOPLEFT", pf, "TOPLEFT", 10, -62)
-    nameBox:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
-        insets = { left=3, right=3, top=3, bottom=3 },
-    })
-    nameBox:SetBackdropColor(0.05, 0.02, 0.02, 0.95)
+    SetupBackdrop(nameBox, 12)
+    nameBox:SetBackdropColor(P.bgDeep[1], P.bgDeep[2], P.bgDeep[3], P.bgDeep[4])
     nameBox:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], P.goldDim[4])
     nameBox:SetFontObject(ChatFontNormal)
-    nameBox:SetTextColor(0.93, 0.84, 0.72, 1.0)
+    nameBox:SetTextColor(P.cream[1], P.cream[2], P.cream[3], P.cream[4])
     nameBox:SetAutoFocus(false)
     nameBox:SetMaxLetters(40)
     nameBox:SetTextInsets(6, 6, 0, 0)
@@ -2061,17 +2012,13 @@ local function CreateProfilesFrame()
     local saveBtn = CreateFrame("Button", nil, pf, "BackdropTemplate")
     saveBtn:SetSize(80, 24)
     saveBtn:SetPoint("LEFT", nameBox, "RIGHT", 6, 0)
-    saveBtn:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
-        insets = { left=3, right=3, top=3, bottom=3 },
-    })
-    saveBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-    saveBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    SetupBackdrop(saveBtn, 12)
+    SetBackdropColors(saveBtn, P.bgCard, P.gold)
     local saveLblBtn = saveBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     saveLblBtn:SetAllPoints()
     saveLblBtn:SetJustifyH("CENTER")
     saveLblBtn:SetText(P.tGold .. "Save|r")
-    saveBtn:SetScript("OnEnter", function() saveBtn:SetBackdropColor(0.25, 0.12, 0.08, 0.95) end)
+    saveBtn:SetScript("OnEnter", function() saveBtn:SetBackdropColor(P.bgHover[1], P.bgHover[2], P.bgHover[3], P.bgHover[4]) end)
     saveBtn:SetScript("OnLeave", function() saveBtn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4]) end)
 
     -- Status text (save feedback)
@@ -2114,11 +2061,8 @@ local function CreateProfilesFrame()
         row:SetHeight(ROW_HEIGHT)
         row:SetPoint("TOPLEFT",  parent, "TOPLEFT",  6, -(index - 1) * (ROW_HEIGHT + 4))
         row:SetPoint("TOPRIGHT", parent, "TOPRIGHT", -6, -(index - 1) * (ROW_HEIGHT + 4))
-        row:SetBackdrop({
-            bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
-            insets = { left=3, right=3, top=3, bottom=3 },
-        })
-        row:SetBackdropColor(0.05, 0.02, 0.02, 0.95)
+        SetupBackdrop(row, 12)
+        row:SetBackdropColor(P.bgDeep[1], P.bgDeep[2], P.bgDeep[3], P.bgDeep[4])
         row:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 0.3)
 
         row.nameText = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -2134,10 +2078,7 @@ local function CreateProfilesFrame()
         local function ActionBtn(label, r, g, b, borderR, borderG, borderB)
             local btn = CreateFrame("Button", nil, row, "BackdropTemplate")
             btn:SetSize(60, 20)
-            btn:SetBackdrop({
-                bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
-                insets = { left=3, right=3, top=3, bottom=3 },
-            })
+            SetupBackdrop(btn, 12)
             btn:SetBackdropColor(r, g, b, 0.95)
             btn:SetBackdropBorderColor(borderR, borderG, borderB, 0.7)
             local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -2315,12 +2256,8 @@ local function CreateSettingsFrame()
     sf:SetScript("OnDragStop",  sf.StopMovingOrSizing)
     sf:Hide()
 
-    sf:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 16,
-        insets = { left=4, right=4, top=4, bottom=4 },
-    })
-    sf:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
-    sf:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    SetupBackdrop(sf, 16)
+    SetBackdropColors(sf, P.bg, P.gold)
 
     local hdrBg = Rect(sf, "BACKGROUND", 2, P.bgHeader[1], P.bgHeader[2], P.bgHeader[3], P.bgHeader[4])
     hdrBg:SetPoint("TOPLEFT",  sf, "TOPLEFT",  1, -1)
@@ -2440,19 +2377,15 @@ end
 local function ToolbarBtn(frame, label, width, tooltip)
     local btn = CreateFrame("Button", nil, frame, "BackdropTemplate")
     btn:SetSize(width, 22)
-    btn:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
-        insets = { left=3, right=3, top=3, bottom=3 },
-    })
-    btn:SetBackdropColor(P.bgCard[1], P.bgCard[2], P.bgCard[3], P.bgCard[4])
-    btn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    SetupBackdrop(btn, 12)
+    SetBackdropColors(btn, P.bgCard, P.gold)
     local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     lbl:SetAllPoints()
     lbl:SetJustifyH("CENTER")
     lbl:SetText(P.tGold .. label .. "|r")
     btn.label = lbl
     btn:SetScript("OnEnter", function(self)
-        btn:SetBackdropColor(0.25, 0.12, 0.08, 0.95)
+        btn:SetBackdropColor(P.bgHover[1], P.bgHover[2], P.bgHover[3], P.bgHover[4])
         if tooltip then
             GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
             GameTooltip:SetText(tooltip)
@@ -2477,20 +2410,17 @@ local function ModeButton(frame, label, mode, anchor, anchorPoint, offsetX)
     local btn = CreateFrame("Button", nil, frame, "BackdropTemplate")
     btn:SetSize(64, 22)
     btn:SetPoint("LEFT", anchor, anchorPoint or "RIGHT", offsetX or 4, 0)
-    btn:SetBackdrop({
-        bgFile   = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 12,
-        insets   = { left=3, right=3, top=3, bottom=3 },
-    })
+    SetupBackdrop(btn, 12)
     local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     lbl:SetAllPoints()
     lbl:SetJustifyH("CENTER")
     local function UpdateLook()
         if activeMode == mode then
-            btn:SetBackdropColor(0.25, 0.12, 0.08, 0.95)
+            btn:SetBackdropColor(P.bgHover[1], P.bgHover[2], P.bgHover[3], P.bgHover[4])
             btn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], 1.0)
             lbl:SetText(P.tGold .. label .. "|r")
         else
-            btn:SetBackdropColor(0.08, 0.04, 0.03, 0.90)
+            btn:SetBackdropColor(P.bgOverlay[1], P.bgOverlay[2], P.bgOverlay[3], P.bgOverlay[4])
             btn:SetBackdropBorderColor(P.goldDim[1], P.goldDim[2], P.goldDim[3], 0.6)
             lbl:SetText(P.tDim .. label .. "|r")
         end
@@ -2551,14 +2481,8 @@ local function CreateFrameBase()
         BiSHelperDB.width, BiSHelperDB.height = frame:GetSize()
     end)
 
-    frame:SetBackdrop({
-        bgFile   = WHITE_TEX,
-        edgeFile = BORDER_TEX,
-        edgeSize = 16,
-        insets   = { left = 4, right = 4, top = 4, bottom = 4 },
-    })
-    frame:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
-    frame:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    SetupBackdrop(frame, 16)
+    SetBackdropColors(frame, P.bg, P.gold)
 
     return frame
 end
@@ -2613,7 +2537,7 @@ local function CreateToolbar(frame)
     local filterBtnLbl = filterBtn.label
     local function UpdateFilterLook()
         if BiSHelperDB and BiSHelperDB.filterMissing then
-            filterBtn:SetBackdropColor(0.25, 0.12, 0.08, 0.95)
+            filterBtn:SetBackdropColor(P.bgHover[1], P.bgHover[2], P.bgHover[3], P.bgHover[4])
             filterBtn:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], 1.0)
             filterBtnLbl:SetText(P.tGold .. "Filter|r")
         else
@@ -2625,7 +2549,7 @@ local function CreateToolbar(frame)
     filterBtn.updateLook = UpdateFilterLook
     UpdateFilterLook()
     filterBtn:SetScript("OnEnter", function(self)
-        filterBtn:SetBackdropColor(0.25, 0.12, 0.08, 0.95)
+        filterBtn:SetBackdropColor(P.bgHover[1], P.bgHover[2], P.bgHover[3], P.bgHover[4])
         GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
         GameTooltip:SetText("Show only slots missing BiS item")
         GameTooltip:Show()
@@ -2847,7 +2771,7 @@ local function CreateRowPool(frame)
         eqText:SetWordWrap(false)
         row.equippedName = eqText
 
-        local ilvlBg = Rect(row, "ARTWORK", 0, 0.15, 0.08, 0.06, 0.85)
+        local ilvlBg = Rect(row, "ARTWORK", 0, P.bgIlvl[1], P.bgIlvl[2], P.bgIlvl[3], P.bgIlvl[4])
         ilvlBg:SetSize(34, 16)
         ilvlBg:SetPoint("LEFT", row, "LEFT", 204, 0)
         local ilvlText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -2966,7 +2890,7 @@ local function CreateFooter(frame)
 
     local footerTrack = footer:CreateTexture(nil, "BACKGROUND")
     footerTrack:SetAllPoints()
-    footerTrack:SetColorTexture(0.08, 0.04, 0.03, 0.90)
+    footerTrack:SetColorTexture(P.bgOverlay[1], P.bgOverlay[2], P.bgOverlay[3], P.bgOverlay[4])
 
     local footerFill = footer:CreateTexture(nil, "ARTWORK")
     footerFill:SetPoint("TOPLEFT")
@@ -3186,12 +3110,8 @@ local function CreateLootBrowserFrame()
     f:SetScript("OnDragStop",  f.StopMovingOrSizing)
     f:Hide()
 
-    f:SetBackdrop({
-        bgFile = WHITE_TEX, edgeFile = BORDER_TEX, edgeSize = 16,
-        insets = { left=4, right=4, top=4, bottom=4 },
-    })
-    f:SetBackdropColor(P.bg[1], P.bg[2], P.bg[3], P.bg[4])
-    f:SetBackdropBorderColor(P.gold[1], P.gold[2], P.gold[3], P.gold[4])
+    SetupBackdrop(f, 16)
+    SetBackdropColors(f, P.bg, P.gold)
 
     -- ESC to close
     f:EnableKeyboard(true)
@@ -3798,7 +3718,7 @@ local function RebuildStatBars()
                 bar = CreateFrame("Frame", nil, container, "BackdropTemplate")
                 bar.track = bar:CreateTexture(nil, "BACKGROUND")
                 bar.track:SetAllPoints()
-                bar.track:SetColorTexture(0.10, 0.05, 0.04, 0.90)
+                bar.track:SetColorTexture(P.bgBar[1], P.bgBar[2], P.bgBar[3], P.bgBar[4])
                 bar.fill = bar:CreateTexture(nil, "ARTWORK")
                 bar.fill:SetPoint("TOPLEFT")
                 bar.fill:SetPoint("BOTTOMLEFT")
@@ -3888,7 +3808,7 @@ local function UpdateRow(rowIndex, slotId)
             row.equippedName:SetText(col .. name .. "|r")
             if ilvl and ilvl > 0 then
                 row.ilvlText:SetText(P.tGold .. ilvl .. "|r")
-                row.ilvlBg:SetColorTexture(0.15, 0.08, 0.06, 0.85)
+                row.ilvlBg:SetColorTexture(P.bgIlvl[1], P.bgIlvl[2], P.bgIlvl[3], P.bgIlvl[4])
             else
                 row.ilvlText:SetText("")
                 row.ilvlBg:SetColorTexture(0, 0, 0, 0)
@@ -4216,6 +4136,9 @@ local function InitSettingsDefaults()
     if not BiSHelperDB.settings then
         BiSHelperDB.settings = {}
     end
+    if BiSHelperDB.settings.theme == nil then
+        BiSHelperDB.settings.theme = "silvermoon"
+    end
     if not BiSHelperDB.settings.crests then
         BiSHelperDB.settings.crests = {}
     end
@@ -4248,6 +4171,7 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
             BiSHelperDB.profiles       = BiSHelperDB.profiles      or {}
             if BiSHelperDB.filterMissing == nil then BiSHelperDB.filterMissing = false end
             InitSettingsDefaults()
+            ApplyActiveTheme()
             activeMode  = BiSHelperDB.mode or "mythicplus"
             BiSHelperFrame = CreateMainFrame()
             BiSHelperFrame.statBarContainer:SetScript("OnSizeChanged", function()
