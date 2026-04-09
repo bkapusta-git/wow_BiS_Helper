@@ -1,4 +1,5 @@
 local ADDON_NAME = "BiS_Helper"
+local addonName, ns = ...
 
 -- ============================================================
 -- Slot definitions
@@ -37,33 +38,25 @@ local QUALITY_HEX = {
 }
 
 -- ============================================================
--- Color palette — Silvermoon / Sin'dorei warm mahogany & gold
+-- Theme palette — forward declared, populated in ADDON_LOADED
+-- by ApplyActiveTheme() from ns.Themes (see themes.lua).
 -- ============================================================
-local P = {
-    -- Backgrounds (dark mahogany — Silvermoon interior)
-    bg          = { 0.08, 0.04, 0.03, 0.97 },
-    bgCard      = { 0.13, 0.07, 0.06, 1.00 },
-    bgCardAlt   = { 0.10, 0.05, 0.04, 1.00 },
-    bgHeader    = { 0.15, 0.08, 0.07, 1.00 },
-    -- Borders (ornamental gold — Silvermoon filigree)
-    gold        = { 0.85, 0.68, 0.25, 0.90 },
-    goldDim     = { 0.55, 0.40, 0.15, 0.45 },
-    -- Status (warmed)
-    neonGreen   = { 0.30, 0.88, 0.40, 1.00 },
-    neonRed     = { 0.90, 0.22, 0.18, 1.00 },
-    neonGrey    = { 0.30, 0.22, 0.20, 1.00 },
-    glowGreen   = { 0.30, 0.88, 0.40, 0.14 },
-    glowRed     = { 0.90, 0.22, 0.18, 0.10 },
-    -- Text (parchment/cream)
-    tGold       = "|cfff5c842",
-    tCream      = "|cffeddcc8",
-    tDim        = "|cff8a7262",
-    tWhite      = "|cfff0e6d8",
-    tBiS        = "|cff4ee050",
-    tMissing    = "|cffe63830",
-}
+local P
+
+-- ApplyActiveTheme: odczytuje wybrany motyw z SavedVariables i przypisuje
+-- do forward-declared `local P`. Wywoływane w ADDON_LOADED po
+-- InitSettingsDefaults, przed CreateMainFrame. Fallback na silvermoon,
+-- jeśli klucz wskazuje nieistniejący motyw.
+local function ApplyActiveTheme()
+    local key = (BiSHelperDB and BiSHelperDB.settings and BiSHelperDB.settings.theme)
+                or "silvermoon"
+    local theme = ns.Themes[key] or ns.Themes.silvermoon
+    P = theme
+end
 
 local WHITE_TEX = "Interface/Buttons/WHITE8X8"
+-- Temporary shim — 26 SetBackdrop call-sites still reference BORDER_TEX.
+-- Removed in Task 4 after migration to SetupBackdrop helper.
 local BORDER_TEX = "Interface/Tooltips/UI-Tooltip-Border"
 local ROW_H     = 30
 local HEADER_H  = 130
@@ -338,6 +331,28 @@ local function GoldLine(parent, thickness)
     local t = Rect(parent, "ARTWORK", 1, P.gold[1], P.gold[2], P.gold[3], P.gold[4])
     t:SetHeight(thickness or 1)
     return t
+end
+
+-- ── Theme helpers ────────────────────────────────────────────
+-- SetupBackdrop: zastępuje boilerplate SetBackdrop({ bgFile, edgeFile,
+-- edgeSize, insets }). Domyślnie edgeSize z P.borderSize i inset liczony
+-- jako floor(edgeSize / 4), co pokrywa oba używane wzorce: 16→4 i 12→3.
+-- Trzeci argument pozwala wymusić inny inset (np. copy popup: edgeSize=12, inset=2).
+-- Wymaga: frame utworzony z mixinem "BackdropTemplate".
+local function SetupBackdrop(frame, edgeSize, inset)
+    edgeSize = edgeSize or P.borderSize
+    inset = inset or math.floor(edgeSize / 4)
+    frame:SetBackdrop({
+        bgFile   = WHITE_TEX,
+        edgeFile = P.borderFile,
+        edgeSize = edgeSize,
+        insets   = { left = inset, right = inset, top = inset, bottom = inset },
+    })
+end
+
+local function SetBackdropColors(frame, bg, border)
+    frame:SetBackdropColor(bg[1], bg[2], bg[3], bg[4])
+    frame:SetBackdropBorderColor(border[1], border[2], border[3], border[4])
 end
 
 local activeDropdowns = {}
@@ -4216,6 +4231,9 @@ local function InitSettingsDefaults()
     if not BiSHelperDB.settings then
         BiSHelperDB.settings = {}
     end
+    if BiSHelperDB.settings.theme == nil then
+        BiSHelperDB.settings.theme = "silvermoon"
+    end
     if not BiSHelperDB.settings.crests then
         BiSHelperDB.settings.crests = {}
     end
@@ -4248,6 +4266,7 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
             BiSHelperDB.profiles       = BiSHelperDB.profiles      or {}
             if BiSHelperDB.filterMissing == nil then BiSHelperDB.filterMissing = false end
             InitSettingsDefaults()
+            ApplyActiveTheme()
             activeMode  = BiSHelperDB.mode or "mythicplus"
             BiSHelperFrame = CreateMainFrame()
             BiSHelperFrame.statBarContainer:SetScript("OnSizeChanged", function()
