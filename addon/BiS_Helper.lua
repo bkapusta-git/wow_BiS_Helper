@@ -1753,6 +1753,7 @@ local function CreateShareFrame()
     local editBorder = CreateFrame("Frame", nil, sf, "BackdropTemplate")
     editBorder:SetPoint("TOPLEFT",  editBg, "TOPLEFT",  -1, 1)
     editBorder:SetPoint("BOTTOMRIGHT", editBg, "BOTTOMRIGHT", 1, -1)
+    -- Border-only frame: no bgFile key, so SetupBackdrop helper cannot be used here.
     editBorder:SetBackdrop({
         edgeFile = P.borderFile, edgeSize = 12,
         insets = { left=3, right=3, top=3, bottom=3 },
