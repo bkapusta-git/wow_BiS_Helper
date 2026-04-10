@@ -135,7 +135,7 @@ def api_get(url, token, retries=3):
                 return json.loads(resp.read().decode("utf-8"))
         except urllib.error.HTTPError as e:
             if e.code in (429, 500, 502, 503, 504) and attempt < retries - 1:
-                delay = 2 ** attempt  # 1s, 2s, 4s
+                delay = 2 ** attempt  # 1s, 2s
                 print(f"  HTTP {e.code}, retrying in {delay}s...")
                 time.sleep(delay)
                 continue
