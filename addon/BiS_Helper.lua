@@ -2245,7 +2245,7 @@ end
 -- ============================================================
 local function CreateSettingsFrame()
     local sf = CreateFrame("Frame", "BiSHelperSettingsFrame", UIParent, "BackdropTemplate")
-    sf:SetSize(250, 340)
+    sf:SetSize(250, 360)
     sf:SetPoint("CENTER")
     sf:SetMovable(true)
     sf:SetClampedToScreen(true)
