@@ -78,3 +78,58 @@ local function validate(theme)
 end
 
 validate(ns.Themes.silvermoon)
+
+-- ============================================================
+-- ElvUI Dark (neutral dark grey) — motyw ciemny
+-- NOTE on key names: "gold", "goldDim", "tGold" are semantic tokens
+-- inherited from the silvermoon theme. They represent the PRIMARY
+-- ACCENT color of the theme, not literally gold. BiS_Helper.lua
+-- references P.gold / P.tGold in dozens of call-sites — renaming
+-- would require updating all of them. In non-silvermoon themes these
+-- keys simply hold the theme's chosen accent color.
+-- ============================================================
+ns.Themes.elvui = {
+    name = "ElvUI Dark",
+
+    -- Backgrounds ({r, g, b, a})
+    bg         = { 0.07, 0.07, 0.07, 0.97 },
+    bgSolid    = { 0.07, 0.07, 0.07, 1.00 },
+    bgOverlay  = { 0.07, 0.07, 0.07, 0.90 },
+    bgDeep     = { 0.04, 0.04, 0.04, 0.95 },
+    bgCard     = { 0.12, 0.12, 0.12, 1.00 },
+    bgCardAlt  = { 0.09, 0.09, 0.09, 1.00 },
+    bgHeader   = { 0.15, 0.15, 0.15, 1.00 },
+    bgHover    = { 0.22, 0.22, 0.22, 0.95 },
+    bgBar      = { 0.09, 0.09, 0.09, 0.90 },
+    bgIlvl     = { 0.15, 0.15, 0.15, 0.85 },
+
+    -- Borders ({r, g, b, a})
+    -- "gold" / "goldDim" = primary accent tokens (grey in this theme)
+    gold       = { 0.50, 0.50, 0.50, 0.90 },
+    goldDim    = { 0.28, 0.28, 0.28, 0.45 },
+
+    -- Border resources
+    borderFile = "Interface/Tooltips/UI-Tooltip-Border",
+    borderSize = 16,
+
+    -- Status ({r, g, b, a})
+    neonGreen  = { 0.30, 0.88, 0.40, 1.00 },
+    neonRed    = { 0.90, 0.22, 0.18, 1.00 },
+    neonGrey   = { 0.25, 0.25, 0.28, 1.00 },
+    glowGreen  = { 0.30, 0.88, 0.40, 0.14 },
+    glowRed    = { 0.90, 0.22, 0.18, 0.10 },
+
+    -- Text (hex stringi "|cffRRGGBB")
+    -- "tGold" = primary accent label color token (light grey in this theme)
+    tGold      = "|cffc8c8c8",
+    tCream     = "|cffe8e8e8",
+    tDim       = "|cff888888",
+    tWhite     = "|cffffffff",
+    tBiS       = "|cff4ee050",
+    tMissing   = "|cffe63830",
+
+    -- Text (rgb {r,g,b,a} do SetTextColor)
+    cream      = { 0.88, 0.88, 0.88, 1.00 },
+}
+
+validate(ns.Themes.elvui)
