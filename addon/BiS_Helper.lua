@@ -2245,7 +2245,7 @@ end
 -- ============================================================
 local function CreateSettingsFrame()
     local sf = CreateFrame("Frame", "BiSHelperSettingsFrame", UIParent, "BackdropTemplate")
-    sf:SetSize(250, 320)
+    sf:SetSize(250, 340)
     sf:SetPoint("CENTER")
     sf:SetMovable(true)
     sf:SetClampedToScreen(true)
@@ -2285,9 +2285,36 @@ local function CreateSettingsFrame()
         end
     end)
 
+    -- Section: THEME
+    local themeSectionLabel = sf:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    themeSectionLabel:SetPoint("TOPLEFT", sf, "TOPLEFT", 14, -48)
+    themeSectionLabel:SetText(P.tGold .. "THEME|r")
+
+    local themeOptions = {}
+    local nameToKey = {}
+    for k, v in pairs(ns.Themes) do
+        table.insert(themeOptions, v.name)
+        nameToKey[v.name] = k
+    end
+    table.sort(themeOptions)
+
+    local currentThemeName = (ns.Themes[BiSHelperDB.settings.theme] and ns.Themes[BiSHelperDB.settings.theme].name) or themeOptions[1]
+    local themeDD = CreateDropdown(sf, 210, themeOptions, currentThemeName, function(val)
+        BiSHelperDB.settings.theme = nameToKey[val]
+    end)
+    themeDD:SetPoint("TOPLEFT", themeSectionLabel, "BOTTOMLEFT", -4, -6)
+
+    local reloadNote = sf:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    reloadNote:SetPoint("TOPLEFT", themeDD, "BOTTOMLEFT", 4, -4)
+    reloadNote:SetText(P.tDim .. "Requires /reload to apply|r")
+
+    local themeSep = GoldLine(sf, 1)
+    themeSep:SetPoint("TOPLEFT",  sf, "TOPLEFT",  2, -112)
+    themeSep:SetPoint("TOPRIGHT", sf, "TOPRIGHT", -2, -112)
+
     -- Section: DAWNCRESTS
     local sectionLabel = sf:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    sectionLabel:SetPoint("TOPLEFT", sf, "TOPLEFT", 14, -48)
+    sectionLabel:SetPoint("TOPLEFT", sf, "TOPLEFT", 14, -125)
     sectionLabel:SetText(P.tGold .. "DAWNCRESTS|r")
 
     -- Master toggle: Show crest progress bar
