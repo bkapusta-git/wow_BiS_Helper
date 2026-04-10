@@ -89,7 +89,7 @@ validate(ns.Themes.silvermoon)
 -- keys simply hold the theme's chosen accent color.
 -- ============================================================
 ns.Themes.elvui = {
-    name = "ElvUI Dark",
+    name = "Gray",
 
     -- Backgrounds ({r, g, b, a})
     bg         = { 0.07, 0.07, 0.07, 0.97 },
