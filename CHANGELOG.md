@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.10.0] — 2026-04-10
+
+### Added
+- **Theme system** — 5 built-in themes selectable from Settings: Silvermoon (default), Gray, Kaldorei, Frost, Ember
+- **Theme selector** in Settings panel — dropdown with `/reload` note
+- **Kaldorei** theme — deep indigo backgrounds, moonsilver-blue accents (Night Elf aesthetic)
+- **Frost** theme — near-black navy backgrounds, icy blue accents (Northrend aesthetic)
+- **Ember** theme — dark charcoal backgrounds, warm amber accents (forge/volcanic aesthetic)
+- **Gray** theme — neutral dark grey backgrounds, silver accents (ElvUI-style)
+
+### Changed
+- Color palette extracted from `BiS_Helper.lua` into `themes.lua` — adding a new theme requires no changes to main code
+
 ## [0.9.3] — 2026-04-08
 
 ### Added
