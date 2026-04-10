@@ -2,6 +2,9 @@
 .claude/
 CLAUDE.md
 
+# Git worktrees
+.worktrees/
+
 # Blizzard API credentials
 tools/.env
 
