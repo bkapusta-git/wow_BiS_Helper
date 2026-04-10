@@ -2298,7 +2298,9 @@ local function CreateSettingsFrame()
     end
     table.sort(themeOptions)
 
-    local currentThemeName = (ns.Themes[BiSHelperDB.settings.theme] and ns.Themes[BiSHelperDB.settings.theme].name) or themeOptions[1]
+    local currentThemeName = (ns.Themes[BiSHelperDB.settings.theme] and ns.Themes[BiSHelperDB.settings.theme].name)
+        or (ns.Themes.silvermoon and ns.Themes.silvermoon.name)
+        or themeOptions[1]
     local themeDD = CreateDropdown(sf, 210, themeOptions, currentThemeName, function(val)
         BiSHelperDB.settings.theme = nameToKey[val]
     end)
