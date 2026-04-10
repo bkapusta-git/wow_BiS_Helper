@@ -56,6 +56,12 @@ You can also override individual slots with Wowhead item IDs if you want a custo
 
 ---
 
+## Themes
+
+5 built-in UI themes: **Silvermoon** (default — warm mahogany + gold), **Gray** (neutral dark), **Kaldorei** (deep indigo + moonsilver), **Frost** (navy + icy blue), **Ember** (charcoal + amber). Switch in Settings, takes effect after `/reload`.
+
+---
+
 ## Other Details
 
 - No dependencies. No Ace3, no LibStub.
