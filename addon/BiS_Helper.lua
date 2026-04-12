@@ -3737,8 +3737,8 @@ local function RebuildStatBars()
         -- Calculate total width and per-bar width (horizontal layout)
         local totalW   = container:GetWidth()
         if not totalW or totalW < 100 then totalW = 500 end
-        local barGapH  = 6
-        local barW     = math.max((totalW - (barCount - 1) * barGapH) / barCount, 40)
+        local barGapW  = 6
+        local barW     = math.max((totalW - (barCount - 1) * barGapW) / barCount, 40)
 
         for i, d in ipairs(expanded) do
             local bar = BiSHelperFrame.drBarPool[i]
@@ -3769,7 +3769,7 @@ local function RebuildStatBars()
             -- Position: horizontal row below stat note
             bar:ClearAllPoints()
             bar:SetSize(barW, BAR_H)
-            local xOff = (i - 1) * (barW + barGapH)
+            local xOff = (i - 1) * (barW + barGapW)
             bar:SetPoint("BOTTOMLEFT", container, "BOTTOMLEFT", xOff, 14)
 
             -- Get current player rating
