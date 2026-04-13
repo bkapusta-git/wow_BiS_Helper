@@ -1297,7 +1297,7 @@ local function ParseStatText(text)
     local stats = {}
     local rem = text:match("^%s*(.-)%s*$")
     while #rem > 0 do
-        local name, op, rest = rem:match("^(.-[^%s%>%=])%s*([>=])%s*(.*)")
+        local name, op, rest = rem:match("^(.-[^%s%>%=])%s*([>=]+)%s*(.*)")
         if name then
             local r, g, b = GetStatColor(name, specData)
             stats[#stats + 1] = { name = name, op = op, r = r, g = g, b = b }
