@@ -71,12 +71,12 @@ ARMOR_SUBCLASS_MAP = {
 
 # Quality ID -> name
 QUALITY_MAP = {
-    0: "Poor",
-    1: "Common",
-    2: "Uncommon",
-    3: "Rare",
-    4: "Epic",
-    5: "Legendary",
+    "POOR": "Poor",
+    "COMMON": "Common",
+    "UNCOMMON": "Uncommon",
+    "RARE": "Rare",
+    "EPIC": "Epic",
+    "LEGENDARY": "Legendary",
 }
 
 SECONDARY_STATS = {"CRIT_RATING", "HASTE_RATING", "MASTERY_RATING", "VERSATILITY"}
