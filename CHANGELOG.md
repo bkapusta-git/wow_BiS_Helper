@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.10.1] — 2026-04-20
+
+### Changed
+- **Interface version** bumped to `120005` for WoW 12.0.5 compatibility
+
+### Fixed
+- **Dark themes** — tooltip text colors (crest bar, Mythic ilvl line, minimap/compartment) no longer hardcoded to cream/grey; now respect the active theme via `P.cream`, `P.neonGreen`, and new `P.textDim` token
+
+### Added
+- **`textDim` theme token** — rgb equivalent of `tDim` for `GameTooltip:AddLine()` dim text (all 5 themes updated)
+
 ## [0.10.0] — 2026-04-10
 
 ### Added

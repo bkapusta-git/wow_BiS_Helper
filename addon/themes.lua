@@ -53,6 +53,7 @@ ns.Themes.silvermoon = {
 
     -- Text (rgb {r,g,b,a} do SetTextColor)
     cream      = { 0.93, 0.84, 0.72, 1.00 },
+    textDim    = { 0.54, 0.45, 0.38, 1.00 },  -- rgb odpowiednik tDim (dla GameTooltip:AddLine)
 }
 
 -- ============================================================
@@ -66,7 +67,7 @@ local REQUIRED_KEYS = {
     "borderFile", "borderSize",
     "neonGreen", "neonRed", "neonGrey", "glowGreen", "glowRed",
     "tGold", "tCream", "tDim", "tWhite", "tBiS", "tMissing",
-    "cream",
+    "cream", "textDim",
 }
 
 local function validate(theme)
@@ -130,6 +131,7 @@ ns.Themes.elvui = {
 
     -- Text (rgb {r,g,b,a} do SetTextColor)
     cream      = { 0.88, 0.88, 0.88, 1.00 },
+    textDim    = { 0.53, 0.53, 0.53, 1.00 },
 }
 
 validate(ns.Themes.elvui)
@@ -178,6 +180,7 @@ ns.Themes.kaldorei = {
 
     -- Text (rgb {r,g,b,a} do SetTextColor)
     cream      = { 0.82, 0.88, 0.96, 1.00 },
+    textDim    = { 0.47, 0.47, 0.66, 1.00 },  -- dim blue-grey (rgb odpowiednik tDim)
 }
 
 validate(ns.Themes.kaldorei)
@@ -226,6 +229,7 @@ ns.Themes.frost = {
 
     -- Text (rgb {r,g,b,a} do SetTextColor)
     cream      = { 0.80, 0.88, 0.96, 1.00 },
+    textDim    = { 0.41, 0.47, 0.63, 1.00 },  -- blue-grey dim (rgb odpowiednik tDim)
 }
 
 validate(ns.Themes.frost)
@@ -274,6 +278,7 @@ ns.Themes.ember = {
 
     -- Text (rgb {r,g,b,a} do SetTextColor)
     cream      = { 0.92, 0.82, 0.68, 1.00 },
+    textDim    = { 0.54, 0.44, 0.38, 1.00 },  -- warm dim (rgb odpowiednik tDim)
 }
 
 validate(ns.Themes.ember)
