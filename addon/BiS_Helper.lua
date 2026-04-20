@@ -2891,7 +2891,7 @@ local function CreateRowPool(frame)
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetHyperlink("item:" .. self.bisItemID)
                 GameTooltip:AddLine(" ")
-                GameTooltip:AddLine("Mythic ilvl: " .. MYTHIC_ILVL, 0.0, 1.0, 0.0)
+                GameTooltip:AddLine("Mythic ilvl: " .. MYTHIC_ILVL, P.neonGreen[1], P.neonGreen[2], P.neonGreen[3])
                 GameTooltip:Show()
             end
         end)
@@ -2991,20 +2991,20 @@ local function CreateCrestBar(frame)
             if info then
                 GameTooltip:AddLine(P.tGold .. info.name .. "|r")
                 GameTooltip:AddLine(" ")
-                GameTooltip:AddLine("In bags: " .. info.quantity, 0.93, 0.86, 0.78)
+                GameTooltip:AddLine("In bags: " .. info.quantity, P.cream[1], P.cream[2], P.cream[3])
                 local earned = info.totalEarned or 0
                 local cap = info.maxQuantity or 0
                 local capped = earned >= cap and cap > 0
                 if capped then
-                    GameTooltip:AddLine("Earned this season: " .. earned .. " / " .. cap, 0.31, 0.88, 0.31)
-                    GameTooltip:AddLine("Status: CAPPED", 0.31, 0.88, 0.31)
+                    GameTooltip:AddLine("Earned this season: " .. earned .. " / " .. cap, P.neonGreen[1], P.neonGreen[2], P.neonGreen[3])
+                    GameTooltip:AddLine("Status: CAPPED", P.neonGreen[1], P.neonGreen[2], P.neonGreen[3])
                 else
-                    GameTooltip:AddLine("Earned this season: " .. earned .. " / " .. cap, 0.93, 0.86, 0.78)
+                    GameTooltip:AddLine("Earned this season: " .. earned .. " / " .. cap, P.cream[1], P.cream[2], P.cream[3])
                     local remaining = cap - earned
-                    GameTooltip:AddLine("Status: " .. remaining .. " remaining", 0.54, 0.45, 0.38)
+                    GameTooltip:AddLine("Status: " .. remaining .. " remaining", P.textDim[1], P.textDim[2], P.textDim[3])
                 end
                 GameTooltip:AddLine(" ")
-                GameTooltip:AddLine("Sources: " .. self.crestSources, 0.54, 0.45, 0.38, true)
+                GameTooltip:AddLine("Sources: " .. self.crestSources, P.textDim[1], P.textDim[2], P.textDim[3], true)
             end
             GameTooltip:Show()
         end)
@@ -3439,7 +3439,7 @@ local function CreateLootBrowserFrame()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetItemByID(self.itemID)
                 GameTooltip:AddLine(" ")
-                GameTooltip:AddLine("Mythic ilvl: " .. MYTHIC_ILVL, 0.0, 1.0, 0.0)
+                GameTooltip:AddLine("Mythic ilvl: " .. MYTHIC_ILVL, P.neonGreen[1], P.neonGreen[2], P.neonGreen[3])
                 GameTooltip:Show()
             end
         end)
@@ -3668,7 +3668,7 @@ local function RebuildStatBars()
                 GameTooltip:AddLine(P.tGold .. "Stat Priority Details|r")
                 GameTooltip:AddLine(" ")
                 local current = sp[activeMode]
-                if current and current.note then GameTooltip:AddLine(current.note, 1, 1, 1, true) end
+                if current and current.note then GameTooltip:AddLine(current.note, P.cream[1], P.cream[2], P.cream[3], true) end
                 GameTooltip:Show()
             end
         end)
@@ -4052,7 +4052,7 @@ local function CreateMinimapButton()
         GameTooltip:SetOwner(self, "ANCHOR_NONE")
         GameTooltip:SetPoint("TOPLEFT", self, "BOTTOMLEFT")
         GameTooltip:AddLine("BiS Helper", P.gold[1], P.gold[2], P.gold[3])
-        GameTooltip:AddLine("Click to open/close", 0.8, 0.8, 0.8)
+        GameTooltip:AddLine("Click to open/close", P.textDim[1], P.textDim[2], P.textDim[3])
         GameTooltip:Show()
     end)
 
@@ -4079,7 +4079,7 @@ end
 function BiSHelper_OnAddonCompartmentEnter(_, f)
     GameTooltip:SetOwner(f, "ANCHOR_LEFT")
     GameTooltip:AddLine("BiS Helper", P.gold[1], P.gold[2], P.gold[3])
-    GameTooltip:AddLine("Click to open/close", 0.8, 0.8, 0.8)
+    GameTooltip:AddLine("Click to open/close", P.textDim[1], P.textDim[2], P.textDim[3])
     GameTooltip:Show()
 end
 
