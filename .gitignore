@@ -26,3 +26,6 @@ docs/superpowers/
 
 # Dev documentation
 docs/
+
+# Local cache directories
+tools/cache/

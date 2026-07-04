@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.11.0] — 2026-07-04
+
+### Changed
+- **BiS Gear & Stat Priority Data** — Fully updated all 40 class specializations to the latest Midnight Season 1 data from Wowhead.
+- **Blizzard API Integration** — Automated fetching and matching for missing item IDs to ensure correct item names.
+
+### Fixed
+- **Demonology Warlock Guide parsing** — Resolved a bug where unclosed BBCode table tags in the author's bio caused parsing failures.
+- **Arms & Fury Warrior Guide parsing** — Fixed issues with custom table column headers ("Item Slot", "Name") and added missing slot mappings ("helm", "mainhand") to ensure successful parsing.
+
 ## [0.10.1] — 2026-04-20
 
 ### Changed
