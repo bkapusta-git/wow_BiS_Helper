@@ -301,11 +301,17 @@ local function GetItemEnchantAndGems(slotId)
         end
     end
 
-    for i = 1, 3 do
-        local _, gemLink = C_Item.GetItemGem(link, i)
-        if gemLink then
-            local _, _, _, _, icon = C_Item.GetItemInfoInstant(gemLink)
-            if icon then table.insert(gems, { icon = icon, link = gemLink }) end
+    local itemString = link:match("item:([%d:]+)")
+    if itemString then
+        local parts = { strsplit(":", itemString) }
+        -- W strukturze linku 'item' pozycje 3, 4, 5 i 6 odpowiadają za gniazda na klejnoty
+        for i = 3, 6 do
+            local gemId = tonumber(parts[i])
+            if gemId and gemId > 0 then
+                local gemLink = "item:" .. gemId
+                local _, _, _, _, icon = C_Item.GetItemInfoInstant(gemId)
+                if icon then table.insert(gems, { icon = icon, link = gemLink }) end
+            end
         end
     end
 
@@ -3735,8 +3741,10 @@ local function RebuildStatBars()
         local barCount = #expanded
         if barCount == 0 then return end
         -- Calculate total width and per-bar width (horizontal layout)
-        local totalW   = container:GetWidth()
-        if not totalW or totalW < 100 then totalW = 500 end
+        local rawW     = container:GetWidth()
+        -- Prevent taint errors by explicitly untainting GetWidth result
+        local totalW   = rawW and tonumber(tostring(rawW)) or 500
+        if totalW < 100 then totalW = 500 end
         local barGapW  = 6
         local barW     = math.max((totalW - (barCount - 1) * barGapW) / barCount, 40)
 
@@ -3774,8 +3782,10 @@ local function RebuildStatBars()
 
             -- Get current player rating
             local playerRating = 0
-            if d.crId then
-                playerRating = math.floor((GetCombatRating(d.crId) or 0) + 0.5)
+            if d.crId and not InCombatLockdown() then
+                local crStr = tostring(GetCombatRating(d.crId))
+                local cr = tonumber(crStr) or 0
+                playerRating = math.floor(cr + 0.5)
             end
             local ratio = (d.rating and d.rating > 0) and math.min(playerRating / d.rating, 1.0) or 0
 
@@ -4245,13 +4255,15 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
             end
             return
         end
-        local resolved = {}
-        for link, data in pairs(pendingItems) do
-            if C_Item.GetItemInfo(link) then resolved[link] = data end
-        end
-        for link, data in pairs(resolved) do
-            pendingItems[link] = nil
-            UpdateRow(data.rowIndex, data.slotId)
+        if next(pendingItems) then
+            local resolved = {}
+            for link, data in pairs(pendingItems) do
+                if C_Item.GetItemInfo(link) then resolved[link] = data end
+            end
+            for link, data in pairs(resolved) do
+                pendingItems[link] = nil
+                UpdateRow(data.rowIndex, data.slotId)
+            end
         end
         -- Resolve deferred override names
         if pendingOverrideNames[itemID] then
