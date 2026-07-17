@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.1] — 2026-07-17
+
+### Fixed
+- **Taint errors in combat** — Fixed `attempt to perform arithmetic on a secret number value` errors by untainting `GetCombatRating()` and `container:GetWidth()` variables properly, allowing safe stats checks during combat.
+- **Gem Parsing** — Replaced removed `C_Item.GetItemGem` API calls with direct item link string parsing to restore gem detection in equipment.
+- **Memory Optimization** — Optimized `GET_ITEM_INFO_RECEIVED` caching logic to drastically reduce memory garbage generation and micro-stutters during gameplay.
+
 ## [0.11.0] — 2026-07-04
 
 ### Changed
