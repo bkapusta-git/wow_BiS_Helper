@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.11.2] — 2026-07-25
+
+### Fixed
+- **Copy Popup Nil Error** — Moved `SetupBackdrop` and `SetBackdropColors` helper functions before `CreateCopyPopup` in `BiS_Helper.lua` to fix `attempt to call a nil value` error when clicking an item in Loot Browser or Item ID popup.
+
 ## [0.11.1] — 2026-07-17
 
 ### Fixed

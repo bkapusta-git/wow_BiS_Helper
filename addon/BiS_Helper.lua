@@ -104,6 +104,28 @@ local function Trim(s) return s:match("^%s*(.-)%s*$") end
 local RefreshCrestBar
 local RepositionMainLayout
 
+-- ── Theme helpers ────────────────────────────────────────────
+-- SetupBackdrop: zastępuje boilerplate SetBackdrop({ bgFile, edgeFile,
+-- edgeSize, insets }). Domyślnie edgeSize z P.borderSize i inset liczony
+-- jako floor(edgeSize / 4), co pokrywa oba używane wzorce: 16→4 i 12→3.
+-- Trzeci argument pozwala wymusić inny inset (np. copy popup: edgeSize=12, inset=2).
+-- Wymaga: frame utworzony z mixinem "BackdropTemplate".
+local function SetupBackdrop(frame, edgeSize, inset)
+    edgeSize = edgeSize or P.borderSize
+    inset = inset or math.floor(edgeSize / 4)
+    frame:SetBackdrop({
+        bgFile   = WHITE_TEX,
+        edgeFile = P.borderFile,
+        edgeSize = edgeSize,
+        insets   = { left = inset, right = inset, top = inset, bottom = inset },
+    })
+end
+
+local function SetBackdropColors(frame, bg, border)
+    frame:SetBackdropColor(bg[1], bg[2], bg[3], bg[4])
+    frame:SetBackdropBorderColor(border[1], border[2], border[3], border[4])
+end
+
 -- ── Copy-to-clipboard popup ────────────────────────────────
 local copyFrame
 
@@ -334,26 +356,6 @@ local function GoldLine(parent, thickness)
 end
 
 -- ── Theme helpers ────────────────────────────────────────────
--- SetupBackdrop: zastępuje boilerplate SetBackdrop({ bgFile, edgeFile,
--- edgeSize, insets }). Domyślnie edgeSize z P.borderSize i inset liczony
--- jako floor(edgeSize / 4), co pokrywa oba używane wzorce: 16→4 i 12→3.
--- Trzeci argument pozwala wymusić inny inset (np. copy popup: edgeSize=12, inset=2).
--- Wymaga: frame utworzony z mixinem "BackdropTemplate".
-local function SetupBackdrop(frame, edgeSize, inset)
-    edgeSize = edgeSize or P.borderSize
-    inset = inset or math.floor(edgeSize / 4)
-    frame:SetBackdrop({
-        bgFile   = WHITE_TEX,
-        edgeFile = P.borderFile,
-        edgeSize = edgeSize,
-        insets   = { left = inset, right = inset, top = inset, bottom = inset },
-    })
-end
-
-local function SetBackdropColors(frame, bg, border)
-    frame:SetBackdropColor(bg[1], bg[2], bg[3], bg[4])
-    frame:SetBackdropBorderColor(border[1], border[2], border[3], border[4])
-end
 
 local activeDropdowns = {}
 
