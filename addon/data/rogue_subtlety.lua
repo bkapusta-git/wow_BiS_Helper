@@ -1,7 +1,7 @@
--- BiS data: Subtlety Rogue — Midnight Season 1
+-- BiS data: Subtlety Rogue — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/rogue/subtlety/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/rogue/subtlety/stat-priority-pve-dps
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-21
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -16,8 +16,8 @@ BiSHelper_Data["ROGUE_SUBTLETY"] = {
             stats = {
                 { name = "Mastery", op = ">"  , r = 0.30, g = 0.75, b = 1.00 },
                 { name = "Haste", op = ">"  , r = 1.00, g = 0.82, b = 0.20 },
-                { name = "Critical Strike", op = ">"  , r = 1.00, g = 0.35, b = 0.35 },
-                { name = "Versatility", op = nil  , r = 0.65, g = 0.40, b = 1.00 },
+                { name = "Versatility", op = ">"  , r = 0.65, g = 0.40, b = 1.00 },
+                { name = "Critical Strike", op = nil  , r = 1.00, g = 0.35, b = 0.35 },
             },
         },
         mythicplus = {
@@ -25,8 +25,8 @@ BiSHelper_Data["ROGUE_SUBTLETY"] = {
             stats = {
                 { name = "Mastery", op = ">"  , r = 0.30, g = 0.75, b = 1.00 },
                 { name = "Haste", op = ">"  , r = 1.00, g = 0.82, b = 0.20 },
-                { name = "Critical Strike", op = ">"  , r = 1.00, g = 0.35, b = 0.35 },
-                { name = "Versatility", op = nil  , r = 0.65, g = 0.40, b = 1.00 },
+                { name = "Versatility", op = ">"  , r = 0.65, g = 0.40, b = 1.00 },
+                { name = "Critical Strike", op = nil  , r = 1.00, g = 0.35, b = 0.35 },
             },
         },
         dr = {
@@ -39,42 +39,42 @@ BiSHelper_Data["ROGUE_SUBTLETY"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [1]= { itemID = 250006, name = "Masquerade of the Grim Jest",      source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall"                         }, -- Neck
-            [3]= { itemID = 250004, name = "Venom Casks of the Grim Jest",     source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 250009, name = "Fantastic Finery of the Grim Jest",source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 268286, name = "Sash of the Putrid Giant",         source = "Sporefall"                         }, -- Waist
-            [7]= { itemID = 251087, name = "Legwraps of Lingering Legacies",   source = "Windrunner Spire"                  }, -- Legs
-            [8]= { itemID = 244569, name = "Silvermoon Agent's Sneakers",      source = "Crafted"                           }, -- Feet
-            [9]= { itemID = 50264, name = "Chewed Leather Wristguards",        source = "Pit of Saron"                      }, -- Wrist
-            [10]= { itemID = 250007, name = "Sleight of Hand of the Grim Jest", source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 1
-            [12]= { itemID = 193708, name = "Platinum Star Band",               source = "Algeth'ar Academy"                 }, -- Ring 2
-            [13]= { itemID = 249344, name = "Light Company Guidon",             source = "Imperator Averzian · The Voidspire"}, -- Trinket 1
-            [14]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 2
-            [15]= { itemID = 260312, name = "Defiant Defender's Drape",         source = "Magisters' Terrace"                }, -- Back
-            [16]= { itemID = 249284, name = "Belo'ren's Swift Talon",           source = "Belo'ren"                          }, -- Main Hand
-            [17]= { itemID = 237837, name = "Farstrider's Mercy",               source = "Crafted"                           }, -- Off Hand
+            [1]= { itemID = 271510, name = "Chosen Bloodslayer's Spirit Shroud",source = "Tier Set - Ula'tek"                }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271508, name = "Chosen Bloodslayer's Voodoo Guards",source = "Tier Set - Vashnik the Malignant"  }, -- Shoulder
+            [5]= { itemID = 271513, name = "Chosen Bloodslayer's Banded Poncho",source = "Tier Set - Nek'zali the Soulcoiler"}, -- Chest
+            [6]= { itemID = 268256, name = "Sash of the Forlorn Vessel",       source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271509, name = "Chosen Bloodslayer's Reinforced Pants",source = "The Coiled Altar"                  }, -- Legs
+            [8]= { itemID = 159304, name = "Goldfeather Boots",                source = "King's Rest"                       }, -- Feet
+            [9]= { itemID = 244576, name = "Silvermoon Agent's Deflectors",    source = "Crafting/Misc"                     }, -- Wrist
+            [10]= { itemID = 271511, name = "Chosen Bloodslayer's Fanged Grips",source = "Tier Set - Sszorak"                }, -- Hands
+            [11]= { itemID = 251194, name = "Lightwarden's Bind",               source = "Blinding Vale"                     }, -- Ring 1
+            [12]= { itemID = 162544, name = "Jade Ophidian Band",               source = "Temple of Sethraliss"              }, -- Ring 2
+            [13]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 1
+            [14]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 271093, name = "Zatha'tek, Breath of Corruption",  source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 237837, name = "Farstrider's Mercy",               source = "Crafting/Misc"                     }, -- Off Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [1]= { itemID = 250006, name = "Masquerade of the Grim Jest",      source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall"                         }, -- Neck
-            [3]= { itemID = 250004, name = "Venom Casks of the Grim Jest",     source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 250009, name = "Fantastic Finery of the Grim Jest",source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 268286, name = "Sash of the Putrid Giant",         source = "Sporefall"                         }, -- Waist
-            [7]= { itemID = 251087, name = "Legwraps of Lingering Legacies",   source = "Windrunner Spire"                  }, -- Legs
-            [8]= { itemID = 244569, name = "Silvermoon Agent's Sneakers",      source = "Crafted"                           }, -- Feet
-            [9]= { itemID = 50264, name = "Chewed Leather Wristguards",        source = "Pit of Saron"                      }, -- Wrist
-            [10]= { itemID = 250007, name = "Sleight of Hand of the Grim Jest", source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 1
-            [12]= { itemID = 193708, name = "Platinum Star Band",               source = "Algeth'ar Academy"                 }, -- Ring 2
-            [13]= { itemID = 249344, name = "Light Company Guidon",             source = "Imperator Averzian · The Voidspire"}, -- Trinket 1
-            [14]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 2
-            [15]= { itemID = 260312, name = "Defiant Defender's Drape",         source = "Magisters' Terrace"                }, -- Back
-            [16]= { itemID = 249284, name = "Belo'ren's Swift Talon",           source = "Belo'ren"                          }, -- Main Hand
-            [17]= { itemID = 237837, name = "Farstrider's Mercy",               source = "Crafted"                           }, -- Off Hand
+            [1]= { itemID = 271510, name = "Chosen Bloodslayer's Spirit Shroud",source = "Tier Set - Ula'tek"                }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271508, name = "Chosen Bloodslayer's Voodoo Guards",source = "Tier Set - Vashnik the Malignant"  }, -- Shoulder
+            [5]= { itemID = 271513, name = "Chosen Bloodslayer's Banded Poncho",source = "Tier Set - Nek'zali the Soulcoiler"}, -- Chest
+            [6]= { itemID = 268256, name = "Sash of the Forlorn Vessel",       source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271509, name = "Chosen Bloodslayer's Reinforced Pants",source = "The Coiled Altar"                  }, -- Legs
+            [8]= { itemID = 159304, name = "Goldfeather Boots",                source = "King's Rest"                       }, -- Feet
+            [9]= { itemID = 244576, name = "Silvermoon Agent's Deflectors",    source = "Crafting/Misc"                     }, -- Wrist
+            [10]= { itemID = 271511, name = "Chosen Bloodslayer's Fanged Grips",source = "Tier Set - Sszorak"                }, -- Hands
+            [11]= { itemID = 251194, name = "Lightwarden's Bind",               source = "Blinding Vale"                     }, -- Ring 1
+            [12]= { itemID = 162544, name = "Jade Ophidian Band",               source = "Temple of Sethraliss"              }, -- Ring 2
+            [13]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 1
+            [14]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 271093, name = "Zatha'tek, Breath of Corruption",  source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 237837, name = "Farstrider's Mercy",               source = "Crafting/Misc"                     }, -- Off Hand
         },
     },
 }

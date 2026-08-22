@@ -1,7 +1,7 @@
--- BiS data: Guardian Druid — Midnight Season 1
+-- BiS data: Guardian Druid — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/druid/guardian/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/druid/guardian/stat-priority-pve-tank
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-12
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -39,40 +39,40 @@ BiSHelper_Data["DRUID_GUARDIAN"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [1]= { itemID = 268283, name = "Festerbloom Crown",                source = "Sporefall"                         }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall"                         }, -- Neck
-            [3]= { itemID = 250022, name = "Seedpods of the Luminous Bloom",   source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 250027, name = "Trunk of the Luminous Bloom",      source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 268286, name = "Sash of the Putrid Giant",         source = "Sporefall"                         }, -- Waist
-            [7]= { itemID = 250023, name = "Phloemwraps of the Luminous Bloom",source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 249334, name = "Void-Claimed Shinkickers",         source = "Imperator Averzian · The Voidspire"}, -- Feet
-            [9]= { itemID = 249327, name = "Void-Skinned Bracers",             source = "Vorasius · The Voidspire"          }, -- Wrist
-            [10]= { itemID = 250025, name = "Arbortenders of the Luminous Bloom",source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 1
-            [12]= { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls"                    }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 193701, name = "Algeth'ar Puzzle Box",             source = "Algeth'ar Academy"                 }, -- Trinket 2
-            [15]= { itemID = 249370, name = "Draconic Nullcape",                source = "Vaelgor & Ezzorak · The Voidspire" }, -- Back
-            [16]= { itemID = 249278, name = "Alnscorned Spire",                 source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Main Hand
+            [1]= { itemID = 271875, name = "Gaze of the Coiled Watcher",       source = "Ula'tek"                           }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271526, name = "Enigmatic Dreamwatcher's Plumage", source = "Tier Set"                          }, -- Shoulder
+            [5]= { itemID = 271531, name = "Enigmatic Dreamwatcher's Lunar Raiment",source = "Tier Set"                          }, -- Chest
+            [6]= { itemID = 268256, name = "Sash of the Forlorn Vessel",       source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271527, name = "Enigmatic Dreamwatcher's Leggings",source = "Tier Set"                          }, -- Legs
+            [8]= { itemID = 268261, name = "Bespittled Slitherslippers",       source = "The Twin Fangs"                    }, -- Feet
+            [9]= { itemID = 268240, name = "Restless Spirit Shackles",         source = "Nek'zali the Soulcoiler"           }, -- Wrist
+            [10]= { itemID = 271529, name = "Enigmatic Dreamwatcher's Gauntlets",source = "Tier Set"                          }, -- Hands
+            [11]= { itemID = 268252, name = "Apex Brute's Claw Ring",           source = "Sszorak"                           }, -- Ring 1
+            [12]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 2
+            [13]= { itemID = 270164, name = "Gebbo's Bottomless Bag",           source = "The Lost Explorers"                }, -- Trinket 1
+            [14]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268215, name = "Abyssal Broodfiend's Bardiche",    source = "Ula'tek"                           }, -- Main Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [1]= { itemID = 268283, name = "Festerbloom Crown",                source = "Sporefall"                         }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall"                         }, -- Neck
-            [3]= { itemID = 250022, name = "Seedpods of the Luminous Bloom",   source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 250027, name = "Trunk of the Luminous Bloom",      source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 268286, name = "Sash of the Putrid Giant",         source = "Sporefall"                         }, -- Waist
-            [7]= { itemID = 250023, name = "Phloemwraps of the Luminous Bloom",source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 249334, name = "Void-Claimed Shinkickers",         source = "Imperator Averzian · The Voidspire"}, -- Feet
-            [9]= { itemID = 249327, name = "Void-Skinned Bracers",             source = "Vorasius · The Voidspire"          }, -- Wrist
-            [10]= { itemID = 250025, name = "Arbortenders of the Luminous Bloom",source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 1
-            [12]= { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls"                    }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 193701, name = "Algeth'ar Puzzle Box",             source = "Algeth'ar Academy"                 }, -- Trinket 2
-            [15]= { itemID = 249370, name = "Draconic Nullcape",                source = "Vaelgor & Ezzorak · The Voidspire" }, -- Back
-            [16]= { itemID = 249278, name = "Alnscorned Spire",                 source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Main Hand
+            [1]= { itemID = 271875, name = "Gaze of the Coiled Watcher",       source = "Ula'tek"                           }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271526, name = "Enigmatic Dreamwatcher's Plumage", source = "Tier Set"                          }, -- Shoulder
+            [5]= { itemID = 271531, name = "Enigmatic Dreamwatcher's Lunar Raiment",source = "Tier Set"                          }, -- Chest
+            [6]= { itemID = 268256, name = "Sash of the Forlorn Vessel",       source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271527, name = "Enigmatic Dreamwatcher's Leggings",source = "Tier Set"                          }, -- Legs
+            [8]= { itemID = 268261, name = "Bespittled Slitherslippers",       source = "The Twin Fangs"                    }, -- Feet
+            [9]= { itemID = 268240, name = "Restless Spirit Shackles",         source = "Nek'zali the Soulcoiler"           }, -- Wrist
+            [10]= { itemID = 271529, name = "Enigmatic Dreamwatcher's Gauntlets",source = "Tier Set"                          }, -- Hands
+            [11]= { itemID = 268252, name = "Apex Brute's Claw Ring",           source = "Sszorak"                           }, -- Ring 1
+            [12]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 2
+            [13]= { itemID = 270164, name = "Gebbo's Bottomless Bag",           source = "The Lost Explorers"                }, -- Trinket 1
+            [14]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268215, name = "Abyssal Broodfiend's Bardiche",    source = "Ula'tek"                           }, -- Main Hand
         },
     },
 }

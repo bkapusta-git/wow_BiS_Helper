@@ -21,6 +21,9 @@ PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 DATA_DIR = os.path.join(PROJECT_ROOT, "addon", "data")
 CACHE_DIR = os.path.join(SCRIPT_DIR, "cache")
 
+# Bump this when Blizzard starts a new season — used in the Lua header comment.
+CURRENT_SEASON_LABEL = "Midnight Season 2"
+
 # Default colors for secondary stats
 STAT_COLORS = {
     "Critical Strike": {"r": 1.00, "g": 0.35, "b": 0.35},
@@ -237,13 +240,19 @@ WOWHEAD_SLOT_MAP = {
     "trinket": 13,
     "back": 15,
     "cloak": 15,
+    "cape": 15,
     "weapon": 16,
     "main hand": 16,
+    "main-hand": 16,
     "mainhand": 16,
     "one-hand": 16,
+    "one hand": 16,
     "two-hand": 16,
+    "two hand": 16,
     "off hand": 17,
+    "off-hand": 17,
     "offhand": 17,
+    "shield": 17,
 }
 
 
@@ -630,7 +639,7 @@ def read_existing_lua(filepath):
 def write_lua_file(filepath, spec_key, spec_meta, raid_bis, mplus_bis, stat_priority, dr_caps, source_urls):
     """Write updated data to Lua file."""
     lines = []
-    lines.append(f"-- BiS data: {spec_meta['label']} — Midnight Season 1")
+    lines.append(f"-- BiS data: {spec_meta['label']} — {CURRENT_SEASON_LABEL}")
     for url in source_urls:
         lines.append(f"-- Source: {url}")
     lines.append(f"-- Last updated: {time_date_now()}")

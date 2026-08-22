@@ -1,7 +1,7 @@
--- BiS data: Fury Warrior — Midnight Season 1
+-- BiS data: Fury Warrior — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/warrior/fury/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/warrior/fury/stat-priority-pve-dps
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-21
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -39,41 +39,41 @@ BiSHelper_Data["WARRIOR_FURY"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [1]= { itemID = 249952, name = "Night Ender's Tusks",              source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 250247, name = "Amulet of the Abyssal Hymn",       source = "Midnight Falls"                    }, -- Neck
-            [3]= { itemID = 249950, name = "Night Ender's Pauldrons",          source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 249955, name = "Night Ender's Breastplate",        source = "Rotmire (Catalyst)"                }, -- Chest
-            [6]= { itemID = 268289, name = "Girdle of Devouring Rot",          source = "Rotmire"                           }, -- Waist
-            [7]= { itemID = 249951, name = "Night Ender's Chausses",           source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 260377, name = "Fading Dawn Sabatons",             source = "Raid BoE for targeted stats"       }, -- Feet
+            [1]= { itemID = 271456, name = "Tempered Horns of the Jade Warlord",source = "Murder Row"                        }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271454, name = "Raging Pauldrons of the Jade Warlord",source = "Murder Row"                        }, -- Shoulder
+            [5]= { itemID = 271459, name = "Cuirass of the Jade Warlord",      source = "The Coiled Altar"                  }, -- Chest
+            [6]= { itemID = 268259, name = "Girdle of Toxic Regret",           source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271455, name = "Greaves of the Jade Warlord",      source = "Ula'tek"                           }, -- Legs
+            [8]= { itemID = 268260, name = "Scaled Fiend's Warboots",          source = "Vashnik the Malignant"             }, -- Feet
             [9]= { itemID = 237834, name = "Spellbreaker's Bracers",           source = "Crafted"                           }, -- Wrist
-            [10]= { itemID = 151332, name = "Voidclaw Gauntlets",               source = "Seat of the Triumvirate"           }, -- Hands
-            [11]= { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls"                    }, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Rotmire"                           }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 249342, name = "Heart of Ancient Hunger",          source = "Vorasius · The Voidspire"          }, -- Trinket 2
-            [15]= { itemID = 258575, name = "Rigid Scale Greatcloak",           source = "Skyreach"                          }, -- Back
-            [16]= { itemID = 249277, name = "Bellamy's Final Judgement",        source = "Lightblinded Vanguard · The Voidspire"}, -- Main Hand
+            [10]= { itemID = 271457, name = "Jeweled Gauntlets of the Jade Warlord",source = "Den of Nalorakk"                   }, -- Hands
+            [11]= { itemID = 252258, name = "Sickening Signet of Atroxus",      source = "Voidscar Arena"                    }, -- Ring 1
+            [12]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 2
+            [13]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 1
+            [14]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268213, name = "Maze-roa, Warlord's Fury",         source = "The Coiled Altar"                  }, -- Main Hand
             [17]= { itemID = 237846, name = "Blood Knight's Warblade",          source = "Crafted"                           }, -- Off Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [1]= { itemID = 249952, name = "Night Ender's Tusks",              source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 250247, name = "Amulet of the Abyssal Hymn",       source = "Midnight Falls"                    }, -- Neck
-            [3]= { itemID = 249950, name = "Night Ender's Pauldrons",          source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 249955, name = "Night Ender's Breastplate",        source = "Rotmire (Catalyst)"                }, -- Chest
-            [6]= { itemID = 268289, name = "Girdle of Devouring Rot",          source = "Rotmire"                           }, -- Waist
-            [7]= { itemID = 249951, name = "Night Ender's Chausses",           source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 260377, name = "Fading Dawn Sabatons",             source = "Raid BoE for targeted stats"       }, -- Feet
+            [1]= { itemID = 271456, name = "Tempered Horns of the Jade Warlord",source = "Murder Row"                        }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271454, name = "Raging Pauldrons of the Jade Warlord",source = "Murder Row"                        }, -- Shoulder
+            [5]= { itemID = 271459, name = "Cuirass of the Jade Warlord",      source = "The Coiled Altar"                  }, -- Chest
+            [6]= { itemID = 268259, name = "Girdle of Toxic Regret",           source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271455, name = "Greaves of the Jade Warlord",      source = "Ula'tek"                           }, -- Legs
+            [8]= { itemID = 268260, name = "Scaled Fiend's Warboots",          source = "Vashnik the Malignant"             }, -- Feet
             [9]= { itemID = 237834, name = "Spellbreaker's Bracers",           source = "Crafted"                           }, -- Wrist
-            [10]= { itemID = 151332, name = "Voidclaw Gauntlets",               source = "Seat of the Triumvirate"           }, -- Hands
-            [11]= { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls"                    }, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Rotmire"                           }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 249342, name = "Heart of Ancient Hunger",          source = "Vorasius · The Voidspire"          }, -- Trinket 2
-            [15]= { itemID = 258575, name = "Rigid Scale Greatcloak",           source = "Skyreach"                          }, -- Back
-            [16]= { itemID = 249277, name = "Bellamy's Final Judgement",        source = "Lightblinded Vanguard · The Voidspire"}, -- Main Hand
+            [10]= { itemID = 271457, name = "Jeweled Gauntlets of the Jade Warlord",source = "Den of Nalorakk"                   }, -- Hands
+            [11]= { itemID = 252258, name = "Sickening Signet of Atroxus",      source = "Voidscar Arena"                    }, -- Ring 1
+            [12]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 2
+            [13]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 1
+            [14]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268213, name = "Maze-roa, Warlord's Fury",         source = "The Coiled Altar"                  }, -- Main Hand
             [17]= { itemID = 237846, name = "Blood Knight's Warblade",          source = "Crafted"                           }, -- Off Hand
         },
     },

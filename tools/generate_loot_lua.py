@@ -12,8 +12,8 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_LUA_PATH = os.path.join(SCRIPT_DIR, "..", "addon", "data", "mplus_loot.lua")
 
 # Mythic ilvl override — Blizzard API returns base ilvl, not in-game mythic ilvl.
-# Midnight S1: 272 = Myth 1/6 track (Great Vault from M+10). Update each season.
-MYTHIC_ILVL = 272
+# Midnight S2: 318 = Myth 1/6 track (Great Vault from M+10). Update each season.
+MYTHIC_ILVL = 318
 
 SLOT_NORMALIZE = {
     "Main Hand": "Weapon",
@@ -51,6 +51,11 @@ def main():
     parser.add_argument("--min-ilvl", type=int, default=100, help="Min ilvl for current-season flag (default: 100)")
     parser.add_argument("--whitelist", type=str, default=None,
                         help="Path to whitelist JSON (from parse_loot_export.py). Overrides --min-ilvl for current flag.")
+    parser.add_argument("--whitelist-ignore-slots", type=str, default=None,
+                        help="Comma-separated slots the whitelist does not decide; items in these slots "
+                             "are always flagged current (e.g. 'Trinket'). The in-game Encounter Journal "
+                             "export drops nearly every trinket, so the API loot table is the better source "
+                             "for that slot.")
     args = parser.parse_args()
 
     json_path = args.input or find_latest_json()
@@ -74,6 +79,11 @@ def main():
         whitelist_ids = set(wl_data.get("itemIDs", []))
         print(f"Using whitelist: {len(whitelist_ids)} item IDs from {args.whitelist}")
 
+    ignore_slots = set()
+    if args.whitelist_ignore_slots:
+        ignore_slots = {s.strip() for s in args.whitelist_ignore_slots.split(",") if s.strip()}
+        print(f"Whitelist ignored for slots: {', '.join(sorted(ignore_slots))} (always current)")
+
     season = data.get("season", "Unknown")
     source = data.get("source", "Unknown")
 
@@ -94,7 +104,7 @@ def main():
         slot = SLOT_NORMALIZE.get(slot_raw, slot_raw)
         ilvl_raw = item.get("ilvl", 0)
         if whitelist_ids is not None:
-            current = item_id in whitelist_ids
+            current = item_id in whitelist_ids or item.get("slot") in ignore_slots
         else:
             current = ilvl_raw >= args.min_ilvl
         ilvl = MYTHIC_ILVL if current else ilvl_raw

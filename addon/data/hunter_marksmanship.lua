@@ -1,7 +1,7 @@
--- BiS data: Marksmanship Hunter — Midnight Season 1
+-- BiS data: Marksmanship Hunter — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/hunter/marksmanship/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/hunter/marksmanship/stat-priority-pve-dps
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-12
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -39,40 +39,40 @@ BiSHelper_Data["HUNTER_MARKSMANSHIP"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [1]= { itemID = 249988, name = "Primal Sentry's Maw",              source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 249368, name = "Eternal Voidsong Chain",           source = "Crown of the Cosmos · The Voidspire"}, -- Neck
-            [3]= { itemID = 249986, name = "Primal Sentry's Trophies",         source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 244609, name = "World Tender's Trunkplate",        source = "Unknown Source"                    }, -- Chest
-            [6]= { itemID = 244611, name = "World Tender's Barkclasp",         source = "Unknown Source"                    }, -- Waist
-            [7]= { itemID = 249987, name = "Primal Sentry's Legguards",        source = "Catalyst the Rotmire Legs"         }, -- Legs
-            [8]= { itemID = 249990, name = "Primal Sentry's Swiftsteps",       source = "Catalyst the Rotmire Boots"        }, -- Feet
-            [9]= { itemID = 249304, name = "Fallen King's Cuffs",              source = "Fallen-King Salhadaar · The Voidspire"}, -- Wrist
-            [10]= { itemID = 249989, name = "Primal Sentry's Talonguards",      source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 249336, name = "Signet of the Starved Beast",      source = "Vorasius · The Voidspire"          }, -- Ring 1
-            [12]= { itemID = 249919, name = "Sin'dorei Band of Hope",           source = "Belo'ren"                          }, -- Ring 2
-            [13]= { itemID = 193701, name = "Algeth'ar Puzzle Box",             source = "Algeth'ar Academy"                 }, -- Trinket 1
-            [14]= { itemID = 260235, name = "Umbral Plume",                     source = "Belo'ren"                          }, -- Trinket 2
-            [15]= { itemID = 258575, name = "Rigid Scale Greatcloak",           source = "Skyreach"                          }, -- Back
-            [16]= { itemID = 258412, name = "Stormshaper's Crossbow",           source = "Skyreach"                          }, -- Main Hand
+            [1]= { itemID = 271492, name = "Skulking Viper's Weeping Fangs",   source = "Catalyst / Nek'zali the Soulcoiler"}, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271490, name = "Jaws of the Skulking Viper",       source = "Catalyst / The Coiled Altar"       }, -- Shoulder
+            [5]= { itemID = 271495, name = "Skulking Viper's Scuteplate",      source = "Catalyst / Ula'tek"                }, -- Chest
+            [6]= { itemID = 244581, name = "Farstrider's Trophy Belt",         source = "Crafting/Misc"                     }, -- Waist
+            [7]= { itemID = 271491, name = "Skulking Viper's Coiled Legwraps", source = "Catalyst / The Coiled Altar"       }, -- Legs
+            [8]= { itemID = 268233, name = "Ferocious Scaleboots",             source = "Sszorak"                           }, -- Feet
+            [9]= { itemID = 244584, name = "Farstrider's Plated Bracers",      source = "Crafting/Misc"                     }, -- Wrist
+            [10]= { itemID = 271493, name = "Skulking Viper's Hidepiercers",    source = "Catalyst / Ruby Life Pools"        }, -- Hands
+            [11]= { itemID = 251136, name = "Signet of Snarling Servitude",     source = "Murder Row"                        }, -- Ring 1
+            [12]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 2
+            [13]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 1
+            [14]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268207, name = "Caustic Repose Greatbow",          source = "Ula'tek"                           }, -- Main Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [1]= { itemID = 249988, name = "Primal Sentry's Maw",              source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 249368, name = "Eternal Voidsong Chain",           source = "Crown of the Cosmos · The Voidspire"}, -- Neck
-            [3]= { itemID = 249986, name = "Primal Sentry's Trophies",         source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 244609, name = "World Tender's Trunkplate",        source = "Unknown Source"                    }, -- Chest
-            [6]= { itemID = 244611, name = "World Tender's Barkclasp",         source = "Unknown Source"                    }, -- Waist
-            [7]= { itemID = 249987, name = "Primal Sentry's Legguards",        source = "Catalyst the Rotmire Legs"         }, -- Legs
-            [8]= { itemID = 249990, name = "Primal Sentry's Swiftsteps",       source = "Catalyst the Rotmire Boots"        }, -- Feet
-            [9]= { itemID = 249304, name = "Fallen King's Cuffs",              source = "Fallen-King Salhadaar · The Voidspire"}, -- Wrist
-            [10]= { itemID = 249989, name = "Primal Sentry's Talonguards",      source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 249336, name = "Signet of the Starved Beast",      source = "Vorasius · The Voidspire"          }, -- Ring 1
-            [12]= { itemID = 249919, name = "Sin'dorei Band of Hope",           source = "Belo'ren"                          }, -- Ring 2
-            [13]= { itemID = 193701, name = "Algeth'ar Puzzle Box",             source = "Algeth'ar Academy"                 }, -- Trinket 1
-            [14]= { itemID = 260235, name = "Umbral Plume",                     source = "Belo'ren"                          }, -- Trinket 2
-            [15]= { itemID = 258575, name = "Rigid Scale Greatcloak",           source = "Skyreach"                          }, -- Back
-            [16]= { itemID = 258412, name = "Stormshaper's Crossbow",           source = "Skyreach"                          }, -- Main Hand
+            [1]= { itemID = 271492, name = "Skulking Viper's Weeping Fangs",   source = "Catalyst / Nek'zali the Soulcoiler"}, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271490, name = "Jaws of the Skulking Viper",       source = "Catalyst / The Coiled Altar"       }, -- Shoulder
+            [5]= { itemID = 271495, name = "Skulking Viper's Scuteplate",      source = "Catalyst / Ula'tek"                }, -- Chest
+            [6]= { itemID = 244581, name = "Farstrider's Trophy Belt",         source = "Crafting/Misc"                     }, -- Waist
+            [7]= { itemID = 271491, name = "Skulking Viper's Coiled Legwraps", source = "Catalyst / The Coiled Altar"       }, -- Legs
+            [8]= { itemID = 268233, name = "Ferocious Scaleboots",             source = "Sszorak"                           }, -- Feet
+            [9]= { itemID = 244584, name = "Farstrider's Plated Bracers",      source = "Crafting/Misc"                     }, -- Wrist
+            [10]= { itemID = 271493, name = "Skulking Viper's Hidepiercers",    source = "Catalyst / Ruby Life Pools"        }, -- Hands
+            [11]= { itemID = 251136, name = "Signet of Snarling Servitude",     source = "Murder Row"                        }, -- Ring 1
+            [12]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 2
+            [13]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 1
+            [14]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268207, name = "Caustic Repose Greatbow",          source = "Ula'tek"                           }, -- Main Hand
         },
     },
 }

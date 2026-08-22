@@ -4,8 +4,8 @@ local _, ns = ...
 -- ============================================================
 -- Slot definitions
 -- Mythic ilvl displayed in tooltips (Blizzard API returns base ilvl).
--- Midnight S1: 272 = Myth 1/6 track. Update each season.
-local MYTHIC_ILVL = 272
+-- Midnight S2: 318 = Myth 1/6 track. Update each season.
+local MYTHIC_ILVL = 318
 
 -- ============================================================
 local SLOTS = {

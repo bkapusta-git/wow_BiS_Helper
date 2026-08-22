@@ -38,7 +38,7 @@
 
 ---
 
-## Supported Specs — Midnight Season 1
+## Supported Specs — Midnight Season 2
 
 All **13 classes** and all **40 specializations** are fully covered, including the new **Devourer** Demon Hunter spec.
 

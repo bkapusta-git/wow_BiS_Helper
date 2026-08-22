@@ -17,7 +17,7 @@ The main window shows all 16 equipment slots: what you have equipped vs. what yo
 - Drop source next to every BiS item, so you know where to go.
 - **Filter** button hides the slots you've already completed.
 
-BiS data pre-loaded for all 40 specs in Midnight Season 1 (including Devourer DH).
+BiS data pre-loaded for all 40 specs in Midnight Season 2 (including Devourer DH).
 
 ---
 
@@ -31,7 +31,7 @@ You can edit everything: stat order, cap values, notes. If you sim differently t
 
 ## Loot Browser
 
-Browse loot from M+ dungeons and raids in one place. 178 current M+ items from 8 dungeons, plus 85 raid items from The Voidspire, The Dreamrift, and Midnight.
+Browse loot from M+ dungeons and raids in one place. 223 M+ items from the Season 2 dungeon rotation, plus 216 raid items from all seven current-season raids including The Venomous Abyss.
 
 - Filter by slot, armor type, source (dungeon or raid), or secondary stats. Or just search by name.
 - **Type** filter to show All, M+ only, or Raid only.

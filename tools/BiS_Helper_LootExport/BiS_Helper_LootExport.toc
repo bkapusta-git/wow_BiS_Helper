@@ -1,4 +1,4 @@
-## Interface: 120001
+## Interface: 120005
 ## Title: BiS Helper - Loot Export
 ## Notes: Exports current M+ dungeon loot from Encounter Journal to SavedVariables
 ## Author: TrefnyTrunek

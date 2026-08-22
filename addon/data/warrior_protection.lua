@@ -1,7 +1,7 @@
--- BiS data: Protection Warrior — Midnight Season 1
+-- BiS data: Protection Warrior — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/warrior/protection/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/warrior/protection/stat-priority-pve-tank
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-21
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -39,42 +39,42 @@ BiSHelper_Data["WARRIOR_PROTECTION"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [1]= { itemID = 249952, name = "Night Ender's Tusks",              source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall"                         }, -- Neck
-            [3]= { itemID = 249950, name = "Night Ender's Pauldrons",          source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 268285, name = "Putrid Tender's Battleplate",      source = "Sporefall - Catalyze it!"          }, -- Chest
-            [6]= { itemID = 268289, name = "Girdle of Devouring Rot",          source = "Sporefall"                         }, -- Waist
-            [7]= { itemID = 249951, name = "Night Ender's Chausses",           source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 249381, name = "Greaves of the Unformed",          source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Feet
-            [9]= { itemID = 249326, name = "Light's March Bracers",            source = "Imperator Averzian · The Voidspire"}, -- Wrist
-            [10]= { itemID = 151332, name = "Voidclaw Gauntlets",               source = "Seat of the Triumvirate"           }, -- Hands
-            [11]= { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls"                    }, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 249342, name = "Heart of Ancient Hunger",          source = "Vorasius · The Voidspire"          }, -- Trinket 2
-            [15]= { itemID = 249370, name = "Draconic Nullcape",                source = "Vaelgor & Ezzorak · The Voidspire" }, -- Back
-            [16]= { itemID = 249295, name = "Turalyon's False Echo",            source = "Crown of the Cosmos · The Voidspire"}, -- Main Hand
-            [17]= { itemID = 249921, name = "Thalassian Dawnguard",             source = "Belo'ren"                          }, -- Off Hand
+            [1]= { itemID = 271456, name = "Tempered Horns of the Jade Warlord",source = "Tier Set"                          }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271454, name = "Raging Pauldrons of the Jade Warlord",source = "Tier Set"                          }, -- Shoulder
+            [5]= { itemID = 271459, name = "Cuirass of the Jade Warlord",      source = "Tier Set"                          }, -- Chest
+            [6]= { itemID = 268259, name = "Girdle of Toxic Regret",           source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271878, name = "Chausses of Unbound Rancor",       source = "Ula'tek"                           }, -- Legs
+            [8]= { itemID = 237828, name = "Spellbreaker's March",             source = "Crafting Blacksmithing"            }, -- Feet
+            [9]= { itemID = 237834, name = "Spellbreaker's Bracers",           source = "Crafting Blacksmithing"            }, -- Wrist
+            [10]= { itemID = 271457, name = "Jeweled Gauntlets of the Jade Warlord",source = "Tier Set"                          }, -- Hands
+            [11]= { itemID = 268252, name = "Apex Brute's Claw Ring",           source = "Sszorak"                           }, -- Ring 1
+            [12]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 2
+            [13]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 1
+            [14]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268209, name = "Aman'muso, Warlord's Vengeance",   source = "The Coiled Altar"                  }, -- Main Hand
+            [17]= { itemID = 268196, name = "Venom-Slashed Scuteward",          source = "The Lost Explorers"                }, -- Off Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [1]= { itemID = 249952, name = "Night Ender's Tusks",              source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall"                         }, -- Neck
-            [3]= { itemID = 249950, name = "Night Ender's Pauldrons",          source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 268285, name = "Putrid Tender's Battleplate",      source = "Sporefall - Catalyze it!"          }, -- Chest
-            [6]= { itemID = 268289, name = "Girdle of Devouring Rot",          source = "Sporefall"                         }, -- Waist
-            [7]= { itemID = 249951, name = "Night Ender's Chausses",           source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 249381, name = "Greaves of the Unformed",          source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Feet
-            [9]= { itemID = 249326, name = "Light's March Bracers",            source = "Imperator Averzian · The Voidspire"}, -- Wrist
-            [10]= { itemID = 151332, name = "Voidclaw Gauntlets",               source = "Seat of the Triumvirate"           }, -- Hands
-            [11]= { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls"                    }, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 249342, name = "Heart of Ancient Hunger",          source = "Vorasius · The Voidspire"          }, -- Trinket 2
-            [15]= { itemID = 249370, name = "Draconic Nullcape",                source = "Vaelgor & Ezzorak · The Voidspire" }, -- Back
-            [16]= { itemID = 249295, name = "Turalyon's False Echo",            source = "Crown of the Cosmos · The Voidspire"}, -- Main Hand
-            [17]= { itemID = 249921, name = "Thalassian Dawnguard",             source = "Belo'ren"                          }, -- Off Hand
+            [1]= { itemID = 271456, name = "Tempered Horns of the Jade Warlord",source = "Tier Set"                          }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271454, name = "Raging Pauldrons of the Jade Warlord",source = "Tier Set"                          }, -- Shoulder
+            [5]= { itemID = 271459, name = "Cuirass of the Jade Warlord",      source = "Tier Set"                          }, -- Chest
+            [6]= { itemID = 268259, name = "Girdle of Toxic Regret",           source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271878, name = "Chausses of Unbound Rancor",       source = "Ula'tek"                           }, -- Legs
+            [8]= { itemID = 237828, name = "Spellbreaker's March",             source = "Crafting Blacksmithing"            }, -- Feet
+            [9]= { itemID = 237834, name = "Spellbreaker's Bracers",           source = "Crafting Blacksmithing"            }, -- Wrist
+            [10]= { itemID = 271457, name = "Jeweled Gauntlets of the Jade Warlord",source = "Tier Set"                          }, -- Hands
+            [11]= { itemID = 268252, name = "Apex Brute's Claw Ring",           source = "Sszorak"                           }, -- Ring 1
+            [12]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 2
+            [13]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 1
+            [14]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268209, name = "Aman'muso, Warlord's Vengeance",   source = "The Coiled Altar"                  }, -- Main Hand
+            [17]= { itemID = 268196, name = "Venom-Slashed Scuteward",          source = "The Lost Explorers"                }, -- Off Hand
         },
     },
 }

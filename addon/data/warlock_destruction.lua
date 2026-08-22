@@ -1,7 +1,7 @@
--- BiS data: Destruction Warlock — Midnight Season 1
+-- BiS data: Destruction Warlock — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/warlock/destruction/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/warlock/destruction/stat-priority-pve-dps
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-21
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -39,40 +39,42 @@ BiSHelper_Data["WARLOCK_DESTRUCTION"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [1]= { itemID = 250042, name = "Abyssal Immolator's Smoldering Flames",source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 249368, name = "Eternal Voidsong Chain",           source = "Crown of the Cosmos · The Voidspire"}, -- Neck
-            [3]= { itemID = 251085, name = "Mantle of Dark Devotion",          source = "Windrunner Spire"                  }, -- Shoulder
-            [5]= { itemID = 250045, name = "Abyssal Immolator's Dreadrobe",    source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 249376, name = "Whisper-Inscribed Sash",           source = "Belo'ren"                          }, -- Waist
-            [7]= { itemID = 250041, name = "Abyssal Immolator's Pillars",      source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 268282, name = "Luxurious Loamstriders",           source = "Sporefall (Raid)"                  }, -- Feet
-            [9]= { itemID = 239648, name = "Martyr's Bindings",                source = "Crafted"                           }, -- Wrist
-            [10]= { itemID = 250043, name = "Abyssal Immolator's Grasps",       source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls"                    }, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall (Raid)"                  }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 249346, name = "Vaelgor's Final Stare",            source = "Vaelgor & Ezzorak · The Voidspire" }, -- Trinket 2
-            [15]= { itemID = 239656, name = "Adherent's Silken Shroud",         source = "Crafted"                           }, -- Back
-            [16]= { itemID = 249283, name = "Belo'melorn, the Shattered Talon", source = "Belo'ren"                          }, -- Main Hand
+            [1]= { itemID = 271874, name = "Venomkeeper's Horrific Cowl",      source = "Ula'tek"                           }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271544, name = "Spires of the Damned Necrolyte",   source = "The Lost Explorers"                }, -- Shoulder
+            [5]= { itemID = 271549, name = "Damned Necrolyte's Rattling Robes",source = "Vashnik the Malignant"             }, -- Chest
+            [6]= { itemID = 239649, name = "Martyr's Waistwrap",               source = "Crafting"                          }, -- Waist
+            [7]= { itemID = 271545, name = "Damned Necrolyte's Leg Bindings",  source = "Sszorak"                           }, -- Legs
+            [8]= { itemID = 268255, name = "Cackling Soultreads",              source = "The Coiled Altar"                  }, -- Feet
+            [9]= { itemID = 239648, name = "Martyr's Bindings",                source = "Crafting"                          }, -- Wrist
+            [10]= { itemID = 271547, name = "Damned Necrolyte's Charred Grasps",source = "Entombed Sentinels"                }, -- Hands
+            [11]= { itemID = 268252, name = "Apex Brute's Claw Ring",           source = "Sszorak"                           }, -- Ring 1
+            [12]= { itemID = 273792, name = "Band of the Amani Warlord",        source = "The Coiled Altar"                  }, -- Ring 2
+            [13]= { itemID = 270164, name = "Gebbo's Bottomless Bag",           source = "The Lost Explorers"                }, -- Trinket 1
+            [14]= { itemID = 270167, name = "Wavecaller's Seastone",            source = "Nymrissa Wavecaller"               }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 271092, name = "Jan'thrazet, the Soul Fang",       source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 273779, name = "Nocuous Focal Fang",               source = "The Writhing Coil"                 }, -- Off Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [1]= { itemID = 250042, name = "Abyssal Immolator's Smoldering Flames",source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 249368, name = "Eternal Voidsong Chain",           source = "Crown of the Cosmos · The Voidspire"}, -- Neck
-            [3]= { itemID = 251085, name = "Mantle of Dark Devotion",          source = "Windrunner Spire"                  }, -- Shoulder
-            [5]= { itemID = 250045, name = "Abyssal Immolator's Dreadrobe",    source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 249376, name = "Whisper-Inscribed Sash",           source = "Belo'ren"                          }, -- Waist
-            [7]= { itemID = 250041, name = "Abyssal Immolator's Pillars",      source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 268282, name = "Luxurious Loamstriders",           source = "Sporefall (Raid)"                  }, -- Feet
-            [9]= { itemID = 239648, name = "Martyr's Bindings",                source = "Crafted"                           }, -- Wrist
-            [10]= { itemID = 250043, name = "Abyssal Immolator's Grasps",       source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls"                    }, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall (Raid)"                  }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 249346, name = "Vaelgor's Final Stare",            source = "Vaelgor & Ezzorak · The Voidspire" }, -- Trinket 2
-            [15]= { itemID = 239656, name = "Adherent's Silken Shroud",         source = "Crafted"                           }, -- Back
-            [16]= { itemID = 249283, name = "Belo'melorn, the Shattered Talon", source = "Belo'ren"                          }, -- Main Hand
+            [1]= { itemID = 271874, name = "Venomkeeper's Horrific Cowl",      source = "Ula'tek"                           }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271544, name = "Spires of the Damned Necrolyte",   source = "The Lost Explorers"                }, -- Shoulder
+            [5]= { itemID = 271549, name = "Damned Necrolyte's Rattling Robes",source = "Vashnik the Malignant"             }, -- Chest
+            [6]= { itemID = 239649, name = "Martyr's Waistwrap",               source = "Crafting"                          }, -- Waist
+            [7]= { itemID = 271545, name = "Damned Necrolyte's Leg Bindings",  source = "Sszorak"                           }, -- Legs
+            [8]= { itemID = 268255, name = "Cackling Soultreads",              source = "The Coiled Altar"                  }, -- Feet
+            [9]= { itemID = 239648, name = "Martyr's Bindings",                source = "Crafting"                          }, -- Wrist
+            [10]= { itemID = 271547, name = "Damned Necrolyte's Charred Grasps",source = "Entombed Sentinels"                }, -- Hands
+            [11]= { itemID = 268252, name = "Apex Brute's Claw Ring",           source = "Sszorak"                           }, -- Ring 1
+            [12]= { itemID = 273792, name = "Band of the Amani Warlord",        source = "The Coiled Altar"                  }, -- Ring 2
+            [13]= { itemID = 270164, name = "Gebbo's Bottomless Bag",           source = "The Lost Explorers"                }, -- Trinket 1
+            [14]= { itemID = 270167, name = "Wavecaller's Seastone",            source = "Nymrissa Wavecaller"               }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 271092, name = "Jan'thrazet, the Soul Fang",       source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 273779, name = "Nocuous Focal Fang",               source = "The Writhing Coil"                 }, -- Off Hand
         },
     },
 }

@@ -1,5 +1,22 @@
 # Changelog
 
+## [Unreleased]
+
+## [0.12.0] — 2026-08-22
+
+### Changed
+- **BiS Gear Data** — Fully updated all 40 class specializations to Midnight Season 2 data from Wowhead. DR caps left untouched (manually tuned).
+- **Stat Priority** — Updated for 12 specs where Season 2 reordered them: Augmentation and Devastation Evoker, Arcane Mage, Mistweaver Monk (Mythic+ only), Protection and Retribution Paladin, Discipline Priest, Holy Priest (Mythic+ only), Subtlety Rogue, Enhancement and Restoration Shaman.
+- **Mythic+ Loot Browser** — Rebuilt for the Season 2 dungeon rotation: Altar of Fangs, Den of Nalorakk, Kings' Rest, Murder Row, Ruby Life Pools, Temple of Sethraliss, The Blinding Vale, and Voidscar Arena (223 items).
+- **Raid Loot Browser** — Now covers all seven current-season raids, including the new **The Venomous Abyss** (216 items total).
+- **Mythic item level** — Bumped from 272 to 318 (Myth 1/6 in Season 2), affecting Loot Browser entries and the "Mythic ilvl" tooltip line.
+- **Raid fetch tooling** — `fetch_raid_loot.py` now discovers current-season raids from the "Current Season" journal expansion instead of a hardcoded instance list, so future seasons no longer need a code edit.
+- **Loot export tooling** — `BiS_Helper_LootExport` now clears the Encounter Journal's slot and class filters and scans both Mythic difficulties before reading loot; `generate_loot_lua.py` gained `--whitelist-ignore-slots`, used for trinkets because the in-game journal export returns only one of the season's 27.
+
+### Fixed
+- **Wowhead scraper slot mapping** — Added `cape`, `shield`, `main-hand`, `off-hand`, `one hand`, and `two hand` to `WOWHEAD_SLOT_MAP`; guides using these labels previously had the item silently dropped.
+- **Pipe characters in item sources** — Wowhead lists multiple sources as `Catalyst|Raid|Vault`; `|` starts an escape sequence in WoW's UI markup and broke rendering. Now normalized to ` / ` on import.
+
 ## [0.11.2] — 2026-07-25
 
 ### Fixed

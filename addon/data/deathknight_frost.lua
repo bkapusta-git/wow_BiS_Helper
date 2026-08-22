@@ -1,7 +1,7 @@
--- BiS data: Frost Death Knight — Midnight Season 1
+-- BiS data: Frost Death Knight — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/death-knight/frost/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/death-knight/frost/stat-priority-pve-dps
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-12
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -39,40 +39,42 @@ BiSHelper_Data["DEATHKNIGHT_FROST"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [1]= { itemID = 249970, name = "Relentless Rider's Crown",         source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall"                         }, -- Neck
-            [3]= { itemID = 50234, name = "Shoulderplates of Frozen Blood",    source = "Pit of Saron"                      }, -- Shoulder
-            [5]= { itemID = 249973, name = "Relentless Rider's Cuirass",       source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 249967, name = "Relentless Rider's Chain",         source = "Sporefall (Catalyst)"              }, -- Waist
-            [7]= { itemID = 249969, name = "Relentless Rider's Legguards",     source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 249381, name = "Greaves of the Unformed",          source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Feet
-            [9]= { itemID = 237834, name = "Spellbreaker's Bracers",           source = "Crafted"                           }, -- Wrist
-            [10]= { itemID = 249971, name = "Relentless Rider's Bonegrasps",    source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 1
-            [12]= { itemID = 249919, name = "Sin'dorei Band of Hope",           source = "Belo'ren"                          }, -- Ring 2
-            [13]= { itemID = 249344, name = "Light Company Guidon",             source = "Imperator Averzian · The Voidspire"}, -- Trinket 1
-            [14]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 2
-            [15]= { itemID = 239656, name = "Adherent's Silken Shroud",         source = "Crafted"                           }, -- Back
-            [16]= { itemID = 249277, name = "Bellamy's Final Judgement",        source = "Lightblinded Vanguard · The Voidspire"}, -- Main Hand
+            [1]= { itemID = 271474, name = "Baleful Grave-Knight's Casque",    source = "Tier Set"                          }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271472, name = "Baleful Grave-Knight's Gibbets",   source = "Tier Set"                          }, -- Shoulder
+            [5]= { itemID = 268222, name = "Reckless Spirit Breastplate",      source = "The Coiled Altar"                  }, -- Chest
+            [6]= { itemID = 268259, name = "Girdle of Toxic Regret",           source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271878, name = "Chausses of Unbound Rancor",       source = "Ula'tek"                           }, -- Legs
+            [8]= { itemID = 268260, name = "Scaled Fiend's Warboots",          source = "Vashnik the Malignant"             }, -- Feet
+            [9]= { itemID = 237834, name = "Spellbreaker's Bracers",           source = "Crafting/Misc"                     }, -- Wrist
+            [10]= { itemID = 271475, name = "Baleful Grave-Knight's Deathgrips",source = "Tier Set"                          }, -- Hands
+            [11]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 1
+            [12]= { itemID = 251513, name = "Loa Worshiper's Band",             source = "Crafting/Misc"                     }, -- Ring 2
+            [13]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 1
+            [14]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268202, name = "Jaw of the Shackled Goddess",      source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 268209, name = "Aman'muso, Warlord's Vengeance",   source = "The Coiled Altar"                  }, -- Off Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [1]= { itemID = 249970, name = "Relentless Rider's Crown",         source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall"                         }, -- Neck
-            [3]= { itemID = 50234, name = "Shoulderplates of Frozen Blood",    source = "Pit of Saron"                      }, -- Shoulder
-            [5]= { itemID = 249973, name = "Relentless Rider's Cuirass",       source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 249967, name = "Relentless Rider's Chain",         source = "Sporefall (Catalyst)"              }, -- Waist
-            [7]= { itemID = 249969, name = "Relentless Rider's Legguards",     source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 249381, name = "Greaves of the Unformed",          source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Feet
-            [9]= { itemID = 237834, name = "Spellbreaker's Bracers",           source = "Crafted"                           }, -- Wrist
-            [10]= { itemID = 249971, name = "Relentless Rider's Bonegrasps",    source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 1
-            [12]= { itemID = 249919, name = "Sin'dorei Band of Hope",           source = "Belo'ren"                          }, -- Ring 2
-            [13]= { itemID = 249344, name = "Light Company Guidon",             source = "Imperator Averzian · The Voidspire"}, -- Trinket 1
-            [14]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 2
-            [15]= { itemID = 239656, name = "Adherent's Silken Shroud",         source = "Crafted"                           }, -- Back
-            [16]= { itemID = 249277, name = "Bellamy's Final Judgement",        source = "Lightblinded Vanguard · The Voidspire"}, -- Main Hand
+            [1]= { itemID = 271474, name = "Baleful Grave-Knight's Casque",    source = "Tier Set"                          }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271472, name = "Baleful Grave-Knight's Gibbets",   source = "Tier Set"                          }, -- Shoulder
+            [5]= { itemID = 268222, name = "Reckless Spirit Breastplate",      source = "The Coiled Altar"                  }, -- Chest
+            [6]= { itemID = 268259, name = "Girdle of Toxic Regret",           source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271878, name = "Chausses of Unbound Rancor",       source = "Ula'tek"                           }, -- Legs
+            [8]= { itemID = 268260, name = "Scaled Fiend's Warboots",          source = "Vashnik the Malignant"             }, -- Feet
+            [9]= { itemID = 237834, name = "Spellbreaker's Bracers",           source = "Crafting/Misc"                     }, -- Wrist
+            [10]= { itemID = 271475, name = "Baleful Grave-Knight's Deathgrips",source = "Tier Set"                          }, -- Hands
+            [11]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 1
+            [12]= { itemID = 251513, name = "Loa Worshiper's Band",             source = "Crafting/Misc"                     }, -- Ring 2
+            [13]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 1
+            [14]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268202, name = "Jaw of the Shackled Goddess",      source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 268209, name = "Aman'muso, Warlord's Vengeance",   source = "The Coiled Altar"                  }, -- Off Hand
         },
     },
 }

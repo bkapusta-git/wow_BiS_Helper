@@ -1,7 +1,7 @@
--- BiS data: Shadow Priest — Midnight Season 1
+-- BiS data: Shadow Priest — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/priest/shadow/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/priest/shadow/stat-priority-pve-dps
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-21
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -39,38 +39,42 @@ BiSHelper_Data["PRIEST_SHADOW"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [2]= { itemID = 249368, name = "Eternal Voidsong Chain",           source = "Crown of the Cosmos · The Voidspire"}, -- Neck
-            [3]= { itemID = 250049, name = "Blind Oath's Seraphguards",        source = "Raid | Catalyst | Vault"           }, -- Shoulder
-            [5]= { itemID = 250054, name = "Blind Oath's Raiment",             source = "Sporefall | Catalyst | Vault"      }, -- Chest
-            [6]= { itemID = 249376, name = "Whisper-Inscribed Sash",           source = "Belo'ren (Raid)"                   }, -- Waist
-            [7]= { itemID = 250050, name = "Blind Oath's Leggings",            source = "Raid | Catalyst | Vault"           }, -- Legs
-            [8]= { itemID = 268282, name = "Luxurious Loamstriders",           source = "Sporefall (Raid)"                  }, -- Feet
-            [9]= { itemID = 251108, name = "Wraps of Watchful Wrath",          source = "Magisters' Terrace"                }, -- Wrist
-            [10]= { itemID = 250052, name = "Blind Oath's Touch",               source = "Raid | Catalyst | Vault"           }, -- Hands
-            [11]= { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls (Raid)"             }, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall (Raid)"                  }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 249346, name = "Vaelgor's Final Stare",            source = "Vaelgor & Ezzorak · The Voidspire" }, -- Trinket 2
-            [16]= { itemID = 249283, name = "Belo'melorn, the Shattered Talon", source = "Belo'ren (Raid)"                   }, -- Main Hand
-            [17]= { itemID = 249922, name = "Tome of Alnscorned Regret",        source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Off Hand
+            [1]= { itemID = 271555, name = "Cosmic Penitent's Truesight",      source = "Ula'tek"                           }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 239045, name = "Mantle of Ceremonial Ascension",   source = "King's Rest"                       }, -- Shoulder
+            [5]= { itemID = 271558, name = "Cosmic Penitent's Eclipsing Robes",source = "Vashnik the Malignant"             }, -- Chest
+            [6]= { itemID = 239649, name = "Martyr's Waistwrap",               source = "Crafting/Misc"                     }, -- Waist
+            [7]= { itemID = 271554, name = "Enveloping Legwraps of the Cosmic Penitent",source = "Den of Nalorakk"                   }, -- Legs
+            [8]= { itemID = 268255, name = "Cackling Soultreads",              source = "The Coiled Altar"                  }, -- Feet
+            [9]= { itemID = 239648, name = "Martyr's Bindings",                source = "Crafting/Misc"                     }, -- Wrist
+            [10]= { itemID = 271556, name = "Cosmic Penitent's Celestial Grips",source = "The Coiled Altar"                  }, -- Hands
+            [11]= { itemID = 252258, name = "Sickening Signet of Atroxus",      source = "Voidscar Arena"                    }, -- Ring 1
+            [12]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 2
+            [13]= { itemID = 270167, name = "Wavecaller's Seastone",            source = "Nymrissa Wavecaller"               }, -- Trinket 1
+            [14]= { itemID = 250215, name = "Freightrunner's Flask",            source = "Murder Row"                        }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 271092, name = "Jan'thrazet, the Soul Fang",       source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 268197, name = "Spine of the Hissing Abyss",       source = "Entombed Sentinels"                }, -- Off Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [2]= { itemID = 249368, name = "Eternal Voidsong Chain",           source = "Crown of the Cosmos · The Voidspire"}, -- Neck
-            [3]= { itemID = 250049, name = "Blind Oath's Seraphguards",        source = "Raid | Catalyst | Vault"           }, -- Shoulder
-            [5]= { itemID = 250054, name = "Blind Oath's Raiment",             source = "Sporefall | Catalyst | Vault"      }, -- Chest
-            [6]= { itemID = 249376, name = "Whisper-Inscribed Sash",           source = "Belo'ren (Raid)"                   }, -- Waist
-            [7]= { itemID = 250050, name = "Blind Oath's Leggings",            source = "Raid | Catalyst | Vault"           }, -- Legs
-            [8]= { itemID = 268282, name = "Luxurious Loamstriders",           source = "Sporefall (Raid)"                  }, -- Feet
-            [9]= { itemID = 251108, name = "Wraps of Watchful Wrath",          source = "Magisters' Terrace"                }, -- Wrist
-            [10]= { itemID = 250052, name = "Blind Oath's Touch",               source = "Raid | Catalyst | Vault"           }, -- Hands
-            [11]= { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls (Raid)"             }, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall (Raid)"                  }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 249346, name = "Vaelgor's Final Stare",            source = "Vaelgor & Ezzorak · The Voidspire" }, -- Trinket 2
-            [16]= { itemID = 249283, name = "Belo'melorn, the Shattered Talon", source = "Belo'ren (Raid)"                   }, -- Main Hand
-            [17]= { itemID = 249922, name = "Tome of Alnscorned Regret",        source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Off Hand
+            [1]= { itemID = 271555, name = "Cosmic Penitent's Truesight",      source = "Ula'tek"                           }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 239045, name = "Mantle of Ceremonial Ascension",   source = "King's Rest"                       }, -- Shoulder
+            [5]= { itemID = 271558, name = "Cosmic Penitent's Eclipsing Robes",source = "Vashnik the Malignant"             }, -- Chest
+            [6]= { itemID = 239649, name = "Martyr's Waistwrap",               source = "Crafting/Misc"                     }, -- Waist
+            [7]= { itemID = 271554, name = "Enveloping Legwraps of the Cosmic Penitent",source = "Den of Nalorakk"                   }, -- Legs
+            [8]= { itemID = 268255, name = "Cackling Soultreads",              source = "The Coiled Altar"                  }, -- Feet
+            [9]= { itemID = 239648, name = "Martyr's Bindings",                source = "Crafting/Misc"                     }, -- Wrist
+            [10]= { itemID = 271556, name = "Cosmic Penitent's Celestial Grips",source = "The Coiled Altar"                  }, -- Hands
+            [11]= { itemID = 252258, name = "Sickening Signet of Atroxus",      source = "Voidscar Arena"                    }, -- Ring 1
+            [12]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 2
+            [13]= { itemID = 270167, name = "Wavecaller's Seastone",            source = "Nymrissa Wavecaller"               }, -- Trinket 1
+            [14]= { itemID = 250215, name = "Freightrunner's Flask",            source = "Murder Row"                        }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 271092, name = "Jan'thrazet, the Soul Fang",       source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 268197, name = "Spine of the Hissing Abyss",       source = "Entombed Sentinels"                }, -- Off Hand
         },
     },
 }

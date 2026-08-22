@@ -1,7 +1,7 @@
--- BiS data: Holy Priest — Midnight Season 1
+-- BiS data: Holy Priest — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/priest/holy/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/priest/holy/stat-priority-pve-healer
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-21
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -23,10 +23,10 @@ BiSHelper_Data["PRIEST_HOLY"] = {
         mythicplus = {
             note  = "Parsed from Wowhead stats guide",
             stats = {
-                { name = "Critical Strike", op = ">"  , r = 1.00, g = 0.35, b = 0.35 },
-                { name = "Mastery", op = "="  , r = 0.30, g = 0.75, b = 1.00 },
                 { name = "Versatility", op = ">"  , r = 0.65, g = 0.40, b = 1.00 },
-                { name = "Haste", op = nil  , r = 1.00, g = 0.82, b = 0.20 },
+                { name = "Critical Strike", op = ">"  , r = 1.00, g = 0.35, b = 0.35 },
+                { name = "Haste", op = ">"  , r = 1.00, g = 0.82, b = 0.20 },
+                { name = "Mastery", op = nil  , r = 0.30, g = 0.75, b = 1.00 },
             },
         },
         dr = {
@@ -39,38 +39,42 @@ BiSHelper_Data["PRIEST_HOLY"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall (Raid)"                  }, -- Neck
-            [3]= { itemID = 250049, name = "Blind Oath's Seraphguards",        source = "Raid | Catalyst | Vault"           }, -- Shoulder
-            [5]= { itemID = 250054, name = "Blind Oath's Raiment",             source = "Sporefall | Catalyst | Vault"      }, -- Chest
-            [6]= { itemID = 239664, name = "Arcanoweave Cord",                 source = "Crafted"                           }, -- Waist
-            [7]= { itemID = 250050, name = "Blind Oath's Leggings",            source = "Raid | Catalyst | Vault"           }, -- Legs
-            [8]= { itemID = 268282, name = "Luxurious Loamstriders",           source = "Sporefall (Raid)"                  }, -- Feet
-            [9]= { itemID = 250047, name = "Blind Oath's Wraps",               source = "Raid | Catalyst | Vault"           }, -- Wrist
-            [10]= { itemID = 250052, name = "Blind Oath's Touch",               source = "Raid | Catalyst | Vault"           }, -- Hands
-            [11]= { itemID = 249336, name = "Signet of the Starved Beast",      source = "Vorasius · The Voidspire"          }, -- Ring 1
-            [12]= { itemID = 249919, name = "Sin'dorei Band of Hope",           source = "Belo'ren (Raid)"                   }, -- Ring 2
-            [13]= { itemID = 249809, name = "Locus-Walker's Ribbon",            source = "Crown of the Cosmos · The Voidspire"}, -- Trinket 1
-            [14]= { itemID = 249808, name = "Litany of Lightblind Wrath",       source = "Lightblinded Vanguard · The Voidspire"}, -- Trinket 2
-            [16]= { itemID = 249293, name = "Weight of Command",                source = "Imperator Averzian · The Voidspire"}, -- Main Hand
-            [17]= { itemID = 245769, name = "Aln'hara Lantern",                 source = "Crafted"                           }, -- Off Hand
+            [1]= { itemID = 271874, name = "Venomkeeper's Horrific Cowl",      source = "Ula'tek"                           }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271553, name = "Cosmic Penitent's Echoing Screams",source = "Mor'zahi"                          }, -- Shoulder
+            [5]= { itemID = 271558, name = "Cosmic Penitent's Eclipsing Robes",source = "Nymrissa Wavecaller"               }, -- Chest
+            [6]= { itemID = 239649, name = "Martyr's Waistwrap",               source = "Crafting"                          }, -- Waist
+            [7]= { itemID = 271554, name = "Enveloping Legwraps of the Cosmic Penitent",source = "Kings' Rest"                       }, -- Legs
+            [8]= { itemID = 268218, name = "Nek'zali's Spiritwalkers",         source = "Nek'zali the Soulcoiler"           }, -- Feet
+            [9]= { itemID = 239648, name = "Martyr's Bindings",                source = "Crafting"                          }, -- Wrist
+            [10]= { itemID = 271556, name = "Cosmic Penitent's Celestial Grips",source = "Breath of Ula'tek"                 }, -- Hands
+            [11]= { itemID = 268252, name = "Apex Brute's Claw Ring",           source = "Sszorak"                           }, -- Ring 1
+            [12]= { itemID = 251148, name = "Pilfered Precious Band",           source = "Den of Nalorakk"                   }, -- Ring 2
+            [13]= { itemID = 270164, name = "Gebbo's Bottomless Bag",           source = "Mor'zahi"                          }, -- Trinket 1
+            [14]= { itemID = 270162, name = "Soulcoiler Ritual Vessel",         source = "Nek'zali the Soulcoiler"           }, -- Trinket 2
+            [15]= { itemID = 251132, name = "Speakeasy Shroud",                 source = "Murder Row"                        }, -- Back
+            [16]= { itemID = 271092, name = "Jan'thrazet, the Soul Fang",       source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 268263, name = "Frostscale's Mystic Frond",        source = "Nymrissa Wavecaller"               }, -- Off Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall (Raid)"                  }, -- Neck
-            [3]= { itemID = 250049, name = "Blind Oath's Seraphguards",        source = "Raid | Catalyst | Vault"           }, -- Shoulder
-            [5]= { itemID = 250054, name = "Blind Oath's Raiment",             source = "Sporefall | Catalyst | Vault"      }, -- Chest
-            [6]= { itemID = 239664, name = "Arcanoweave Cord",                 source = "Crafted"                           }, -- Waist
-            [7]= { itemID = 250050, name = "Blind Oath's Leggings",            source = "Raid | Catalyst | Vault"           }, -- Legs
-            [8]= { itemID = 268282, name = "Luxurious Loamstriders",           source = "Sporefall (Raid)"                  }, -- Feet
-            [9]= { itemID = 250047, name = "Blind Oath's Wraps",               source = "Raid | Catalyst | Vault"           }, -- Wrist
-            [10]= { itemID = 250052, name = "Blind Oath's Touch",               source = "Raid | Catalyst | Vault"           }, -- Hands
-            [11]= { itemID = 249336, name = "Signet of the Starved Beast",      source = "Vorasius · The Voidspire"          }, -- Ring 1
-            [12]= { itemID = 249919, name = "Sin'dorei Band of Hope",           source = "Belo'ren (Raid)"                   }, -- Ring 2
-            [13]= { itemID = 249809, name = "Locus-Walker's Ribbon",            source = "Crown of the Cosmos · The Voidspire"}, -- Trinket 1
-            [14]= { itemID = 249808, name = "Litany of Lightblind Wrath",       source = "Lightblinded Vanguard · The Voidspire"}, -- Trinket 2
-            [16]= { itemID = 249293, name = "Weight of Command",                source = "Imperator Averzian · The Voidspire"}, -- Main Hand
-            [17]= { itemID = 245769, name = "Aln'hara Lantern",                 source = "Crafted"                           }, -- Off Hand
+            [1]= { itemID = 271874, name = "Venomkeeper's Horrific Cowl",      source = "Ula'tek"                           }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271553, name = "Cosmic Penitent's Echoing Screams",source = "Mor'zahi"                          }, -- Shoulder
+            [5]= { itemID = 271558, name = "Cosmic Penitent's Eclipsing Robes",source = "Nymrissa Wavecaller"               }, -- Chest
+            [6]= { itemID = 239649, name = "Martyr's Waistwrap",               source = "Crafting"                          }, -- Waist
+            [7]= { itemID = 271554, name = "Enveloping Legwraps of the Cosmic Penitent",source = "Kings' Rest"                       }, -- Legs
+            [8]= { itemID = 268218, name = "Nek'zali's Spiritwalkers",         source = "Nek'zali the Soulcoiler"           }, -- Feet
+            [9]= { itemID = 239648, name = "Martyr's Bindings",                source = "Crafting"                          }, -- Wrist
+            [10]= { itemID = 271556, name = "Cosmic Penitent's Celestial Grips",source = "Breath of Ula'tek"                 }, -- Hands
+            [11]= { itemID = 268252, name = "Apex Brute's Claw Ring",           source = "Sszorak"                           }, -- Ring 1
+            [12]= { itemID = 251148, name = "Pilfered Precious Band",           source = "Den of Nalorakk"                   }, -- Ring 2
+            [13]= { itemID = 270164, name = "Gebbo's Bottomless Bag",           source = "Mor'zahi"                          }, -- Trinket 1
+            [14]= { itemID = 270162, name = "Soulcoiler Ritual Vessel",         source = "Nek'zali the Soulcoiler"           }, -- Trinket 2
+            [15]= { itemID = 251132, name = "Speakeasy Shroud",                 source = "Murder Row"                        }, -- Back
+            [16]= { itemID = 271092, name = "Jan'thrazet, the Soul Fang",       source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 268263, name = "Frostscale's Mystic Frond",        source = "Nymrissa Wavecaller"               }, -- Off Hand
         },
     },
 }

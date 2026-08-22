@@ -1,7 +1,7 @@
--- BiS data: Arcane Mage — Midnight Season 1
+-- BiS data: Arcane Mage — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/mage/arcane/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/mage/arcane/stat-priority-pve-dps
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-21
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -14,8 +14,8 @@ BiSHelper_Data["MAGE_ARCANE"] = {
         raid = {
             note  = "Parsed from Wowhead stats guide",
             stats = {
-                { name = "Mastery", op = ">"  , r = 0.30, g = 0.75, b = 1.00 },
                 { name = "Haste", op = ">"  , r = 1.00, g = 0.82, b = 0.20 },
+                { name = "Mastery", op = ">"  , r = 0.30, g = 0.75, b = 1.00 },
                 { name = "Critical Strike", op = ">"  , r = 1.00, g = 0.35, b = 0.35 },
                 { name = "Versatility", op = nil  , r = 0.65, g = 0.40, b = 1.00 },
             },
@@ -23,8 +23,8 @@ BiSHelper_Data["MAGE_ARCANE"] = {
         mythicplus = {
             note  = "Parsed from Wowhead stats guide",
             stats = {
-                { name = "Mastery", op = ">"  , r = 0.30, g = 0.75, b = 1.00 },
                 { name = "Haste", op = ">"  , r = 1.00, g = 0.82, b = 0.20 },
+                { name = "Mastery", op = ">"  , r = 0.30, g = 0.75, b = 1.00 },
                 { name = "Critical Strike", op = ">"  , r = 1.00, g = 0.35, b = 0.35 },
                 { name = "Versatility", op = nil  , r = 0.65, g = 0.40, b = 1.00 },
             },
@@ -39,42 +39,42 @@ BiSHelper_Data["MAGE_ARCANE"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [1]= { itemID = 250060, name = "Voidbreaker's Veil",               source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall"                         }, -- Neck
-            [3]= { itemID = 250058, name = "Voidbreaker's Leyline Nexi",       source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 250063, name = "Voidbreaker's Robe",               source = "Sporefall (Catalyze it!)"          }, -- Chest
-            [6]= { itemID = 249376, name = "Whisper-Inscribed Sash",           source = "Belo'ren"                          }, -- Waist
-            [7]= { itemID = 251090, name = "Commander's Faded Breeches",       source = "Windrunner Spire"                  }, -- Legs
-            [8]= { itemID = 268282, name = "Luxurious Loamstriders",           source = "Sporefall"                         }, -- Feet
-            [9]= { itemID = 239660, name = "Arcanoweave Bracers",              source = "Crafted"                           }, -- Wrist
-            [10]= { itemID = 250061, name = "Voidbreaker's Gloves",             source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 249919, name = "Sin'dorei Band of Hope",           source = "Belo'ren"                          }, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 2
-            [13]= { itemID = 249346, name = "Vaelgor's Final Stare",            source = "Vaelgor & Ezzorak · The Voidspire" }, -- Trinket 1
-            [14]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 2
-            [15]= { itemID = 239661, name = "Arcanoweave Cloak",                source = "Crafted"                           }, -- Back
-            [16]= { itemID = 258218, name = "Skybreaker's Blade",               source = "Skyreach"                          }, -- Main Hand
-            [17]= { itemID = 251094, name = "Sigil of the Restless Heart",      source = "Windrunner Spire"                  }, -- Off Hand
+            [1]= { itemID = 271564, name = "Crown of the Primal Leywarden",    source = "Ula'tek"                           }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271562, name = "Primal Leywarden's Manaflux",      source = "The Twin Fangs"                    }, -- Shoulder
+            [5]= { itemID = 271567, name = "Crest of the Primal Leywarden",    source = "Altar of Fangs"                    }, -- Chest
+            [6]= { itemID = 268257, name = "Caustic Chain-Wrapped Sash",       source = "Sszorak"                           }, -- Waist
+            [7]= { itemID = 271563, name = "Primal Leywarden's Tailored Legwraps",source = "Nek'zali the Soulcoiler"           }, -- Legs
+            [8]= { itemID = 268255, name = "Cackling Soultreads",              source = "The Coiled Altar"                  }, -- Feet
+            [9]= { itemID = 239648, name = "Martyr's Bindings",                source = "Crafting"                          }, -- Wrist
+            [10]= { itemID = 271565, name = "Primal Leywarden's Manashapers",   source = "The Coiled Altar"                  }, -- Hands
+            [11]= { itemID = 268266, name = "Alluring Bubbleband",              source = "Nymrissa Wavecaller"               }, -- Ring 1
+            [12]= { itemID = 251148, name = "Pilfered Precious Band",           source = "Den of Nalorakk"                   }, -- Ring 2
+            [13]= { itemID = 250215, name = "Freightrunner's Flask",            source = "Murder Row"                        }, -- Trinket 1
+            [14]= { itemID = 270164, name = "Gebbo's Bottomless Bag",           source = "The Lost Explorers"                }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 271092, name = "Jan'thrazet, the Soul Fang",       source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 245769, name = "Aln'hara Lantern",                 source = "Crafting"                          }, -- Off Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [1]= { itemID = 250060, name = "Voidbreaker's Veil",               source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall"                         }, -- Neck
-            [3]= { itemID = 250058, name = "Voidbreaker's Leyline Nexi",       source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 250063, name = "Voidbreaker's Robe",               source = "Sporefall (Catalyze it!)"          }, -- Chest
-            [6]= { itemID = 249376, name = "Whisper-Inscribed Sash",           source = "Belo'ren"                          }, -- Waist
-            [7]= { itemID = 251090, name = "Commander's Faded Breeches",       source = "Windrunner Spire"                  }, -- Legs
-            [8]= { itemID = 268282, name = "Luxurious Loamstriders",           source = "Sporefall"                         }, -- Feet
-            [9]= { itemID = 239660, name = "Arcanoweave Bracers",              source = "Crafted"                           }, -- Wrist
-            [10]= { itemID = 250061, name = "Voidbreaker's Gloves",             source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 249919, name = "Sin'dorei Band of Hope",           source = "Belo'ren"                          }, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 2
-            [13]= { itemID = 249346, name = "Vaelgor's Final Stare",            source = "Vaelgor & Ezzorak · The Voidspire" }, -- Trinket 1
-            [14]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 2
-            [15]= { itemID = 239661, name = "Arcanoweave Cloak",                source = "Crafted"                           }, -- Back
-            [16]= { itemID = 258218, name = "Skybreaker's Blade",               source = "Skyreach"                          }, -- Main Hand
-            [17]= { itemID = 251094, name = "Sigil of the Restless Heart",      source = "Windrunner Spire"                  }, -- Off Hand
+            [1]= { itemID = 271564, name = "Crown of the Primal Leywarden",    source = "Ula'tek"                           }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271562, name = "Primal Leywarden's Manaflux",      source = "The Twin Fangs"                    }, -- Shoulder
+            [5]= { itemID = 271567, name = "Crest of the Primal Leywarden",    source = "Altar of Fangs"                    }, -- Chest
+            [6]= { itemID = 268257, name = "Caustic Chain-Wrapped Sash",       source = "Sszorak"                           }, -- Waist
+            [7]= { itemID = 271563, name = "Primal Leywarden's Tailored Legwraps",source = "Nek'zali the Soulcoiler"           }, -- Legs
+            [8]= { itemID = 268255, name = "Cackling Soultreads",              source = "The Coiled Altar"                  }, -- Feet
+            [9]= { itemID = 239648, name = "Martyr's Bindings",                source = "Crafting"                          }, -- Wrist
+            [10]= { itemID = 271565, name = "Primal Leywarden's Manashapers",   source = "The Coiled Altar"                  }, -- Hands
+            [11]= { itemID = 268266, name = "Alluring Bubbleband",              source = "Nymrissa Wavecaller"               }, -- Ring 1
+            [12]= { itemID = 251148, name = "Pilfered Precious Band",           source = "Den of Nalorakk"                   }, -- Ring 2
+            [13]= { itemID = 250215, name = "Freightrunner's Flask",            source = "Murder Row"                        }, -- Trinket 1
+            [14]= { itemID = 270164, name = "Gebbo's Bottomless Bag",           source = "The Lost Explorers"                }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 271092, name = "Jan'thrazet, the Soul Fang",       source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 245769, name = "Aln'hara Lantern",                 source = "Crafting"                          }, -- Off Hand
         },
     },
 }

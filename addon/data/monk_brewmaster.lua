@@ -1,7 +1,7 @@
--- BiS data: Brewmaster Monk — Midnight Season 1
+-- BiS data: Brewmaster Monk — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/monk/brewmaster/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/monk/brewmaster/stat-priority-pve-tank
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-21
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -39,40 +39,40 @@ BiSHelper_Data["MONK_BREWMASTER"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [1]= { itemID = 250015, name = "Fearsome Visage of Ra-den's Chosen",source = "Catalyst|Raid|Vault"               }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Rotmire"                           }, -- Neck
-            [3]= { itemID = 250013, name = "Aurastones of Ra-den's Chosen",    source = "Catalyst|Raid|Vault"               }, -- Shoulder
-            [5]= { itemID = 250018, name = "Battle Garb of Ra-den's Chosen",   source = "Catalyst|Raid|Vault"               }, -- Chest
-            [6]= { itemID = 268286, name = "Sash of the Putrid Giant",         source = "Rotmire"                           }, -- Waist
-            [7]= { itemID = 151314, name = "Shifting Stalker Hide Pants",      source = "Seat of the Triumvirate"           }, -- Legs
-            [8]= { itemID = 244569, name = "Silvermoon Agent's Sneakers",      source = "Leatherworking"                    }, -- Feet
-            [9]= { itemID = 250011, name = "Strikeguards of Ra-den's Chosen",  source = "Catalyst"                          }, -- Wrist
-            [10]= { itemID = 250016, name = "Thunderfists of Ra-den's Chosen",  source = "Catalyst|Raid|Vault"               }, -- Hands
-            [11]= { itemID = 249336, name = "Signet of the Starved Beast",      source = "Vorasius · The Voidspire"          }, -- Ring 1
-            [12]= { itemID = 251513, name = "Loa Worshiper's Band",             source = "Crafted"                           }, -- Ring 2
-            [13]= { itemID = 260235, name = "Umbral Plume",                     source = "Belo'ren"                          }, -- Trinket 1
-            [14]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 2
-            [15]= { itemID = 249335, name = "Imperator's Banner",               source = "Imperator Averzian · The Voidspire"}, -- Back
-            [16]= { itemID = 249302, name = "Inescapable Reach",                source = "Vorasius · The Voidspire"          }, -- Main Hand
+            [1]= { itemID = 271519, name = "Monkey King's Unyielding Visage",  source = "Catalyst / Raid / Vault"           }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271517, name = "Tassels of the Monkey King",       source = "Catalyst / Mythic+ / Vault"        }, -- Shoulder
+            [5]= { itemID = 271522, name = "Battle Gi of the Monkey King",     source = "Catalyst / Mythic+ / Vault"        }, -- Chest
+            [6]= { itemID = 268256, name = "Sash of the Forlorn Vessel",       source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271518, name = "Pantaloons of the Monkey King",    source = "Catalyst / Raid / Vault"           }, -- Legs
+            [8]= { itemID = 159304, name = "Goldfeather Boots",                source = "Kings' Rest"                       }, -- Feet
+            [9]= { itemID = 244576, name = "Silvermoon Agent's Deflectors",    source = "Leatherworking"                    }, -- Wrist
+            [10]= { itemID = 271520, name = "Monkey King's Fighting Fists",     source = "Catalyst / Mythic+ / Vault"        }, -- Hands
+            [11]= { itemID = 251148, name = "Pilfered Precious Band",           source = "Den of Nalorakk"                   }, -- Ring 1
+            [12]= { itemID = 251513, name = "Loa Worshiper's Band",             source = "Jewelcrafting"                     }, -- Ring 2
+            [13]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 1
+            [14]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268215, name = "Abyssal Broodfiend's Bardiche",    source = "Ula'tek"                           }, -- Main Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [1]= { itemID = 250015, name = "Fearsome Visage of Ra-den's Chosen",source = "Catalyst|Raid|Vault"               }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Rotmire"                           }, -- Neck
-            [3]= { itemID = 250013, name = "Aurastones of Ra-den's Chosen",    source = "Catalyst|Raid|Vault"               }, -- Shoulder
-            [5]= { itemID = 250018, name = "Battle Garb of Ra-den's Chosen",   source = "Catalyst|Raid|Vault"               }, -- Chest
-            [6]= { itemID = 268286, name = "Sash of the Putrid Giant",         source = "Rotmire"                           }, -- Waist
-            [7]= { itemID = 151314, name = "Shifting Stalker Hide Pants",      source = "Seat of the Triumvirate"           }, -- Legs
-            [8]= { itemID = 244569, name = "Silvermoon Agent's Sneakers",      source = "Leatherworking"                    }, -- Feet
-            [9]= { itemID = 250011, name = "Strikeguards of Ra-den's Chosen",  source = "Catalyst"                          }, -- Wrist
-            [10]= { itemID = 250016, name = "Thunderfists of Ra-den's Chosen",  source = "Catalyst|Raid|Vault"               }, -- Hands
-            [11]= { itemID = 249336, name = "Signet of the Starved Beast",      source = "Vorasius · The Voidspire"          }, -- Ring 1
-            [12]= { itemID = 251513, name = "Loa Worshiper's Band",             source = "Crafted"                           }, -- Ring 2
-            [13]= { itemID = 260235, name = "Umbral Plume",                     source = "Belo'ren"                          }, -- Trinket 1
-            [14]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 2
-            [15]= { itemID = 249335, name = "Imperator's Banner",               source = "Imperator Averzian · The Voidspire"}, -- Back
-            [16]= { itemID = 249302, name = "Inescapable Reach",                source = "Vorasius · The Voidspire"          }, -- Main Hand
+            [1]= { itemID = 271519, name = "Monkey King's Unyielding Visage",  source = "Catalyst / Raid / Vault"           }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271517, name = "Tassels of the Monkey King",       source = "Catalyst / Mythic+ / Vault"        }, -- Shoulder
+            [5]= { itemID = 271522, name = "Battle Gi of the Monkey King",     source = "Catalyst / Mythic+ / Vault"        }, -- Chest
+            [6]= { itemID = 268256, name = "Sash of the Forlorn Vessel",       source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271518, name = "Pantaloons of the Monkey King",    source = "Catalyst / Raid / Vault"           }, -- Legs
+            [8]= { itemID = 159304, name = "Goldfeather Boots",                source = "Kings' Rest"                       }, -- Feet
+            [9]= { itemID = 244576, name = "Silvermoon Agent's Deflectors",    source = "Leatherworking"                    }, -- Wrist
+            [10]= { itemID = 271520, name = "Monkey King's Fighting Fists",     source = "Catalyst / Mythic+ / Vault"        }, -- Hands
+            [11]= { itemID = 251148, name = "Pilfered Precious Band",           source = "Den of Nalorakk"                   }, -- Ring 1
+            [12]= { itemID = 251513, name = "Loa Worshiper's Band",             source = "Jewelcrafting"                     }, -- Ring 2
+            [13]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 1
+            [14]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268215, name = "Abyssal Broodfiend's Bardiche",    source = "Ula'tek"                           }, -- Main Hand
         },
     },
 }

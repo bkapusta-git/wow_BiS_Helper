@@ -12,8 +12,8 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_LUA_PATH = os.path.join(SCRIPT_DIR, "..", "addon", "data", "raid_loot.lua")
 
 # Mythic ilvl override — Blizzard API returns base ilvl, not in-game mythic ilvl.
-# Midnight S1: 272 = Myth 1/6 track. Update each season.
-MYTHIC_ILVL = 272
+# Midnight S2: 318 = Myth 1/6 track. Update each season.
+MYTHIC_ILVL = 318
 
 SLOT_NORMALIZE = {
     "Main Hand": "Weapon",

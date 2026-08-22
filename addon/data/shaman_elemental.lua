@@ -1,7 +1,7 @@
--- BiS data: Elemental Shaman — Midnight Season 1
+-- BiS data: Elemental Shaman — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/shaman/elemental/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/shaman/elemental/stat-priority-pve-dps
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-21
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -39,42 +39,42 @@ BiSHelper_Data["SHAMAN_ELEMENTAL"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [1]= { itemID = 249979, name = "Locus of the Primal Core",         source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 250247, name = "Amulet of the Abyssal Hymn",       source = "\r\nMidnight Falls"                }, -- Neck
-            [3]= { itemID = 249977, name = "Tempests of the Primal Core",      source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 249982, name = "Embrace of the Primal Core",       source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 244611, name = "World Tender's Barkclasp",         source = "Crafted"                           }, -- Waist
-            [7]= { itemID = 268288, name = "Fungarian Folly Faulds",           source = "Sporefall"                         }, -- Legs
-            [8]= { itemID = 244610, name = "World Tender's Rootslippers",      source = "Crafted"                           }, -- Feet
-            [9]= { itemID = 249304, name = "Fallen King's Cuffs",              source = "Fallen-King Salhadaar · The Voidspire"}, -- Wrist
-            [10]= { itemID = 249980, name = "Earthgrips of the Primal Core",    source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 1
-            [12]= { itemID = 249919, name = "Sin'dorei Band of Hope",           source = "\r\nBelo'ren"                      }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 250144, name = "Emberwing Feather",                source = "Windrunner Spire"                  }, -- Trinket 2
-            [15]= { itemID = 249974, name = "Guardian of the Primal Core",      source = "Catalyst"                          }, -- Back
-            [16]= { itemID = 251083, name = "Excavating Cudgel",                source = "Windrunner Spire"                  }, -- Main Hand
-            [17]= { itemID = 251105, name = "Ward of the Spellbreaker",         source = "Magisters' Terrace"                }, -- Off Hand
+            [1]= { itemID = 271483, name = "Serpent Crown of the Ophidian Oracle",source = "Tier Set"                          }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271481, name = "Hissing Mantle of the Ophidian Oracle",source = "Tier Set"                          }, -- Shoulder
+            [5]= { itemID = 271486, name = "Fanged Raiment of the Ophidian Oracle",source = "Tier Set"                          }, -- Chest
+            [6]= { itemID = 268254, name = "Serpentine Mixing Belt",           source = "Vashnik the Malignant"             }, -- Waist
+            [7]= { itemID = 271482, name = "Leggings of the Ophidian Oracle",  source = "Tier Set"                          }, -- Legs
+            [8]= { itemID = 244577, name = "Farstrider's Razor Talons",        source = "Crafting"                          }, -- Feet
+            [9]= { itemID = 244584, name = "Farstrider's Plated Bracers",      source = "Crafting"                          }, -- Wrist
+            [10]= { itemID = 271484, name = "Hexing Grips of the Ophidian Oracle",source = "Tier Set"                          }, -- Hands
+            [11]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 1
+            [12]= { itemID = 252258, name = "Sickening Signet of Atroxus",      source = "Voidscar Arena"                    }, -- Ring 2
+            [13]= { itemID = 270164, name = "Gebbo's Bottomless Bag",           source = "The Lost Explorers"                }, -- Trinket 1
+            [14]= { itemID = 273796, name = "Vile Vial of Volatile Venom",      source = "Altar of Fangs"                    }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 271092, name = "Jan'thrazet, the Soul Fang",       source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 268262, name = "Bubblefin Splash Guard",           source = "Nymrissa Wavecaller"               }, -- Off Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [1]= { itemID = 249979, name = "Locus of the Primal Core",         source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 250247, name = "Amulet of the Abyssal Hymn",       source = "\r\nMidnight Falls"                }, -- Neck
-            [3]= { itemID = 249977, name = "Tempests of the Primal Core",      source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 249982, name = "Embrace of the Primal Core",       source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 244611, name = "World Tender's Barkclasp",         source = "Crafted"                           }, -- Waist
-            [7]= { itemID = 268288, name = "Fungarian Folly Faulds",           source = "Sporefall"                         }, -- Legs
-            [8]= { itemID = 244610, name = "World Tender's Rootslippers",      source = "Crafted"                           }, -- Feet
-            [9]= { itemID = 249304, name = "Fallen King's Cuffs",              source = "Fallen-King Salhadaar · The Voidspire"}, -- Wrist
-            [10]= { itemID = 249980, name = "Earthgrips of the Primal Core",    source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 1
-            [12]= { itemID = 249919, name = "Sin'dorei Band of Hope",           source = "\r\nBelo'ren"                      }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 250144, name = "Emberwing Feather",                source = "Windrunner Spire"                  }, -- Trinket 2
-            [15]= { itemID = 249974, name = "Guardian of the Primal Core",      source = "Catalyst"                          }, -- Back
-            [16]= { itemID = 251083, name = "Excavating Cudgel",                source = "Windrunner Spire"                  }, -- Main Hand
-            [17]= { itemID = 251105, name = "Ward of the Spellbreaker",         source = "Magisters' Terrace"                }, -- Off Hand
+            [1]= { itemID = 271483, name = "Serpent Crown of the Ophidian Oracle",source = "Tier Set"                          }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271481, name = "Hissing Mantle of the Ophidian Oracle",source = "Tier Set"                          }, -- Shoulder
+            [5]= { itemID = 271486, name = "Fanged Raiment of the Ophidian Oracle",source = "Tier Set"                          }, -- Chest
+            [6]= { itemID = 268254, name = "Serpentine Mixing Belt",           source = "Vashnik the Malignant"             }, -- Waist
+            [7]= { itemID = 271482, name = "Leggings of the Ophidian Oracle",  source = "Tier Set"                          }, -- Legs
+            [8]= { itemID = 244577, name = "Farstrider's Razor Talons",        source = "Crafting"                          }, -- Feet
+            [9]= { itemID = 244584, name = "Farstrider's Plated Bracers",      source = "Crafting"                          }, -- Wrist
+            [10]= { itemID = 271484, name = "Hexing Grips of the Ophidian Oracle",source = "Tier Set"                          }, -- Hands
+            [11]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 1
+            [12]= { itemID = 252258, name = "Sickening Signet of Atroxus",      source = "Voidscar Arena"                    }, -- Ring 2
+            [13]= { itemID = 270164, name = "Gebbo's Bottomless Bag",           source = "The Lost Explorers"                }, -- Trinket 1
+            [14]= { itemID = 273796, name = "Vile Vial of Volatile Venom",      source = "Altar of Fangs"                    }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 271092, name = "Jan'thrazet, the Soul Fang",       source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 268262, name = "Bubblefin Splash Guard",           source = "Nymrissa Wavecaller"               }, -- Off Hand
         },
     },
 }

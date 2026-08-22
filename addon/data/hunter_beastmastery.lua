@@ -1,7 +1,7 @@
--- BiS data: Beast Mastery Hunter — Midnight Season 1
+-- BiS data: Beast Mastery Hunter — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/hunter/beast-mastery/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/hunter/beast-mastery/stat-priority-pve-dps
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-12
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -39,40 +39,40 @@ BiSHelper_Data["HUNTER_BEASTMASTERY"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [1]= { itemID = 249988, name = "Primal Sentry's Maw",              source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall"                         }, -- Neck
-            [3]= { itemID = 151323, name = "Pauldrons of the Void Hunter",     source = "Seat of the Triumvirate"           }, -- Shoulder
-            [5]= { itemID = 249991, name = "Primal Sentry's Scaleplate",       source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 249985, name = "Primal Sentry's Cinch",            source = "Catalyst"                          }, -- Waist
-            [7]= { itemID = 249987, name = "Primal Sentry's Legguards",        source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 268287, name = "Grudgefiend Stompers",             source = "Sporefall"                         }, -- Feet
-            [9]= { itemID = 244584, name = "Farstrider's Plated Bracers",      source = "Unknown Source"                    }, -- Wrist
-            [10]= { itemID = 249989, name = "Primal Sentry's Talonguards",      source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls"                    }, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 193701, name = "Algeth'ar Puzzle Box",             source = "Algeth'ar Academy"                 }, -- Trinket 2
-            [15]= { itemID = 239656, name = "Adherent's Silken Shroud",         source = "Unknown Source"                    }, -- Back
-            [16]= { itemID = 251174, name = "Deceiver's Rotbow",                source = "Maisara Caverns"                   }, -- Main Hand
+            [1]= { itemID = 271492, name = "Skulking Viper's Weeping Fangs",   source = "The Twin Fangs"                    }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271490, name = "Jaws of the Skulking Viper",       source = "The Coiled Altar"                  }, -- Shoulder
+            [5]= { itemID = 271495, name = "Skulking Viper's Scuteplate",      source = "Ula'tek"                           }, -- Chest
+            [6]= { itemID = 244581, name = "Farstrider's Trophy Belt",         source = "Leatherworking"                    }, -- Waist
+            [7]= { itemID = 271491, name = "Skulking Viper's Coiled Legwraps", source = "The Coiled Altar"                  }, -- Legs
+            [8]= { itemID = 268233, name = "Ferocious Scaleboots",             source = "Sszorak"                           }, -- Feet
+            [9]= { itemID = 244584, name = "Farstrider's Plated Bracers",      source = "Leatherworking"                    }, -- Wrist
+            [10]= { itemID = 271493, name = "Skulking Viper's Hidepiercers",    source = "King's Rest"                       }, -- Hands
+            [11]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 1
+            [12]= { itemID = 252258, name = "Sickening Signet of Atroxus",      source = "Voidscar Arena"                    }, -- Ring 2
+            [13]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 1
+            [14]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268207, name = "Caustic Repose Greatbow",          source = "Ula'tek"                           }, -- Main Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [1]= { itemID = 249988, name = "Primal Sentry's Maw",              source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall"                         }, -- Neck
-            [3]= { itemID = 151323, name = "Pauldrons of the Void Hunter",     source = "Seat of the Triumvirate"           }, -- Shoulder
-            [5]= { itemID = 249991, name = "Primal Sentry's Scaleplate",       source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 249985, name = "Primal Sentry's Cinch",            source = "Catalyst"                          }, -- Waist
-            [7]= { itemID = 249987, name = "Primal Sentry's Legguards",        source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 268287, name = "Grudgefiend Stompers",             source = "Sporefall"                         }, -- Feet
-            [9]= { itemID = 244584, name = "Farstrider's Plated Bracers",      source = "Unknown Source"                    }, -- Wrist
-            [10]= { itemID = 249989, name = "Primal Sentry's Talonguards",      source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls"                    }, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 193701, name = "Algeth'ar Puzzle Box",             source = "Algeth'ar Academy"                 }, -- Trinket 2
-            [15]= { itemID = 239656, name = "Adherent's Silken Shroud",         source = "Unknown Source"                    }, -- Back
-            [16]= { itemID = 251174, name = "Deceiver's Rotbow",                source = "Maisara Caverns"                   }, -- Main Hand
+            [1]= { itemID = 271492, name = "Skulking Viper's Weeping Fangs",   source = "The Twin Fangs"                    }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271490, name = "Jaws of the Skulking Viper",       source = "The Coiled Altar"                  }, -- Shoulder
+            [5]= { itemID = 271495, name = "Skulking Viper's Scuteplate",      source = "Ula'tek"                           }, -- Chest
+            [6]= { itemID = 244581, name = "Farstrider's Trophy Belt",         source = "Leatherworking"                    }, -- Waist
+            [7]= { itemID = 271491, name = "Skulking Viper's Coiled Legwraps", source = "The Coiled Altar"                  }, -- Legs
+            [8]= { itemID = 268233, name = "Ferocious Scaleboots",             source = "Sszorak"                           }, -- Feet
+            [9]= { itemID = 244584, name = "Farstrider's Plated Bracers",      source = "Leatherworking"                    }, -- Wrist
+            [10]= { itemID = 271493, name = "Skulking Viper's Hidepiercers",    source = "King's Rest"                       }, -- Hands
+            [11]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 1
+            [12]= { itemID = 252258, name = "Sickening Signet of Atroxus",      source = "Voidscar Arena"                    }, -- Ring 2
+            [13]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 1
+            [14]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268207, name = "Caustic Repose Greatbow",          source = "Ula'tek"                           }, -- Main Hand
         },
     },
 }

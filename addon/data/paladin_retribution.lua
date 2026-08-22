@@ -1,7 +1,7 @@
--- BiS data: Retribution Paladin — Midnight Season 1
+-- BiS data: Retribution Paladin — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/paladin/retribution/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/paladin/retribution/stat-priority-pve-dps
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-21
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -15,8 +15,8 @@ BiSHelper_Data["PALADIN_RETRIBUTION"] = {
             note  = "Parsed from Wowhead stats guide",
             stats = {
                 { name = "Mastery", op = ">"  , r = 0.30, g = 0.75, b = 1.00 },
-                { name = "Critical Strike", op = ">"  , r = 1.00, g = 0.35, b = 0.35 },
                 { name = "Haste", op = ">"  , r = 1.00, g = 0.82, b = 0.20 },
+                { name = "Critical Strike", op = ">"  , r = 1.00, g = 0.35, b = 0.35 },
                 { name = "Versatility", op = nil  , r = 0.65, g = 0.40, b = 1.00 },
             },
         },
@@ -24,8 +24,8 @@ BiSHelper_Data["PALADIN_RETRIBUTION"] = {
             note  = "Parsed from Wowhead stats guide",
             stats = {
                 { name = "Mastery", op = ">"  , r = 0.30, g = 0.75, b = 1.00 },
-                { name = "Critical Strike", op = ">"  , r = 1.00, g = 0.35, b = 0.35 },
                 { name = "Haste", op = ">"  , r = 1.00, g = 0.82, b = 0.20 },
+                { name = "Critical Strike", op = ">"  , r = 1.00, g = 0.35, b = 0.35 },
                 { name = "Versatility", op = nil  , r = 0.65, g = 0.40, b = 1.00 },
             },
         },
@@ -39,40 +39,40 @@ BiSHelper_Data["PALADIN_RETRIBUTION"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [1]= { itemID = 249961, name = "Luminant Verdict's Unwavering Gaze",source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall"                         }, -- Neck
-            [3]= { itemID = 249959, name = "Luminant Verdict's Providence Watch",source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 249964, name = "Luminant Verdict's Divine Warplate",source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 268289, name = "Girdle of Devouring Rot",          source = "Sporefall"                         }, -- Waist
-            [7]= { itemID = 249960, name = "Luminant Verdict's Greaves",       source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 249381, name = "Greaves of the Unformed",          source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Feet
-            [9]= { itemID = 237834, name = "Spellbreaker's Bracers",           source = "Crafted"                           }, -- Wrist
-            [10]= { itemID = 151332, name = "Voidclaw Gauntlets",               source = "Seat of the Triumvirate"           }, -- Hands
-            [11]= { itemID = 249919, name = "Sin'dorei Band of Hope",           source = "Belo'ren"                          }, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 193701, name = "Algeth'ar Puzzle Box",             source = "Algeth'ar Academy"                 }, -- Trinket 2
-            [15]= { itemID = 239656, name = "Adherent's Silken Shroud",         source = "Crafted"                           }, -- Back
-            [16]= { itemID = 249277, name = "Bellamy's Final Judgement",        source = "Lightblinded Vanguard · The Voidspire"}, -- Main Hand
+            [1]= { itemID = 271465, name = "Warhelm of the Consecrated Flame", source = "Tier Set"                          }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271463, name = "Pauldrons of the Consecrated Flame",source = "Tier Set"                          }, -- Shoulder
+            [5]= { itemID = 271468, name = "Bulwark of the Consecrated Flame", source = "Tier Set"                          }, -- Chest
+            [6]= { itemID = 268259, name = "Girdle of Toxic Regret",           source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271464, name = "Greaves of the Consecrated Flame", source = "Ula'tek"                           }, -- Legs
+            [8]= { itemID = 268260, name = "Scaled Fiend's Warboots",          source = "Vashnik the Malignant"             }, -- Feet
+            [9]= { itemID = 237834, name = "Spellbreaker's Bracers",           source = "Blacksmithing"                     }, -- Wrist
+            [10]= { itemID = 271466, name = "Gauntlets of the Consecrated Flame",source = "Tier Set"                          }, -- Hands
+            [11]= { itemID = 252258, name = "Sickening Signet of Atroxus",      source = "Voidscar Arena"                    }, -- Ring 1
+            [12]= { itemID = 251513, name = "Loa Worshiper's Band",             source = "Jewelcrafting"                     }, -- Ring 2
+            [13]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 1
+            [14]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268213, name = "Maze-roa, Warlord's Fury",         source = "The Coiled Altar"                  }, -- Main Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [1]= { itemID = 249961, name = "Luminant Verdict's Unwavering Gaze",source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall"                         }, -- Neck
-            [3]= { itemID = 249959, name = "Luminant Verdict's Providence Watch",source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 249964, name = "Luminant Verdict's Divine Warplate",source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 268289, name = "Girdle of Devouring Rot",          source = "Sporefall"                         }, -- Waist
-            [7]= { itemID = 249960, name = "Luminant Verdict's Greaves",       source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 249381, name = "Greaves of the Unformed",          source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Feet
-            [9]= { itemID = 237834, name = "Spellbreaker's Bracers",           source = "Crafted"                           }, -- Wrist
-            [10]= { itemID = 151332, name = "Voidclaw Gauntlets",               source = "Seat of the Triumvirate"           }, -- Hands
-            [11]= { itemID = 249919, name = "Sin'dorei Band of Hope",           source = "Belo'ren"                          }, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 193701, name = "Algeth'ar Puzzle Box",             source = "Algeth'ar Academy"                 }, -- Trinket 2
-            [15]= { itemID = 239656, name = "Adherent's Silken Shroud",         source = "Crafted"                           }, -- Back
-            [16]= { itemID = 249277, name = "Bellamy's Final Judgement",        source = "Lightblinded Vanguard · The Voidspire"}, -- Main Hand
+            [1]= { itemID = 271465, name = "Warhelm of the Consecrated Flame", source = "Tier Set"                          }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271463, name = "Pauldrons of the Consecrated Flame",source = "Tier Set"                          }, -- Shoulder
+            [5]= { itemID = 271468, name = "Bulwark of the Consecrated Flame", source = "Tier Set"                          }, -- Chest
+            [6]= { itemID = 268259, name = "Girdle of Toxic Regret",           source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271464, name = "Greaves of the Consecrated Flame", source = "Ula'tek"                           }, -- Legs
+            [8]= { itemID = 268260, name = "Scaled Fiend's Warboots",          source = "Vashnik the Malignant"             }, -- Feet
+            [9]= { itemID = 237834, name = "Spellbreaker's Bracers",           source = "Blacksmithing"                     }, -- Wrist
+            [10]= { itemID = 271466, name = "Gauntlets of the Consecrated Flame",source = "Tier Set"                          }, -- Hands
+            [11]= { itemID = 252258, name = "Sickening Signet of Atroxus",      source = "Voidscar Arena"                    }, -- Ring 1
+            [12]= { itemID = 251513, name = "Loa Worshiper's Band",             source = "Jewelcrafting"                     }, -- Ring 2
+            [13]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 1
+            [14]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268213, name = "Maze-roa, Warlord's Fury",         source = "The Coiled Altar"                  }, -- Main Hand
         },
     },
 }

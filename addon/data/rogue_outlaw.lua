@@ -1,7 +1,7 @@
--- BiS data: Outlaw Rogue — Midnight Season 1
+-- BiS data: Outlaw Rogue — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/rogue/outlaw/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/rogue/outlaw/stat-priority-pve-dps
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-21
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -39,42 +39,42 @@ BiSHelper_Data["ROGUE_OUTLAW"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [1]= { itemID = 268283, name = "Festerbloom Crown",                source = "Sporefall"                         }, -- Head
-            [2]= { itemID = 50228, name = "Barbed Ymirheim Choker",            source = "Pit of Saron"                      }, -- Neck
-            [3]= { itemID = 250004, name = "Venom Casks of the Grim Jest",     source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 250009, name = "Fantastic Finery of the Grim Jest",source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 249374, name = "Scorn-Scarred Shul'ka's Belt",     source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Waist
-            [7]= { itemID = 250005, name = "Blade Holsters of the Grim Jest",  source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 244569, name = "Silvermoon Agent's Sneakers",      source = "Crafted"                           }, -- Feet
-            [9]= { itemID = 50264, name = "Chewed Leather Wristguards",        source = "Pit of Saron"                      }, -- Wrist
-            [10]= { itemID = 250007, name = "Sleight of Hand of the Grim Jest", source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 249336, name = "Signet of the Starved Beast",      source = "Vorasius · The Voidspire"          }, -- Ring 1
-            [12]= { itemID = 240949, name = "Masterwork Sin'dorei Band",        source = "Crafted"                           }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 260235, name = "Umbral Plume",                     source = "Belo'ren"                          }, -- Trinket 2
-            [15]= { itemID = 249335, name = "Imperator's Banner",               source = "Imperator Averzian · The Voidspire"}, -- Back
-            [16]= { itemID = 260423, name = "Arator's Swift Remembrance",       source = "Crown of the Cosmos · The Voidspire"}, -- Main Hand
-            [17]= { itemID = 133491, name = "Krick's Beetle Stabber",           source = "Pit of Saron"                      }, -- Off Hand
+            [1]= { itemID = 271875, name = "Gaze of the Coiled Watcher",       source = "Ula'tek"                           }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271508, name = "Chosen Bloodslayer's Voodoo Guards",source = "Tier Set"                          }, -- Shoulder
+            [5]= { itemID = 271513, name = "Chosen Bloodslayer's Banded Poncho",source = "Tier Set"                          }, -- Chest
+            [6]= { itemID = 244573, name = "Silvermoon Agent's Utility Belt",  source = "Crafting/Misc"                     }, -- Waist
+            [7]= { itemID = 271509, name = "Chosen Bloodslayer's Reinforced Pants",source = "Tier Set"                          }, -- Legs
+            [8]= { itemID = 244569, name = "Silvermoon Agent's Sneakers",      source = "Crafting/Misc"                     }, -- Feet
+            [9]= { itemID = 268240, name = "Restless Spirit Shackles",         source = "Nek'zali the Soulcoiler"           }, -- Wrist
+            [10]= { itemID = 271511, name = "Chosen Bloodslayer's Fanged Grips",source = "Tier Set"                          }, -- Hands
+            [11]= { itemID = 268266, name = "Alluring Bubbleband",              source = "Nymrissa Wavecaller"               }, -- Ring 1
+            [12]= { itemID = 268252, name = "Apex Brute's Claw Ring",           source = "Sszorak"                           }, -- Ring 2
+            [13]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 1
+            [14]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 2
+            [15]= { itemID = 268248, name = "Amani Summoning Shawl",            source = "Nek'zali the Soulcoiler"           }, -- Back
+            [16]= { itemID = 268209, name = "Aman'muso, Warlord's Vengeance",   source = "The Coiled Altar"                  }, -- Main Hand
+            [17]= { itemID = 275070, name = "Sharpened Lightwood Slasher",      source = "Altar of Fangs"                    }, -- Off Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [1]= { itemID = 268283, name = "Festerbloom Crown",                source = "Sporefall"                         }, -- Head
-            [2]= { itemID = 50228, name = "Barbed Ymirheim Choker",            source = "Pit of Saron"                      }, -- Neck
-            [3]= { itemID = 250004, name = "Venom Casks of the Grim Jest",     source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 250009, name = "Fantastic Finery of the Grim Jest",source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 249374, name = "Scorn-Scarred Shul'ka's Belt",     source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Waist
-            [7]= { itemID = 250005, name = "Blade Holsters of the Grim Jest",  source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 244569, name = "Silvermoon Agent's Sneakers",      source = "Crafted"                           }, -- Feet
-            [9]= { itemID = 50264, name = "Chewed Leather Wristguards",        source = "Pit of Saron"                      }, -- Wrist
-            [10]= { itemID = 250007, name = "Sleight of Hand of the Grim Jest", source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 249336, name = "Signet of the Starved Beast",      source = "Vorasius · The Voidspire"          }, -- Ring 1
-            [12]= { itemID = 240949, name = "Masterwork Sin'dorei Band",        source = "Crafted"                           }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 260235, name = "Umbral Plume",                     source = "Belo'ren"                          }, -- Trinket 2
-            [15]= { itemID = 249335, name = "Imperator's Banner",               source = "Imperator Averzian · The Voidspire"}, -- Back
-            [16]= { itemID = 260423, name = "Arator's Swift Remembrance",       source = "Crown of the Cosmos · The Voidspire"}, -- Main Hand
-            [17]= { itemID = 133491, name = "Krick's Beetle Stabber",           source = "Pit of Saron"                      }, -- Off Hand
+            [1]= { itemID = 271875, name = "Gaze of the Coiled Watcher",       source = "Ula'tek"                           }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271508, name = "Chosen Bloodslayer's Voodoo Guards",source = "Tier Set"                          }, -- Shoulder
+            [5]= { itemID = 271513, name = "Chosen Bloodslayer's Banded Poncho",source = "Tier Set"                          }, -- Chest
+            [6]= { itemID = 244573, name = "Silvermoon Agent's Utility Belt",  source = "Crafting/Misc"                     }, -- Waist
+            [7]= { itemID = 271509, name = "Chosen Bloodslayer's Reinforced Pants",source = "Tier Set"                          }, -- Legs
+            [8]= { itemID = 244569, name = "Silvermoon Agent's Sneakers",      source = "Crafting/Misc"                     }, -- Feet
+            [9]= { itemID = 268240, name = "Restless Spirit Shackles",         source = "Nek'zali the Soulcoiler"           }, -- Wrist
+            [10]= { itemID = 271511, name = "Chosen Bloodslayer's Fanged Grips",source = "Tier Set"                          }, -- Hands
+            [11]= { itemID = 268266, name = "Alluring Bubbleband",              source = "Nymrissa Wavecaller"               }, -- Ring 1
+            [12]= { itemID = 268252, name = "Apex Brute's Claw Ring",           source = "Sszorak"                           }, -- Ring 2
+            [13]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 1
+            [14]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 2
+            [15]= { itemID = 268248, name = "Amani Summoning Shawl",            source = "Nek'zali the Soulcoiler"           }, -- Back
+            [16]= { itemID = 268209, name = "Aman'muso, Warlord's Vengeance",   source = "The Coiled Altar"                  }, -- Main Hand
+            [17]= { itemID = 275070, name = "Sharpened Lightwood Slasher",      source = "Altar of Fangs"                    }, -- Off Hand
         },
     },
 }

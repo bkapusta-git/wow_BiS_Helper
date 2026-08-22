@@ -1,7 +1,7 @@
--- BiS data: Devourer Demon Hunter — Midnight Season 1
+-- BiS data: Devourer Demon Hunter — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/demon-hunter/devourer/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/demon-hunter/devourer/stat-priority-pve-dps
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-12
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -39,42 +39,42 @@ BiSHelper_Data["DEMONHUNTER_DEVOURER"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [1]= { itemID = 250033, name = "Devouring Reaver's Intake",        source = "Sporefall to Catalyze!"            }, -- Head
-            [2]= { itemID = 249368, name = "Eternal Voidsong Chain",           source = "Crown of the Cosmos · The Voidspire"}, -- Neck
-            [3]= { itemID = 250031, name = "Devouring Reaver's Exhaustplates", source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 250036, name = "Devouring Reaver's Engine",        source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 268286, name = "Sash of the Putrid Giant",         source = "Sporefall"                         }, -- Waist
-            [7]= { itemID = 49817, name = "Shaggy Wyrmleather Leggings",       source = "Pit of Saron"                      }, -- Legs
-            [8]= { itemID = 244569, name = "Silvermoon Agent's Sneakers",      source = "Crafted"                           }, -- Feet
-            [9]= { itemID = 193714, name = "Frenzyroot Cuffs",                 source = "Algeth'ar Academy"                 }, -- Wrist
-            [10]= { itemID = 250034, name = "Devouring Reaver's Essence Grips", source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 1
-            [12]= { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls"                    }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 249346, name = "Vaelgor's Final Stare",            source = "Vaelgor & Ezzorak · The Voidspire" }, -- Trinket 2
-            [15]= { itemID = 249370, name = "Draconic Nullcape",                source = "Vaelgor & Ezzorak · The Voidspire" }, -- Back
-            [16]= { itemID = 260408, name = "Lightless Lament",                 source = "Midnight Falls"                    }, -- Main Hand
-            [17]= { itemID = 237840, name = "Spellbreaker's Warglaive",         source = "Crafted"                           }, -- Off Hand
+            [1]= { itemID = 271537, name = "Abyssal Doomhound's Relentless Stare",source = "Ula'tek"                           }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271535, name = "Abyssal Doomhound's Jaws",         source = "Voidscar Arena"                    }, -- Shoulder
+            [5]= { itemID = 271540, name = "Abyssal Doomhound's Coreguard",    source = "Den of Nalorakk"                   }, -- Chest
+            [6]= { itemID = 268256, name = "Sash of the Forlorn Vessel",       source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271536, name = "Abyssal Doomhound's Legwraps",     source = "The Coiled Altar"                  }, -- Legs
+            [8]= { itemID = 244569, name = "Silvermoon Agent's Sneakers",      source = "Crafting/Misc"                     }, -- Feet
+            [9]= { itemID = 244576, name = "Silvermoon Agent's Deflectors",    source = "Crafting/Misc"                     }, -- Wrist
+            [10]= { itemID = 271538, name = "Abyssal Doomhound's Studded Gauntlets",source = "Tier Set"                          }, -- Hands
+            [11]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 1
+            [12]= { itemID = 158366, name = "Charged Sandstone Band",           source = "Temple of Sethraliss"              }, -- Ring 2
+            [13]= { itemID = 250215, name = "Freightrunner's Flask",            source = "Murder Row"                        }, -- Trinket 1
+            [14]= { itemID = 270164, name = "Gebbo's Bottomless Bag",           source = "The Lost Explorers"                }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 271092, name = "Jan'thrazet, the Soul Fang",       source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 268211, name = "Baleful Hexblade",                 source = "The Coiled Altar"                  }, -- Off Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [1]= { itemID = 250033, name = "Devouring Reaver's Intake",        source = "Sporefall to Catalyze!"            }, -- Head
-            [2]= { itemID = 249368, name = "Eternal Voidsong Chain",           source = "Crown of the Cosmos · The Voidspire"}, -- Neck
-            [3]= { itemID = 250031, name = "Devouring Reaver's Exhaustplates", source = "Tier Set"                          }, -- Shoulder
-            [5]= { itemID = 250036, name = "Devouring Reaver's Engine",        source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 268286, name = "Sash of the Putrid Giant",         source = "Sporefall"                         }, -- Waist
-            [7]= { itemID = 49817, name = "Shaggy Wyrmleather Leggings",       source = "Pit of Saron"                      }, -- Legs
-            [8]= { itemID = 244569, name = "Silvermoon Agent's Sneakers",      source = "Crafted"                           }, -- Feet
-            [9]= { itemID = 193714, name = "Frenzyroot Cuffs",                 source = "Algeth'ar Academy"                 }, -- Wrist
-            [10]= { itemID = 250034, name = "Devouring Reaver's Essence Grips", source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 1
-            [12]= { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls"                    }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 249346, name = "Vaelgor's Final Stare",            source = "Vaelgor & Ezzorak · The Voidspire" }, -- Trinket 2
-            [15]= { itemID = 249370, name = "Draconic Nullcape",                source = "Vaelgor & Ezzorak · The Voidspire" }, -- Back
-            [16]= { itemID = 260408, name = "Lightless Lament",                 source = "Midnight Falls"                    }, -- Main Hand
-            [17]= { itemID = 237840, name = "Spellbreaker's Warglaive",         source = "Crafted"                           }, -- Off Hand
+            [1]= { itemID = 271537, name = "Abyssal Doomhound's Relentless Stare",source = "Ula'tek"                           }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271535, name = "Abyssal Doomhound's Jaws",         source = "Voidscar Arena"                    }, -- Shoulder
+            [5]= { itemID = 271540, name = "Abyssal Doomhound's Coreguard",    source = "Den of Nalorakk"                   }, -- Chest
+            [6]= { itemID = 268256, name = "Sash of the Forlorn Vessel",       source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271536, name = "Abyssal Doomhound's Legwraps",     source = "The Coiled Altar"                  }, -- Legs
+            [8]= { itemID = 244569, name = "Silvermoon Agent's Sneakers",      source = "Crafting/Misc"                     }, -- Feet
+            [9]= { itemID = 244576, name = "Silvermoon Agent's Deflectors",    source = "Crafting/Misc"                     }, -- Wrist
+            [10]= { itemID = 271538, name = "Abyssal Doomhound's Studded Gauntlets",source = "Tier Set"                          }, -- Hands
+            [11]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 1
+            [12]= { itemID = 158366, name = "Charged Sandstone Band",           source = "Temple of Sethraliss"              }, -- Ring 2
+            [13]= { itemID = 250215, name = "Freightrunner's Flask",            source = "Murder Row"                        }, -- Trinket 1
+            [14]= { itemID = 270164, name = "Gebbo's Bottomless Bag",           source = "The Lost Explorers"                }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 271092, name = "Jan'thrazet, the Soul Fang",       source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 268211, name = "Baleful Hexblade",                 source = "The Coiled Altar"                  }, -- Off Hand
         },
     },
 }

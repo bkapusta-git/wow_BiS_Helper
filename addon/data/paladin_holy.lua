@@ -1,7 +1,7 @@
--- BiS data: Holy Paladin — Midnight Season 1
+-- BiS data: Holy Paladin — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/paladin/holy/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/paladin/holy/stat-priority-pve-healer
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-21
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -39,40 +39,42 @@ BiSHelper_Data["PALADIN_HOLY"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [1]= { itemID = 249961, name = "Luminant Verdict's Unwavering Gaze",source = "Lightblinded Vanguard"             }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall"                         }, -- Neck
-            [3]= { itemID = 249959, name = "Luminant Verdict's Providence Watch",source = "Fallen-King Salhadaar"             }, -- Shoulder
-            [5]= { itemID = 249964, name = "Luminant Verdict's Divine Warplate",source = "Sporefall (Catalyst)"              }, -- Chest
-            [6]= { itemID = 268289, name = "Girdle of Devouring Rot",          source = "Sporefall"                         }, -- Waist
-            [7]= { itemID = 249915, name = "Extinction Guards",                source = "Midnight Falls"                    }, -- Legs
-            [8]= { itemID = 249332, name = "Parasite Stompers",                source = "Vorasius · The Voidspire"          }, -- Feet
-            [9]= { itemID = 263193, name = "Trollhunter's Bands",              source = "Maisara Caverns"                   }, -- Wrist
-            [10]= { itemID = 249962, name = "Luminant Verdict's Gauntlets",     source = "Vorasius"                          }, -- Hands
-            [11]= { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls"                    }, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 2
-            [13]= { itemID = 249809, name = "Locus-Walker's Ribbon",            source = "Crown of the Cosmos · The Voidspire"}, -- Trinket 1
-            [14]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 2
-            [15]= { itemID = 258575, name = "Rigid Scale Greatcloak",           source = "Skyreach"                          }, -- Back
-            [16]= { itemID = 193710, name = "Spellboon Saber",                  source = "Algeth'ar Academy"                 }, -- Main Hand
+            [1]= { itemID = 271465, name = "Warhelm of the Consecrated Flame", source = "Murder Row"                        }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271463, name = "Pauldrons of the Consecrated Flame",source = "Murder Row"                        }, -- Shoulder
+            [5]= { itemID = 271468, name = "Bulwark of the Consecrated Flame", source = "The Coiled Altar"                  }, -- Chest
+            [6]= { itemID = 268259, name = "Girdle of Toxic Regret",           source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271464, name = "Greaves of the Consecrated Flame", source = "Ula'tek"                           }, -- Legs
+            [8]= { itemID = 268260, name = "Scaled Fiend's Warboots",          source = "Vashnik the Malignant"             }, -- Feet
+            [9]= { itemID = 268239, name = "Shellbound Bracers",               source = "The Lost Explorers"                }, -- Wrist
+            [10]= { itemID = 271466, name = "Gauntlets of the Consecrated Flame",source = "Entombed Sentinels"                }, -- Hands
+            [11]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 1
+            [12]= { itemID = 252258, name = "Sickening Signet of Atroxus",      source = "Voidscar Arena"                    }, -- Ring 2
+            [13]= { itemID = 270162, name = "Soulcoiler Ritual Vessel",         source = "Nek'zali the Soulcoiler"           }, -- Trinket 1
+            [14]= { itemID = 270164, name = "Gebbo's Bottomless Bag",           source = "The Lost Explorers"                }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268211, name = "Baleful Hexblade",                 source = "The Coiled Altar"                  }, -- Main Hand
+            [17]= { itemID = 268262, name = "Bubblefin Splash Guard",           source = "Nymrissa Wavecaller"               }, -- Off Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [1]= { itemID = 249961, name = "Luminant Verdict's Unwavering Gaze",source = "Lightblinded Vanguard"             }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall"                         }, -- Neck
-            [3]= { itemID = 249959, name = "Luminant Verdict's Providence Watch",source = "Fallen-King Salhadaar"             }, -- Shoulder
-            [5]= { itemID = 249964, name = "Luminant Verdict's Divine Warplate",source = "Sporefall (Catalyst)"              }, -- Chest
-            [6]= { itemID = 268289, name = "Girdle of Devouring Rot",          source = "Sporefall"                         }, -- Waist
-            [7]= { itemID = 249915, name = "Extinction Guards",                source = "Midnight Falls"                    }, -- Legs
-            [8]= { itemID = 249332, name = "Parasite Stompers",                source = "Vorasius · The Voidspire"          }, -- Feet
-            [9]= { itemID = 263193, name = "Trollhunter's Bands",              source = "Maisara Caverns"                   }, -- Wrist
-            [10]= { itemID = 249962, name = "Luminant Verdict's Gauntlets",     source = "Vorasius"                          }, -- Hands
-            [11]= { itemID = 249920, name = "Eye of Midnight",                  source = "Midnight Falls"                    }, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall"                         }, -- Ring 2
-            [13]= { itemID = 249809, name = "Locus-Walker's Ribbon",            source = "Crown of the Cosmos · The Voidspire"}, -- Trinket 1
-            [14]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 2
-            [15]= { itemID = 258575, name = "Rigid Scale Greatcloak",           source = "Skyreach"                          }, -- Back
-            [16]= { itemID = 193710, name = "Spellboon Saber",                  source = "Algeth'ar Academy"                 }, -- Main Hand
+            [1]= { itemID = 271465, name = "Warhelm of the Consecrated Flame", source = "Murder Row"                        }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271463, name = "Pauldrons of the Consecrated Flame",source = "Murder Row"                        }, -- Shoulder
+            [5]= { itemID = 271468, name = "Bulwark of the Consecrated Flame", source = "The Coiled Altar"                  }, -- Chest
+            [6]= { itemID = 268259, name = "Girdle of Toxic Regret",           source = "The Coiled Altar"                  }, -- Waist
+            [7]= { itemID = 271464, name = "Greaves of the Consecrated Flame", source = "Ula'tek"                           }, -- Legs
+            [8]= { itemID = 268260, name = "Scaled Fiend's Warboots",          source = "Vashnik the Malignant"             }, -- Feet
+            [9]= { itemID = 268239, name = "Shellbound Bracers",               source = "The Lost Explorers"                }, -- Wrist
+            [10]= { itemID = 271466, name = "Gauntlets of the Consecrated Flame",source = "Entombed Sentinels"                }, -- Hands
+            [11]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 1
+            [12]= { itemID = 252258, name = "Sickening Signet of Atroxus",      source = "Voidscar Arena"                    }, -- Ring 2
+            [13]= { itemID = 270162, name = "Soulcoiler Ritual Vessel",         source = "Nek'zali the Soulcoiler"           }, -- Trinket 1
+            [14]= { itemID = 270164, name = "Gebbo's Bottomless Bag",           source = "The Lost Explorers"                }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268211, name = "Baleful Hexblade",                 source = "The Coiled Altar"                  }, -- Main Hand
+            [17]= { itemID = 268262, name = "Bubblefin Splash Guard",           source = "Nymrissa Wavecaller"               }, -- Off Hand
         },
     },
 }

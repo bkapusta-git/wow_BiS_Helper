@@ -1,7 +1,7 @@
--- BiS data: Survival Hunter — Midnight Season 1
+-- BiS data: Survival Hunter — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/hunter/survival/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/hunter/survival/stat-priority-pve-dps
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-12
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -39,42 +39,40 @@ BiSHelper_Data["HUNTER_SURVIVAL"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [1]= { itemID = 249988, name = "Primal Sentry's Maw",              source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "(Sporefall)\r\n"                   }, -- Neck
-            [3]= { itemID = 249318, name = "Nullwalker's Dread Epaulettes",    source = "Vaelgor & Ezzorak · The Voidspire" }, -- Shoulder
-            [5]= { itemID = 249991, name = "Primal Sentry's Scaleplate",       source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 249371, name = "Scornbane Waistguard",             source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Waist
-            [7]= { itemID = 249987, name = "Primal Sentry's Legguards",        source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 249990, name = "Primal Sentry's Swiftsteps",       source = "Tier Set"                          }, -- Feet
-            [9]= { itemID = 244584, name = "Farstrider's Plated Bracers",      source = "Crafted"                           }, -- Wrist
-            [10]= { itemID = 249989, name = "Primal Sentry's Talonguards",      source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 251093, name = "Omission of Light",                source = "Nexus-Point Xenas"                 }, -- Ring 1
-            [12]= { itemID = 251217, name = "Occlusion of Void",                source = "Nexus-Point Xenas"                 }, -- Ring 2
-            [13]= { itemID = 193701, name = "Algeth'ar Puzzle Box",             source = "Algeth'ar Academy"                 }, -- Trinket 1
-            [14]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 2
-            [15]= { itemID = 258575, name = "Rigid Scale Greatcloak",           source = "Skyreach"                          }, -- Back
-            [16]= { itemID = 251077, name = "Roostwarden's Bough",              source = "Windrunner Spire"                  }, -- Main Hand
-            [17]= { itemID = 237837, name = "Farstrider's Mercy",               source = "Crafted"                           }, -- Off Hand
+            [1]= { itemID = 271492, name = "Skulking Viper's Weeping Fangs",   source = "Tier Set / Voidscar Arena"         }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271490, name = "Jaws of the Skulking Viper",       source = "Tier Set / The Coiled Altar"       }, -- Shoulder
+            [5]= { itemID = 271876, name = "Awoken Dreadfang Cuirass",         source = "Ula'tek"                           }, -- Chest
+            [6]= { itemID = 244581, name = "Farstrider's Trophy Belt",         source = "Crafting"                          }, -- Waist
+            [7]= { itemID = 271491, name = "Skulking Viper's Coiled Legwraps", source = "Tier Set / The Coiled Altar"       }, -- Legs
+            [8]= { itemID = 268233, name = "Ferocious Scaleboots",             source = "Sszorak"                           }, -- Feet
+            [9]= { itemID = 244584, name = "Farstrider's Plated Bracers",      source = "Crafting"                          }, -- Wrist
+            [10]= { itemID = 271493, name = "Skulking Viper's Hidepiercers",    source = "Tier Set / King's Rest"            }, -- Hands
+            [11]= { itemID = 273792, name = "Band of the Amani Warlord",        source = "The Coiled Altar"                  }, -- Ring 1
+            [12]= { itemID = 252258, name = "Sickening Signet of Atroxus",      source = "Voidscar Arena"                    }, -- Ring 2
+            [13]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 1
+            [14]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268215, name = "Abyssal Broodfiend's Bardiche",    source = "Ula'tek"                           }, -- Main Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [1]= { itemID = 249988, name = "Primal Sentry's Maw",              source = "Tier Set"                          }, -- Head
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "(Sporefall)\r\n"                   }, -- Neck
-            [3]= { itemID = 249318, name = "Nullwalker's Dread Epaulettes",    source = "Vaelgor & Ezzorak · The Voidspire" }, -- Shoulder
-            [5]= { itemID = 249991, name = "Primal Sentry's Scaleplate",       source = "Tier Set"                          }, -- Chest
-            [6]= { itemID = 249371, name = "Scornbane Waistguard",             source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Waist
-            [7]= { itemID = 249987, name = "Primal Sentry's Legguards",        source = "Tier Set"                          }, -- Legs
-            [8]= { itemID = 249990, name = "Primal Sentry's Swiftsteps",       source = "Tier Set"                          }, -- Feet
-            [9]= { itemID = 244584, name = "Farstrider's Plated Bracers",      source = "Crafted"                           }, -- Wrist
-            [10]= { itemID = 249989, name = "Primal Sentry's Talonguards",      source = "Tier Set"                          }, -- Hands
-            [11]= { itemID = 251093, name = "Omission of Light",                source = "Nexus-Point Xenas"                 }, -- Ring 1
-            [12]= { itemID = 251217, name = "Occlusion of Void",                source = "Nexus-Point Xenas"                 }, -- Ring 2
-            [13]= { itemID = 193701, name = "Algeth'ar Puzzle Box",             source = "Algeth'ar Academy"                 }, -- Trinket 1
-            [14]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 2
-            [15]= { itemID = 258575, name = "Rigid Scale Greatcloak",           source = "Skyreach"                          }, -- Back
-            [16]= { itemID = 251077, name = "Roostwarden's Bough",              source = "Windrunner Spire"                  }, -- Main Hand
-            [17]= { itemID = 237837, name = "Farstrider's Mercy",               source = "Crafted"                           }, -- Off Hand
+            [1]= { itemID = 271492, name = "Skulking Viper's Weeping Fangs",   source = "Tier Set / Voidscar Arena"         }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271490, name = "Jaws of the Skulking Viper",       source = "Tier Set / The Coiled Altar"       }, -- Shoulder
+            [5]= { itemID = 271876, name = "Awoken Dreadfang Cuirass",         source = "Ula'tek"                           }, -- Chest
+            [6]= { itemID = 244581, name = "Farstrider's Trophy Belt",         source = "Crafting"                          }, -- Waist
+            [7]= { itemID = 271491, name = "Skulking Viper's Coiled Legwraps", source = "Tier Set / The Coiled Altar"       }, -- Legs
+            [8]= { itemID = 268233, name = "Ferocious Scaleboots",             source = "Sszorak"                           }, -- Feet
+            [9]= { itemID = 244584, name = "Farstrider's Plated Bracers",      source = "Crafting"                          }, -- Wrist
+            [10]= { itemID = 271493, name = "Skulking Viper's Hidepiercers",    source = "Tier Set / King's Rest"            }, -- Hands
+            [11]= { itemID = 273792, name = "Band of the Amani Warlord",        source = "The Coiled Altar"                  }, -- Ring 1
+            [12]= { itemID = 252258, name = "Sickening Signet of Atroxus",      source = "Voidscar Arena"                    }, -- Ring 2
+            [13]= { itemID = 270175, name = "Voracious Heart of Ula'tek",       source = "Ula'tek"                           }, -- Trinket 1
+            [14]= { itemID = 270173, name = "Zul'jin's Guillotine Technique",   source = "The Coiled Altar"                  }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 268215, name = "Abyssal Broodfiend's Bardiche",    source = "Ula'tek"                           }, -- Main Hand
         },
     },
 }

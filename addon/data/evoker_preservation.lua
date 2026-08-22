@@ -1,7 +1,7 @@
--- BiS data: Preservation Evoker — Midnight Season 1
+-- BiS data: Preservation Evoker — Midnight Season 2
 -- Source: https://www.wowhead.com/guide/classes/evoker/preservation/bis-gear
 -- Source: https://www.wowhead.com/guide/classes/evoker/preservation/stat-priority-pve-healer
--- Last updated: 2026-07-04
+-- Last updated: 2026-08-12
 
 BiSHelper_Data = BiSHelper_Data or {}
 
@@ -39,36 +39,42 @@ BiSHelper_Data["EVOKER_PRESERVATION"] = {
     content = {
         -- ── Raid BiS ────────────────────────────────────────
         raid = {
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall (Raid)"                  }, -- Neck
-            [3]= { itemID = 249995, name = "Beacons of the Black Talon",       source = "Raid | Catalyst | Vault"           }, -- Shoulder
-            [5]= { itemID = 250000, name = "Frenzyward of the Black Talon",    source = "Raid | Catalyst | Vault"           }, -- Chest
-            [6]= { itemID = 193722, name = "Azure Belt of Competition",        source = "Algeth'ar Academy"                 }, -- Waist
-            [7]= { itemID = 249996, name = "Greaves of the Black Talon",       source = "Raid | Catalyst | Vault"           }, -- Legs
-            [8]= { itemID = 268287, name = "Grudgefiend Stompers",             source = "Sporefall (Raid)"                  }, -- Feet
-            [9]= { itemID = 251079, name = "Amberfrond Bracers",               source = "Windrunner Spire"                  }, -- Wrist
-            [10]= { itemID = 249998, name = "Enforcer's Grips of the Black Talon",source = "Raid | Catalyst | Vault"           }, -- Hands
-            [11]= { itemID = 249369, name = "Bond of Light",                    source = "Lightblinded Vanguard · The Voidspire"}, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall (Raid)"                  }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 249809, name = "Locus-Walker's Ribbon",            source = "Crown of the Cosmos · The Voidspire"}, -- Trinket 2
-            [16]= { itemID = 258514, name = "Umbral Spire of Zuraal",           source = "Seat of the Triumvirate"           }, -- Main Hand
+            [1]= { itemID = 271501, name = "Calamitous Echo's Magmashapers",   source = "Temple of Sethraliss & Catalyst"   }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271499, name = "Calamitous Echo's Sundered Peaks", source = "The Coiled Altar & Catalyst"       }, -- Shoulder
+            [5]= { itemID = 271504, name = "Searing Caldera of Calamity",      source = "Ula'tek & Catalyst"                }, -- Chest
+            [6]= { itemID = 268254, name = "Serpentine Mixing Belt",           source = "Vashnik the Malignant"             }, -- Waist
+            [7]= { itemID = 271500, name = "Earthen Pillars of Calamity",      source = "The Coiled Altar & Catalyst"       }, -- Legs
+            [8]= { itemID = 159388, name = "Sabatons of Coruscating Energy",   source = "Temple of Sethraliss"              }, -- Feet
+            [9]= { itemID = 268217, name = "Rising Tide Wristguards",          source = "Nymrissa Wavebinder"               }, -- Wrist
+            [10]= { itemID = 271502, name = "Calamitous Echo's Ebon Greathorns",source = "King's Rest & Catalyst"            }, -- Hands
+            [11]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 1
+            [12]= { itemID = 158366, name = "Charged Sandstone Band",           source = "Temple of Sethraliss"              }, -- Ring 2
+            [13]= { itemID = 270164, name = "Gebbo's Bottomless Bag",           source = "The Lost Explorers"                }, -- Trinket 1
+            [14]= { itemID = 270162, name = "Soulcoiler Ritual Vessel",         source = "Nek'zali the Soulcoiler"           }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 271092, name = "Jan'thrazet, the Soul Fang",       source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 268197, name = "Spine of the Hissing Abyss",       source = "Entombed Sentinels"                }, -- Off Hand
         },
 
         -- ── Mythic+ BiS ──────────────────────────────────────
         mythicplus = {
-            [2]= { itemID = 268291, name = "Rotmire's Sporeheart",             source = "Sporefall (Raid)"                  }, -- Neck
-            [3]= { itemID = 249995, name = "Beacons of the Black Talon",       source = "Raid | Catalyst | Vault"           }, -- Shoulder
-            [5]= { itemID = 250000, name = "Frenzyward of the Black Talon",    source = "Raid | Catalyst | Vault"           }, -- Chest
-            [6]= { itemID = 193722, name = "Azure Belt of Competition",        source = "Algeth'ar Academy"                 }, -- Waist
-            [7]= { itemID = 249996, name = "Greaves of the Black Talon",       source = "Raid | Catalyst | Vault"           }, -- Legs
-            [8]= { itemID = 268287, name = "Grudgefiend Stompers",             source = "Sporefall (Raid)"                  }, -- Feet
-            [9]= { itemID = 251079, name = "Amberfrond Bracers",               source = "Windrunner Spire"                  }, -- Wrist
-            [10]= { itemID = 249998, name = "Enforcer's Grips of the Black Talon",source = "Raid | Catalyst | Vault"           }, -- Hands
-            [11]= { itemID = 249369, name = "Bond of Light",                    source = "Lightblinded Vanguard · The Voidspire"}, -- Ring 1
-            [12]= { itemID = 268290, name = "Sporecaller's Blooming Loop",      source = "Sporefall (Raid)"                  }, -- Ring 2
-            [13]= { itemID = 249343, name = "Gaze of the Alnseer",              source = "Chimaerus the Undreamt God · The Dreamrift"}, -- Trinket 1
-            [14]= { itemID = 249809, name = "Locus-Walker's Ribbon",            source = "Crown of the Cosmos · The Voidspire"}, -- Trinket 2
-            [16]= { itemID = 258514, name = "Umbral Spire of Zuraal",           source = "Seat of the Triumvirate"           }, -- Main Hand
+            [1]= { itemID = 271501, name = "Calamitous Echo's Magmashapers",   source = "Temple of Sethraliss & Catalyst"   }, -- Head
+            [2]= { itemID = 268265, name = "Aqirbane Reliquary",               source = "Ula'tek"                           }, -- Neck
+            [3]= { itemID = 271499, name = "Calamitous Echo's Sundered Peaks", source = "The Coiled Altar & Catalyst"       }, -- Shoulder
+            [5]= { itemID = 271504, name = "Searing Caldera of Calamity",      source = "Ula'tek & Catalyst"                }, -- Chest
+            [6]= { itemID = 268254, name = "Serpentine Mixing Belt",           source = "Vashnik the Malignant"             }, -- Waist
+            [7]= { itemID = 271500, name = "Earthen Pillars of Calamity",      source = "The Coiled Altar & Catalyst"       }, -- Legs
+            [8]= { itemID = 159388, name = "Sabatons of Coruscating Energy",   source = "Temple of Sethraliss"              }, -- Feet
+            [9]= { itemID = 268217, name = "Rising Tide Wristguards",          source = "Nymrissa Wavebinder"               }, -- Wrist
+            [10]= { itemID = 271502, name = "Calamitous Echo's Ebon Greathorns",source = "King's Rest & Catalyst"            }, -- Hands
+            [11]= { itemID = 268249, name = "Vile Alchemist's Band",            source = "Vashnik the Malignant"             }, -- Ring 1
+            [12]= { itemID = 158366, name = "Charged Sandstone Band",           source = "Temple of Sethraliss"              }, -- Ring 2
+            [13]= { itemID = 270164, name = "Gebbo's Bottomless Bag",           source = "The Lost Explorers"                }, -- Trinket 1
+            [14]= { itemID = 270162, name = "Soulcoiler Ritual Vessel",         source = "Nek'zali the Soulcoiler"           }, -- Trinket 2
+            [15]= { itemID = 268253, name = "Silken Voodoo Drape",              source = "The Coiled Altar"                  }, -- Back
+            [16]= { itemID = 271092, name = "Jan'thrazet, the Soul Fang",       source = "Ula'tek"                           }, -- Main Hand
+            [17]= { itemID = 268197, name = "Spine of the Hissing Abyss",       source = "Entombed Sentinels"                }, -- Off Hand
         },
     },
 }

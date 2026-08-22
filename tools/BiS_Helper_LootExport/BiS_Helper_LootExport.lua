@@ -3,7 +3,24 @@
 
 BiSHelperLootExportDB = BiSHelperLootExportDB or {}
 
-local MYTHIC_DIFFICULTY = 23  -- DifficultyID for Mythic 5-man dungeon
+-- 23 = Mythic 5-man, 8 = Mythic Keystone. The Encounter Journal shows a
+-- different loot table per difficulty, so both are scanned and merged.
+local SCAN_DIFFICULTIES = { 23, 8 }
+
+-- The EJ loot list honours the player's slot and class/spec filters. Without
+-- clearing them the export silently drops whole categories (trinkets, off-spec
+-- armor), so reset both before reading anything.
+local function ClearLootFilters()
+    if EJ_ResetLootFilter then
+        pcall(EJ_ResetLootFilter)
+    end
+    if EJ_SetSlotFilter and Enum.ItemSlotFilterType and Enum.ItemSlotFilterType.NoFilter then
+        pcall(EJ_SetSlotFilter, Enum.ItemSlotFilterType.NoFilter)
+    end
+    if C_EncounterJournal and C_EncounterJournal.ResetSlotFilter then
+        pcall(C_EncounterJournal.ResetSlotFilter)
+    end
+end
 
 -- Slot name from EJ filterType — built dynamically to avoid nil enum keys
 local SLOT_BY_FILTER = {}
@@ -55,7 +72,7 @@ local function ExportLoot()
         return
     end
 
-    EJ_SetDifficulty(MYTHIC_DIFFICULTY)
+    ClearLootFilters()
 
     local dungeons = {}
     local items = {}
@@ -68,38 +85,54 @@ local function ExportLoot()
             local journalID = FindJournalInstanceID(name)
             if journalID then
                 table.insert(dungeons, name)
-                EJ_SelectInstance(journalID)
+                local dungeonNew = 0
 
-                local encounterIdx = 1
-                while true do
-                    local eName, _, eID = EJ_GetEncounterInfoByIndex(encounterIdx)
-                    if not eName then break end
+                for _, difficultyID in ipairs(SCAN_DIFFICULTIES) do
+                    EJ_SelectInstance(journalID)
+                    -- Not every instance offers every difficulty; a rejected one
+                    -- must not abort the whole export.
+                    pcall(EJ_SetDifficulty, difficultyID)
+                    ClearLootFilters()
 
-                    EJ_SelectEncounter(eID)
-                    local numLoot = EJ_GetNumLoot()
+                    local encounterIdx = 1
+                    while true do
+                        local eName, _, eID = EJ_GetEncounterInfoByIndex(encounterIdx)
+                        if not eName then break end
 
-                    for lootIdx = 0, numLoot - 1 do
-                        local info = C_EncounterJournal.GetLootInfoByIndex(lootIdx)
-                        if info and info.itemID and not seenItems[info.itemID] then
-                            seenItems[info.itemID] = true
-                            totalItems = totalItems + 1
+                        EJ_SelectEncounter(eID)
+                        local numLoot = EJ_GetNumLoot()
 
-                            local slot = SLOT_BY_FILTER[info.filterType] or "Unknown"
-                            table.insert(items, {
-                                itemID  = info.itemID,
-                                name    = info.name or "Unknown",
-                                slot    = slot,
-                                icon    = info.icon or "",
-                                dungeon = name,
-                                boss    = eName,
-                            })
+                        for lootIdx = 0, numLoot - 1 do
+                            local info = C_EncounterJournal.GetLootInfoByIndex(lootIdx)
+                            if info and info.itemID and not seenItems[info.itemID] then
+                                seenItems[info.itemID] = true
+                                totalItems = totalItems + 1
+                                dungeonNew = dungeonNew + 1
+
+                                -- Names/filterType come back empty until the client
+                                -- has the item cached; ask for it so a re-run fills in.
+                                if C_Item and C_Item.RequestLoadItemDataByID then
+                                    C_Item.RequestLoadItemDataByID(info.itemID)
+                                end
+
+                                local slot = SLOT_BY_FILTER[info.filterType] or "Unknown"
+                                table.insert(items, {
+                                    itemID     = info.itemID,
+                                    name       = info.name or "Unknown",
+                                    slot       = slot,
+                                    icon       = info.icon or "",
+                                    dungeon    = name,
+                                    boss       = eName,
+                                    difficulty = difficultyID,
+                                })
+                            end
                         end
-                    end
 
-                    encounterIdx = encounterIdx + 1
+                        encounterIdx = encounterIdx + 1
+                    end
                 end
 
-                print("|cff00ff00[LootExport]|r " .. name .. " — OK")
+                print("|cff00ff00[LootExport]|r " .. name .. " — OK (" .. dungeonNew .. " items)")
             else
                 print("|cffff8800[LootExport]|r " .. name .. " — journal instance not found, skipping")
             end
