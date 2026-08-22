@@ -90,12 +90,19 @@ local DR_STAT_CR = {
 
 local CREST_BAR_H = 22
 
-local DAWNCREST_DATA = {
-    { id = 3383, tier = 1, label = "Adventurer", sources = "Outdoor events, Tier 4 Delves" },
-    { id = 3341, tier = 2, label = "Veteran",    sources = "LFR, Heroic dungeons, Delves T5-6" },
-    { id = 3343, tier = 3, label = "Champion",   sources = "Normal raid, M+ 2-3, Delves T7-10" },
-    { id = 3345, tier = 4, label = "Hero",       sources = "Heroic raid, M+ 4-8, Delves T11" },
-    { id = 3347, tier = 5, label = "Myth",       sources = "Mythic raid, M+ 9+" },
+-- Crest currency IDs are season-specific: Blizzard mints a fresh set each
+-- season and moves the previous one to the hidden category, where
+-- GetCurrencyInfo keeps returning the player's frozen last-season totals.
+-- Refresh CREST_SUFFIX + all five IDs when the season rolls over.
+-- Midnight Season 2: Mistcrest.
+local CREST_SUFFIX = "Mistcrest"
+
+local CREST_DATA = {
+    { id = 3442, tier = 1, label = "Adventurer", sources = "Repeatable outdoor events, Delves T4" },
+    { id = 3443, tier = 2, label = "Veteran",    sources = "Repeatable outdoor events, LFR Venomous Abyss, Heroic dungeons, Delves T5-6, Trovehunter's Bounty T4-5" },
+    { id = 3444, tier = 3, label = "Champion",   sources = "Weekly outdoor events, Normal Venomous Abyss, Mythic 0 dungeons, M+ 2-3, Delves T7-10, Trovehunter's Bounty T6-7" },
+    { id = 3445, tier = 4, label = "Hero",       sources = "Heroic Venomous Abyss, M+ 4-8, Delves T11, Trovehunter's Bounty T8+" },
+    { id = 3446, tier = 5, label = "Myth",       sources = "Mythic Venomous Abyss, M+ 9+" },
 }
 
 local function Trim(s) return s:match("^%s*(.-)%s*$") end
@@ -2322,10 +2329,10 @@ local function CreateSettingsFrame()
     themeSep:SetPoint("TOPLEFT",  sf, "TOPLEFT",  2, -112)
     themeSep:SetPoint("TOPRIGHT", sf, "TOPRIGHT", -2, -112)
 
-    -- Section: DAWNCRESTS
+    -- Section: CRESTS
     local sectionLabel = sf:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     sectionLabel:SetPoint("TOPLEFT", sf, "TOPLEFT", 14, -125)
-    sectionLabel:SetText(P.tGold .. "DAWNCRESTS|r")
+    sectionLabel:SetText(P.tGold .. "CRESTS|r")
 
     -- Master toggle: Show crest progress bar
     local masterCb = CreateFrame("CheckButton", "BiSHelperSettingsCrestMaster", sf, "UICheckButtonTemplate")
@@ -2342,11 +2349,11 @@ local function CreateSettingsFrame()
     -- Per-crest checkboxes
     sf.crestCheckboxes = {}
     local prevCb = masterCb
-    for _, crestData in ipairs(DAWNCREST_DATA) do
+    for _, crestData in ipairs(CREST_DATA) do
         local cb = CreateFrame("CheckButton", "BiSHelperSettingsCrest" .. crestData.id, sf, "UICheckButtonTemplate")
         cb:SetPoint("TOPLEFT", prevCb, "BOTTOMLEFT", 0, -4)
         cb.text = cb.text or _G[cb:GetName() .. "Text"] or cb:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        cb.text:SetText(P.tCream .. crestData.label .. " Dawncrest|r")
+        cb.text:SetText(P.tCream .. crestData.label .. " " .. CREST_SUFFIX .. "|r")
         cb:SetChecked(BiSHelperDB.settings.crests.visible[crestData.id])
         cb:SetScript("OnClick", function(self)
             BiSHelperDB.settings.crests.visible[crestData.id] = self:GetChecked()
@@ -2649,7 +2656,7 @@ local function IsCrestBarVisible()
     local cs = BiSHelperDB.settings.crests
     if not cs or not cs.showBar then return false end
     if not cs.visible then return false end
-    for _, crest in ipairs(DAWNCREST_DATA) do
+    for _, crest in ipairs(CREST_DATA) do
         if cs.visible[crest.id] then return true end
     end
     return false
@@ -2970,7 +2977,7 @@ local function CreateCrestBar(frame)
     bar.crestFrames = {}
     local prevFrame = nil
 
-    for _, crestData in ipairs(DAWNCREST_DATA) do
+    for _, crestData in ipairs(CREST_DATA) do
         local cf = CreateFrame("Frame", nil, bar)
         cf:SetHeight(CREST_BAR_H)
         cf:EnableMouse(true)
@@ -3044,7 +3051,7 @@ RefreshCrestBar = function()
     bar:Show()
 
     local prevFrame = nil
-    for _, crestData in ipairs(DAWNCREST_DATA) do
+    for _, crestData in ipairs(CREST_DATA) do
         local cf = bar.crestFrames[crestData.id]
         if cf then
             local visible = settings and settings.visible and settings.visible[crestData.id]
@@ -4187,7 +4194,12 @@ local function InitSettingsDefaults()
     end
     if not BiSHelperDB.settings.crests.visible then
         BiSHelperDB.settings.crests.visible = {}
-        for _, crest in ipairs(DAWNCREST_DATA) do
+    end
+    -- Season rollover brings new currency IDs that saved settings never saw.
+    -- Default them to shown, or the whole bar would vanish after the update;
+    -- existing IDs keep whatever the player chose.
+    for _, crest in ipairs(CREST_DATA) do
+        if BiSHelperDB.settings.crests.visible[crest.id] == nil then
             BiSHelperDB.settings.crests.visible[crest.id] = true
         end
     end

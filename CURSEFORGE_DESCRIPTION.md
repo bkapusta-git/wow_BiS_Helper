@@ -42,9 +42,9 @@ Browse loot from M+ dungeons and raids in one place. 223 M+ items from the Seaso
 
 ---
 
-## Dawncrest Tracker
+## Crest Tracker
 
-Bar above the gear table showing your crest progress across all 5 tiers: how many you have, how many you've earned this season, and the cap. Hover for drop source tooltips. Handy for tracking when a track hits 6/6 and the next tier upgrade becomes free.
+Bar above the gear table showing your Mistcrest progress across all 5 tiers: how many you have, how many you've earned this season, and the cap. Hover for drop source tooltips. Handy for tracking when a track hits 6/6 and the next tier upgrade becomes free.
 
 ---
 

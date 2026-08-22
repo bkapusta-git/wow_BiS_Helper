@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [0.12.1] — 2026-08-22
+
+### Fixed
+- **Crest bar tracked Season 1 currencies** — The bar had Season 1's Dawncrest currency IDs hardcoded. Blizzard mints a fresh set of crests each season and moves the previous one to a hidden category, but the game keeps reporting your frozen last-season totals for hidden currencies, so the bar showed stale numbers instead of failing outright. It now tracks Midnight Season 2's Mistcrests, from Adventurer through Myth.
+- **Crest drop sources** — Rewritten to match Season 2: The Venomous Abyss named per difficulty, Mythic 0 dungeons added to Champion, and Trovehunter's Bounty added to Veteran, Champion, and Hero.
+- **Crest visibility settings** — Currency IDs introduced by a season change now default to shown, so the bar no longer disappears after updating. Per-tier choices you already made are preserved.
+
+### Changed
+- **Interface version** — Bumped to 120100 for WoW patch 12.1.0, clearing the "out of date" flag in the addon list.
+
 ## [0.12.0] — 2026-08-22
 
 ### Changed
