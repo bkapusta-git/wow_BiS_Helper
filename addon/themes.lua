@@ -50,10 +50,12 @@ ns.Themes.silvermoon = {
     tWhite     = "|cfff0e6d8",
     tBiS       = "|cff4ee050",
     tMissing   = "|cffe63830",
+    tWarn      = "|cfff5a623",  -- warm amber-orange, ostrzeżenie ("equipped ale nie BiS")
 
     -- Text (rgb {r,g,b,a} do SetTextColor)
     cream      = { 0.93, 0.84, 0.72, 1.00 },
     textDim    = { 0.54, 0.45, 0.38, 1.00 },  -- rgb odpowiednik tDim (dla GameTooltip:AddLine)
+    warn       = { 0.96, 0.65, 0.14, 1.00 },  -- rgb odpowiednik tWarn
 }
 
 -- ============================================================
@@ -66,8 +68,8 @@ local REQUIRED_KEYS = {
     "gold", "goldDim",
     "borderFile", "borderSize",
     "neonGreen", "neonRed", "neonGrey", "glowGreen", "glowRed",
-    "tGold", "tCream", "tDim", "tWhite", "tBiS", "tMissing",
-    "cream", "textDim",
+    "tGold", "tCream", "tDim", "tWhite", "tBiS", "tMissing", "tWarn",
+    "cream", "textDim", "warn",
 }
 
 local function validate(theme)
@@ -128,10 +130,12 @@ ns.Themes.elvui = {
     tWhite     = "|cffffffff",
     tBiS       = "|cff4ee050",
     tMissing   = "|cffe63830",
+    tWarn      = "|cfff2a633",  -- amber-orange, obcy paleta grey aby wyraźnie odróżnić od tGold (jasnoszary)
 
     -- Text (rgb {r,g,b,a} do SetTextColor)
     cream      = { 0.88, 0.88, 0.88, 1.00 },
     textDim    = { 0.53, 0.53, 0.53, 1.00 },
+    warn       = { 0.95, 0.65, 0.20, 1.00 },  -- rgb odpowiednik tWarn
 }
 
 validate(ns.Themes.elvui)
@@ -177,10 +181,12 @@ ns.Themes.kaldorei = {
     tWhite     = "|cffe8f0ff",  -- cold white
     tBiS       = "|cff4ee050",
     tMissing   = "|cffe63830",
+    tWarn      = "|cfff29e2e",  -- warm amber-orange, kontrast do chłodnego indygo/moonsilver
 
     -- Text (rgb {r,g,b,a} do SetTextColor)
     cream      = { 0.82, 0.88, 0.96, 1.00 },
     textDim    = { 0.47, 0.47, 0.66, 1.00 },  -- dim blue-grey (rgb odpowiednik tDim)
+    warn       = { 0.95, 0.62, 0.18, 1.00 },  -- rgb odpowiednik tWarn
 }
 
 validate(ns.Themes.kaldorei)
@@ -226,10 +232,12 @@ ns.Themes.frost = {
     tWhite     = "|cffe8f4ff",  -- cold white
     tBiS       = "|cff4ee050",
     tMissing   = "|cffe63830",
+    tWarn      = "|cffe8b03d",  -- stonowany złoty bursztyn, mniej nasycony niż czysty pomarańcz, żeby nie kłócić się z chłodną paletą
 
     -- Text (rgb {r,g,b,a} do SetTextColor)
     cream      = { 0.80, 0.88, 0.96, 1.00 },
     textDim    = { 0.41, 0.47, 0.63, 1.00 },  -- blue-grey dim (rgb odpowiednik tDim)
+    warn       = { 0.91, 0.69, 0.24, 1.00 },  -- rgb odpowiednik tWarn
 }
 
 validate(ns.Themes.frost)
@@ -275,10 +283,12 @@ ns.Themes.ember = {
     tWhite     = "|cfff0e8da",  -- warm white
     tBiS       = "|cff4ee050",
     tMissing   = "|cffe63830",
+    tWarn      = "|cfff7c733",  -- jaśniejszy, bardziej żółty złoty odcień niż tGold (warm amber), żeby się od niego odróżnić
 
     -- Text (rgb {r,g,b,a} do SetTextColor)
     cream      = { 0.92, 0.82, 0.68, 1.00 },
     textDim    = { 0.54, 0.44, 0.38, 1.00 },  -- warm dim (rgb odpowiednik tDim)
+    warn       = { 0.97, 0.78, 0.20, 1.00 },  -- rgb odpowiednik tWarn
 }
 
 validate(ns.Themes.ember)
