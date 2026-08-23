@@ -3007,12 +3007,6 @@ local function CreateRowPool(frame)
             g:SetAllPoints()
             g:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 
-            local slotBg = f:CreateTexture(nil, "BACKGROUND")
-            slotBg:SetAllPoints()
-            slotBg:SetColorTexture(unpack(P.bgIlvl))
-            slotBg:Hide()
-            f.slotBg = slotBg
-
             local border = f:CreateTexture(nil, "ARTWORK")
             border:SetPoint("TOPLEFT", -1, 1)
             border:SetPoint("BOTTOMRIGHT", 1, -1)
@@ -3029,7 +3023,7 @@ local function CreateRowPool(frame)
                         GameTooltip:AddLine("Inny niz zalecany", P.warn[1], P.warn[2], P.warn[3])
                     end
                     GameTooltip:Show()
-                elseif self.slotBg:IsShown() then
+                elseif self.emptySocket then
                     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                     GameTooltip:AddLine("Puste gniazdo", P.neonRed[1], P.neonRed[2], P.neonRed[3])
                     GameTooltip:Show()
@@ -4081,7 +4075,7 @@ local function UpdateRow(rowIndex, slotId)
             icon.tex:SetTexture(gems[j].icon)
             icon.tex:Show()
             icon.gemLink = gems[j].link
-            icon.slotBg:Hide()
+            icon.emptySocket = false
 
             -- Wrong gem is a warning, not an error: the player may have
             -- socketed deliberately. An empty socket is the real problem.
@@ -4094,16 +4088,19 @@ local function UpdateRow(rowIndex, slotId)
             end
             icon:Show()
         elseif j <= socketTotal then
-            -- Socket exists but holds nothing.
-            icon.tex:Hide()
+            -- Socket exists but holds nothing. The dark centre sits on OVERLAY
+            -- so it covers all but a 1px rim of the border underneath -- same
+            -- ring effect the wrong-gem state gets from the gem icon itself.
+            icon.tex:SetColorTexture(unpack(P.bgIlvl))
+            icon.tex:Show()
             icon.gemLink = nil
-            icon.slotBg:Show()
+            icon.emptySocket = true
             icon.border:SetColorTexture(unpack(P.neonRed))
             icon.border:Show()
             icon:Show()
         else
             icon.gemLink = nil
-            icon.slotBg:Hide()
+            icon.emptySocket = false
             icon.border:Hide()
             icon:Hide()
         end
