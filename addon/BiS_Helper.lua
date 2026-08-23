@@ -3006,10 +3006,32 @@ local function CreateRowPool(frame)
             local g = f:CreateTexture(nil, "OVERLAY")
             g:SetAllPoints()
             g:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+
+            local slotBg = f:CreateTexture(nil, "BACKGROUND")
+            slotBg:SetAllPoints()
+            slotBg:SetColorTexture(unpack(P.bgIlvl))
+            slotBg:Hide()
+            f.slotBg = slotBg
+
+            local border = f:CreateTexture(nil, "ARTWORK")
+            border:SetPoint("TOPLEFT", -1, 1)
+            border:SetPoint("BOTTOMRIGHT", 1, -1)
+            border:SetColorTexture(unpack(P.neonRed))
+            border:Hide()
+            f.border = border
+
             f:SetScript("OnEnter", function(self)
                 if self.gemLink then
                     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                     GameTooltip:SetHyperlink(self.gemLink)
+                    if self.border:IsShown() then
+                        GameTooltip:AddLine(" ")
+                        GameTooltip:AddLine("Inny niz zalecany", P.warn[1], P.warn[2], P.warn[3])
+                    end
+                    GameTooltip:Show()
+                elseif self.slotBg:IsShown() then
+                    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                    GameTooltip:AddLine("Puste gniazdo", P.neonRed[1], P.neonRed[2], P.neonRed[3])
                     GameTooltip:Show()
                 end
             end)
@@ -4050,14 +4072,40 @@ local function UpdateRow(rowIndex, slotId)
         row.enchantID = nil
     end
 
+    local socketTotal = GetSocketInfo(slotId)
+    local recGem = GetRecommendedGem(specData)
+
     for j = 1, 3 do
+        local icon = row.gemIcons[j]
         if gems and gems[j] then
-            row.gemIcons[j].tex:SetTexture(gems[j].icon)
-            row.gemIcons[j].gemLink = gems[j].link
-            row.gemIcons[j]:Show()
+            icon.tex:SetTexture(gems[j].icon)
+            icon.tex:Show()
+            icon.gemLink = gems[j].link
+            icon.slotBg:Hide()
+
+            -- Wrong gem is a warning, not an error: the player may have
+            -- socketed deliberately. An empty socket is the real problem.
+            local gemID = tonumber(gems[j].link:match("item:(%d+)"))
+            if recGem and gemID and gemID ~= recGem.itemID then
+                icon.border:SetColorTexture(unpack(P.warn))
+                icon.border:Show()
+            else
+                icon.border:Hide()
+            end
+            icon:Show()
+        elseif j <= socketTotal then
+            -- Socket exists but holds nothing.
+            icon.tex:Hide()
+            icon.gemLink = nil
+            icon.slotBg:Show()
+            icon.border:SetColorTexture(unpack(P.neonRed))
+            icon.border:Show()
+            icon:Show()
         else
-            row.gemIcons[j].gemLink = nil
-            row.gemIcons[j]:Hide()
+            icon.gemLink = nil
+            icon.slotBg:Hide()
+            icon.border:Hide()
+            icon:Hide()
         end
     end
 
