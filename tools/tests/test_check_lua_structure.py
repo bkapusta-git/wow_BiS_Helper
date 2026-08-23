@@ -86,11 +86,22 @@ def test_unterminated_long_bracket_string_flagged():
 
 
 def test_polish_comment_apostrophe_and_data_string_apostrophe():
-    # Polish comments can have apostrophes (e.g., "to koniec pracy")
-    # Data strings can have apostrophes (e.g., "Kings' Rest")
-    # Both should not confuse the scanner
-    src = '''-- To jest koniec pracy nad tym systemem
+    # An apostrophe inside a comment is an unclosed quote character. If comment
+    # stripping ever ran after string scanning, that lone ' would open a string
+    # literal and swallow the rest of the file. This pins the ordering.
+    src = """-- nadpisujemy override'y gracza, potem czytamy Kings' Rest
 local item = { name = "Kings' Rest", id = 123 }
 local function f() return 1 end
-'''
+"""
+    assert check(src) == []
+
+
+def test_apostrophe_in_comment_does_not_swallow_following_code():
+    # The `end` below must still be counted: if the comment's apostrophe opened
+    # a string, everything after it would vanish from the code stream.
+    src = """local function f()
+    -- to jest gracza's item, nie nasz
+    return 1
+end
+"""
     assert check(src) == []
