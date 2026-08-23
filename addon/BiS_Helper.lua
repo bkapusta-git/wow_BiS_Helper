@@ -864,7 +864,7 @@ local function GetRecommendedEnchant(slotId, specData)
     local override = specData and specData.enchants and specData.enchants[slotId]
     if override then
         for _, entry in ipairs(options) do
-            if entry.name == override then
+            if entry.name == override and entry.ranks then
                 return { name = entry.name, stat = entry.stat,
                          ranks = entry.ranks, targetID = entry.ranks[#entry.ranks] }
             end
@@ -917,22 +917,21 @@ local function GetSocketInfo(slotId)
     local link = GetInventoryItemLink("player", slotId)
     if not link then return 0, 0 end
 
-    local total = 0
+    local empty = 0
     local stats = C_Item.GetItemStats(link)
     if stats then
         for key, count in pairs(stats) do
-            if key:find("EMPTY_SOCKET_") then total = total + count end
+            if key:find("EMPTY_SOCKET_") then empty = empty + count end
         end
     end
 
     local _, gems = GetItemEnchantAndGems(slotId)
     local filled = gems and #gems or 0
 
-    -- GetItemStats reports sockets whether or not they hold a gem, but some
-    -- item types under-report; never claim fewer sockets than gems present.
-    if total < filled then total = filled end
-
-    return total, filled
+    -- GetItemStats lists only the sockets that are still EMPTY: a socket
+    -- holding a gem contributes that gem's stats instead and never appears
+    -- under an EMPTY_SOCKET_* key. Total is therefore empty plus filled.
+    return empty + filled, filled
 end
 
 local function GetRecommendedGem(specData)
