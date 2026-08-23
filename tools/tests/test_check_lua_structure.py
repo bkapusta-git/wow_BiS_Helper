@@ -89,7 +89,7 @@ def test_polish_comment_apostrophe_and_data_string_apostrophe():
     # An apostrophe inside a comment is an unclosed quote character. If comment
     # stripping ever ran after string scanning, that lone ' would open a string
     # literal and swallow the rest of the file. This pins the ordering.
-    src = """-- nadpisujemy override'y gracza, potem czytamy Kings' Rest
+    src = """-- nadpisujemy overridey gracza, potem czytamy Kings' Rest
 local item = { name = "Kings' Rest", id = 123 }
 local function f() return 1 end
 """
