@@ -2975,10 +2975,10 @@ local function CreateRowPool(frame)
                 if rec and row.enchantStatus ~= "na" then
                     GameTooltip:AddLine(" ")
                     if row.enchantStatus == "match" then
-                        GameTooltip:AddLine("Zgodny z rekomendacja", unpack(P.neonGreen))
+                        GameTooltip:AddLine("Zgodny z rekomendacja", P.neonGreen[1], P.neonGreen[2], P.neonGreen[3])
                     else
                         GameTooltip:AddLine("Zalecane: " .. rec.name .. " (Rank " ..
-                            tostring(#rec.ranks) .. ")", unpack(P.warn))
+                            tostring(#rec.ranks) .. ")", P.warn[1], P.warn[2], P.warn[3])
                     end
                 end
                 GameTooltip:Show()
@@ -4028,12 +4028,13 @@ local function UpdateRow(rowIndex, slotId)
     if not link then
         row.enchantText:SetText("")
     elseif enchantStatus == "match" then
-        row.enchantText:SetText(P.tBiS .. enchant .. "|r")
+        row.enchantText:SetText(P.tBiS .. (enchant or recommended.name) .. "|r")
     elseif enchantStatus == "lowrank" then
-        row.enchantText:SetText(P.tWarn .. enchant ..
+        row.enchantText:SetText(P.tWarn .. (enchant or recommended.name) ..
             " (R" .. tostring(recommended.rank) .. ")|r")
     elseif enchantStatus == "other" then
-        row.enchantText:SetText(P.tWarn .. enchant .. "|r")
+        -- Off-catalogue enchant: we have an ID but no name we can trust.
+        row.enchantText:SetText(P.tWarn .. (enchant or "?") .. "|r")
     elseif enchantStatus == "none" then
         row.enchantText:SetText(P.tMissing .. "brak|r")
     else
