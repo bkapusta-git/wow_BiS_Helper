@@ -50,12 +50,12 @@ ns.Themes.silvermoon = {
     tWhite     = "|cfff0e6d8",
     tBiS       = "|cff4ee050",
     tMissing   = "|cffe63830",
-    tWarn      = "|cfff5a623",  -- warm amber-orange, ostrzeżenie ("equipped ale nie BiS")
+    tWarn      = "|cfff57017",  -- red-orange, ostrzeżenie ("equipped ale nie BiS"); hue ~24° trzyma ~21° odstępu i od tGold (44.9°) i od tMissing (2.6°), plus wyzsza saturacja niz tGold (0.91 vs 0.73) dla drugiej osi odróżnienia
 
     -- Text (rgb {r,g,b,a} do SetTextColor)
     cream      = { 0.93, 0.84, 0.72, 1.00 },
     textDim    = { 0.54, 0.45, 0.38, 1.00 },  -- rgb odpowiednik tDim (dla GameTooltip:AddLine)
-    warn       = { 0.96, 0.65, 0.14, 1.00 },  -- rgb odpowiednik tWarn
+    warn       = { 0.96, 0.44, 0.09, 1.00 },  -- rgb odpowiednik tWarn
 }
 
 -- ============================================================
@@ -283,12 +283,12 @@ ns.Themes.ember = {
     tWhite     = "|cfff0e8da",  -- warm white
     tBiS       = "|cff4ee050",
     tMissing   = "|cffe63830",
-    tWarn      = "|cfff7c733",  -- jaśniejszy, bardziej żółty złoty odcień niż tGold (warm amber), żeby się od niego odróżnić
+    tWarn      = "|cfff7d426",  -- golden-yellow, przesunięty od tGold (amber, hue 30.7°) w stronę żółci (hue ~50°) o ~19° odstępu, plus wyzsza saturacja (0.85 vs 0.72) i jasność (0.97 vs 0.91) niz tGold dla drugiej osi odróżnienia
 
     -- Text (rgb {r,g,b,a} do SetTextColor)
     cream      = { 0.92, 0.82, 0.68, 1.00 },
     textDim    = { 0.54, 0.44, 0.38, 1.00 },  -- warm dim (rgb odpowiednik tDim)
-    warn       = { 0.97, 0.78, 0.20, 1.00 },  -- rgb odpowiednik tWarn
+    warn       = { 0.97, 0.83, 0.15, 1.00 },  -- rgb odpowiednik tWarn
 }
 
 validate(ns.Themes.ember)
