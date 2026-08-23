@@ -821,6 +821,136 @@ local function GetActiveStatData()
     return merged
 end
 
+-- ============================================================
+-- Enchant / gem recommendations
+-- ============================================================
+
+-- Ring 12 shares ring 11's catalogue entry.
+local function EnchantSlotKey(slotId)
+    if slotId == 12 then return 11 end
+    return slotId
+end
+
+-- Rank of an equipped enchant within its family, or nil when it is not
+-- a member. Index doubles as the rank, so ranks[3] is max rank.
+local function RankInFamily(entry, enchantID)
+    if not (entry and entry.ranks and enchantID) then return nil end
+    for i = 1, #entry.ranks do
+        if entry.ranks[i] == enchantID then return i end
+    end
+    return nil
+end
+
+-- Position of a stat in the spec's priority list for the active mode.
+-- Lower is better; nil when the stat is absent from the list.
+local function StatRank(statName, specData)
+    if not (specData and specData.statPriority) then return nil end
+    local modeData = specData.statPriority[activeMode]
+    if not (modeData and modeData.stats) then return nil end
+    for i, s in ipairs(modeData.stats) do
+        if s.name == statName then return i end
+    end
+    return nil
+end
+
+local function GetRecommendedEnchant(slotId, specData)
+    local catalogue = BiSHelper_Enchants and BiSHelper_Enchants.slots
+    if not catalogue then return nil end
+
+    local options = catalogue[EnchantSlotKey(slotId)]
+    if not options or #options == 0 then return nil end
+
+    -- 1. Explicit override from the spec file wins outright.
+    local override = specData and specData.enchants and specData.enchants[slotId]
+    if override then
+        for _, entry in ipairs(options) do
+            if entry.name == override then
+                return { name = entry.name, stat = entry.stat,
+                         ranks = entry.ranks, targetID = entry.ranks[#entry.ranks] }
+            end
+        end
+        -- Override naming an entry outside the catalogue: fall through to the
+        -- stat rule rather than showing nothing. audit_bis_data.py flags this.
+    end
+
+    -- 2. Otherwise pick the option whose stat sits highest in the priority list.
+    local best, bestRank
+    for _, entry in ipairs(options) do
+        local rank = StatRank(entry.stat, specData)
+        if rank and (not bestRank or rank < bestRank) then
+            best, bestRank = entry, rank
+        end
+    end
+
+    -- 3. No option matches any listed stat — first catalogue entry is the
+    -- least-wrong answer and still beats leaving the row unevaluated.
+    best = best or options[1]
+
+    return { name = best.name, stat = best.stat,
+             ranks = best.ranks, targetID = best.ranks[#best.ranks] }
+end
+
+local function EvaluateEnchant(slotId, specData)
+    local recommended = GetRecommendedEnchant(slotId, specData)
+    if not recommended then return "na", nil end
+
+    local link = GetInventoryItemLink("player", slotId)
+    if not link then return "na", recommended end
+
+    local enchantID = tonumber(link:match("item:%d+:(%d+)"))
+    if not enchantID or enchantID == 0 then return "none", recommended end
+
+    local rank = RankInFamily(recommended, enchantID)
+    if rank then
+        if rank == #recommended.ranks then return "match", recommended end
+        recommended.rank = rank
+        return "lowrank", recommended
+    end
+
+    return "other", recommended
+end
+
+-- How many sockets the item has versus how many are filled. Reading the
+-- item link alone only reveals gems already socketed, so an empty socket
+-- is indistinguishable from no socket at all.
+local function GetSocketInfo(slotId)
+    local link = GetInventoryItemLink("player", slotId)
+    if not link then return 0, 0 end
+
+    local total = 0
+    local stats = C_Item.GetItemStats(link)
+    if stats then
+        for key, count in pairs(stats) do
+            if key:find("EMPTY_SOCKET_") then total = total + count end
+        end
+    end
+
+    local _, gems = GetItemEnchantAndGems(slotId)
+    local filled = gems and #gems or 0
+
+    -- GetItemStats reports sockets whether or not they hold a gem, but some
+    -- item types under-report; never claim fewer sockets than gems present.
+    if total < filled then total = filled end
+
+    return total, filled
+end
+
+local function GetRecommendedGem(specData)
+    local catalogue = BiSHelper_Gems and BiSHelper_Gems.byStat
+    if not catalogue then return nil end
+
+    local best, bestRank
+    for statName, gem in pairs(catalogue) do
+        if gem.itemID and gem.itemID > 0 then
+            local rank = StatRank(statName, specData)
+            if rank and (not bestRank or rank < bestRank) then
+                best, bestRank = { itemID = gem.itemID, name = gem.name, stat = statName }, rank
+            end
+        end
+    end
+    return best
+end
+
 local function BuildExportProfile()
     local specKey = GetCurrentDataKey()
     if not specKey then return nil end
