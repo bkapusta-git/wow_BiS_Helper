@@ -12,7 +12,7 @@ tools/.env
 *.zip
 
 # Python cache
-tools/__pycache__/
+__pycache__/
 
 # Generated JSON artifacts
 tools/*.json
