@@ -3,6 +3,9 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from fetch_enchants import parse_tier, group_ranks, render_lua, SLOT_MAP
 
+VALID_STATS = {"Critical Strike", "Haste", "Mastery", "Versatility",
+               "Leech", "Avoidance", "Speed"}
+
 
 def test_parse_tier_extracts_name_and_tier():
     raw = "Chant of Winged Grace |A:Professions-ChatIcon-Quality-Tier3:20:20|a"
@@ -54,13 +57,30 @@ def test_render_lua_has_no_pipe_character():
 
 
 def test_slot_map_uses_full_wow_stat_names():
-    # Matching against statPriority compares these strings verbatim.
-    for entry in SLOT_MAP.values():
-        assert entry["stat"] != "Crit", "uzyj pelnej nazwy 'Critical Strike'"
-        assert entry["stat"] != "Vers", "uzyj pelnej nazwy 'Versatility'"
+    # These strings are compared verbatim against statPriority[mode].stats[].name
+    # in the spec data files; an abbreviation or a variant silently never matches.
+    for name, entry in SLOT_MAP.items():
+        assert entry["stat"] in VALID_STATS, (
+            "%s ma stat %r spoza dozwolonej listy" % (name, entry["stat"])
+        )
 
 
 def test_unknown_enchant_name_raises():
     from fetch_enchants import resolve_slot
     with pytest.raises(KeyError):
         resolve_slot("Enchant That Does Not Exist")
+
+
+def test_render_lua_rejects_markup_that_survives_parse_tier():
+    # parse_tier only strips the trailing tier marker, so markup earlier in the
+    # raw name reaches render_lua. That must be refused, not emitted.
+    raw = "Chant of |cffff0000Danger|r Grace |A:Professions-ChatIcon-Quality-Tier3:20:20|a"
+    name, tier = parse_tier(raw)
+    assert "|" in name, "fixture must actually carry markup past parse_tier"
+    with pytest.raises(ValueError):
+        render_lua({15: [{"name": name, "stat": "Avoidance", "ranks": [1, 2, 3]}]}, "Midnight Season 2")
+
+
+def test_render_lua_rejects_double_quote_in_name():
+    with pytest.raises(ValueError):
+        render_lua({15: [{"name": 'Chant of "Danger"', "stat": "Avoidance", "ranks": [1, 2, 3]}]}, "Midnight Season 2")

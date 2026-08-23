@@ -14,11 +14,9 @@ there is visible in game immediately.
 Usage:  python tools/fetch_enchants.py
 """
 import csv
-import json
 import os
 import re
 import sys
-import urllib.request
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE = os.path.join(REPO, "tools", "cache", "SpellItemEnchantment.csv")
@@ -72,6 +70,16 @@ def resolve_slot(name):
     return SLOT_MAP[name]
 
 
+def _reject_markup(value, field):
+    """`|` opens an escape sequence in WoW's UI markup and `"` would break the
+    Lua string literal. Neither can be escaped away safely, so refuse to emit."""
+    if "|" in value or '"' in value:
+        raise ValueError(
+            "niedozwolony znak w polu %s: %r (| psuje markup UI, \" psuje skladnie Lua)"
+            % (field, value)
+        )
+
+
 def render_lua(catalog, season):
     """{slot_id: [{name, stat, ranks}]} -> contents of enchants.lua"""
     lines = [
@@ -86,6 +94,8 @@ def render_lua(catalog, season):
     for slot_id in sorted(catalog):
         lines.append("        [%d] = {" % slot_id)
         for entry in sorted(catalog[slot_id], key=lambda e: e["name"]):
+            _reject_markup(entry["name"], "name")
+            _reject_markup(entry["stat"], "stat")
             ranks = ", ".join(str(r) for r in entry["ranks"])
             lines.append(
                 '            { name = "%s", stat = "%s", ranks = {%s} },'
