@@ -2971,6 +2971,16 @@ local function CreateRowPool(frame)
                     local link = GetInventoryItemLink("player", row.slotId)
                     if link then GameTooltip:SetHyperlink(link) end
                 end
+                local rec = row.enchantRecommended
+                if rec and row.enchantStatus ~= "na" then
+                    GameTooltip:AddLine(" ")
+                    if row.enchantStatus == "match" then
+                        GameTooltip:AddLine("Zgodny z rekomendacja", unpack(P.neonGreen))
+                    else
+                        GameTooltip:AddLine("Zalecane: " .. rec.name .. " (Rank " ..
+                            tostring(#rec.ranks) .. ")", unpack(P.warn))
+                    end
+                end
                 GameTooltip:Show()
             else
                 ShowItemTooltip(self)
@@ -3968,6 +3978,7 @@ local function UpdateRow(rowIndex, slotId)
     local bisList  = GetActiveBiSList()
     local bisEntry = bisList and bisList[slotId]
     local link     = GetInventoryItemLink("player", slotId)
+    local specData = GetSpecData()
 
     if link then
         local _, _, _, _, iconTex = C_Item.GetItemInfoInstant(link)
@@ -4010,8 +4021,27 @@ local function UpdateRow(rowIndex, slotId)
     end
 
     local enchant, gems = GetItemEnchantAndGems(slotId)
-    row.enchantText:SetText(link and (enchant and "|cff1eff00" .. enchant .. "|r" or P.tDim .. "—|r") or "")
-    
+    local enchantStatus, recommended = EvaluateEnchant(slotId, specData)
+    row.enchantStatus = enchantStatus
+    row.enchantRecommended = recommended
+
+    if not link then
+        row.enchantText:SetText("")
+    elseif enchantStatus == "match" then
+        row.enchantText:SetText(P.tBiS .. enchant .. "|r")
+    elseif enchantStatus == "lowrank" then
+        row.enchantText:SetText(P.tWarn .. enchant ..
+            " (R" .. tostring(recommended.rank) .. ")|r")
+    elseif enchantStatus == "other" then
+        row.enchantText:SetText(P.tWarn .. enchant .. "|r")
+    elseif enchantStatus == "none" then
+        row.enchantText:SetText(P.tMissing .. "brak|r")
+    else
+        -- "na": slot takes no enchant, or we have no catalogue entry for it
+        row.enchantText:SetText(enchant and (P.tCream .. enchant .. "|r")
+                                        or (P.tDim .. "—|r"))
+    end
+
     -- Store enchantID for the tooltip
     if link then
         row.enchantID = tonumber(link:match("item:%d+:(%d+)"))
