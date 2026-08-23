@@ -46,3 +46,51 @@ def test_elseif_does_not_require_extra_end():
 def test_unterminated_string_flagged():
     issues = check('local s = "abc\n')
     assert any("string" in i.lower() for i in issues)
+
+
+def test_bare_long_bracket_string_with_keywords_as_prose():
+    # Long strings should be stripped; keywords inside them should not count
+    src = '''local HELP_TEXT = [[Some help text]] .. "x" .. [[
+If you click Share and then Export, do this before you end your session.
+]]
+local function f()
+    return 1
+end
+'''
+    assert check(src) == []
+
+
+def test_leveled_long_bracket_string():
+    # [=[ ... ]=] should be recognized as a string
+    src = '''local s = [=[
+    This has "quotes" and 'apostrophes' and the word then and end and function
+    ]=]
+local function f() return 1 end
+'''
+    assert check(src) == []
+
+
+def test_block_comment_with_leveled_brackets():
+    # --[=[ ... ]=] should be recognized as a comment
+    src = '''--[=[
+    This is a comment with then, end, do, function keywords
+    ]=]
+local function f() return 1 end
+'''
+    assert check(src) == []
+
+
+def test_unterminated_long_bracket_string_flagged():
+    issues = check('local s = [=[unterminated\n')
+    assert any("string" in i.lower() for i in issues)
+
+
+def test_polish_comment_apostrophe_and_data_string_apostrophe():
+    # Polish comments can have apostrophes (e.g., "to koniec pracy")
+    # Data strings can have apostrophes (e.g., "Kings' Rest")
+    # Both should not confuse the scanner
+    src = '''-- To jest koniec pracy nad tym systemem
+local item = { name = "Kings' Rest", id = 123 }
+local function f() return 1 end
+'''
+    assert check(src) == []

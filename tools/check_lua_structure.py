@@ -19,6 +19,31 @@ import sys
 OPENERS = ("function", "do", "then")
 
 
+def _detect_long_bracket(text, i):
+    """Detect if position i starts a long bracket sequence.
+
+    Returns (level, close_pattern) if it's a long bracket, or (None, None) if not.
+    A long bracket is [=*[ where * is zero or more '='.
+    Examples:
+      - [[ ... ]] (level 0)
+      - [=[ ... ]=] (level 1)
+      - [==[ ... ]==] (level 2)
+    """
+    if i >= len(text) or text[i] != '[':
+        return None, None
+
+    j = i + 1
+    while j < len(text) and text[j] == '=':
+        j += 1
+
+    if j < len(text) and text[j] == '[':
+        level = j - i - 1
+        close_pattern = "]" + "=" * level + "]"
+        return level, close_pattern
+
+    return None, None
+
+
 def _scan(text):
     """Single pass over the source.
 
@@ -35,14 +60,34 @@ def _scan(text):
     i, n = 0, len(text)
     unterminated = False
     while i < n:
+        # Handle line comments and block comments
         if text[i:i + 2] == "--":
-            if text[i:i + 4] == "--[[":
-                end = text.find("]]", i + 4)
-                i = n if end == -1 else end + 2
+            # Check if it's a block comment (--[[, --[=[, etc.)
+            level, close_pattern = _detect_long_bracket(text, i + 2)
+            if level is not None:
+                # It's a block comment
+                pos = text.find(close_pattern, i + level + 4)
+                i = n if pos == -1 else pos + len(close_pattern)
             else:
+                # It's a line comment
                 end = text.find("\n", i)
                 i = n if end == -1 else end
             continue
+
+        # Handle bare long bracket strings (not after --)
+        level, close_pattern = _detect_long_bracket(text, i)
+        if level is not None:
+            # It's a long bracket string
+            pos = text.find(close_pattern, i + level + 2)
+            if pos == -1:
+                # Unterminated long bracket string
+                unterminated = True
+                i = n
+            else:
+                i = pos + len(close_pattern)
+            continue
+
+        # Handle quoted strings
         if text[i] in "\"'":
             quote = text[i]
             i += 1
