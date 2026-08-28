@@ -47,8 +47,32 @@ def test_file_without_enchants_section_passes():
 
 
 def test_incomplete_ranks_flagged(tmp_path):
+    # One family short of the rest of the catalogue is the real defect.
     broken = CATALOGUE_LUA.replace("{7401, 7402, 7403}", "{7401, 7402}")
     path = tmp_path / "enchants.lua"
     path.write_text(broken, encoding="utf-8")
+    from audit_bis_data import audit_catalogue_ranks
+    issues = audit_catalogue_ranks(str(path))
+    assert issues and "Chant of Winged Grace" in issues[0]
+
+
+def test_two_rank_catalogue_passes(tmp_path):
+    # Midnight ships two crafting ranks. A hardcoded three would flag every
+    # single family of a perfectly good catalogue.
+    two_rank = (CATALOGUE_LUA
+                .replace("{7401, 7402, 7403}", "{7401, 7402}")
+                .replace("{7335, 7336, 7337}", "{7335, 7336}"))
+    path = tmp_path / "enchants.lua"
+    path.write_text(two_rank, encoding="utf-8")
+    from audit_bis_data import audit_catalogue_ranks
+    assert audit_catalogue_ranks(str(path)) == []
+
+
+def test_single_rank_catalogue_flagged(tmp_path):
+    one_rank = (CATALOGUE_LUA
+                .replace("{7401, 7402, 7403}", "{7401}")
+                .replace("{7335, 7336, 7337}", "{7335}"))
+    path = tmp_path / "enchants.lua"
+    path.write_text(one_rank, encoding="utf-8")
     from audit_bis_data import audit_catalogue_ranks
     assert audit_catalogue_ranks(str(path)) != []

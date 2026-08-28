@@ -13,6 +13,7 @@ the Wowhead scrapers actually produce (see tools/apply_scraped_bis.py):
 Run from the repo root:  python tools/audit_bis_data.py
 Exits non-zero if anything is flagged, so it can gate a release.
 """
+import collections
 import glob
 import os
 import re
@@ -55,16 +56,35 @@ def load_enchant_catalogue(path=ENCHANTS_LUA):
 
 
 def audit_catalogue_ranks(path=ENCHANTS_LUA):
-    """Every family needs all three ranks: a partial family makes the addon
-    call a legitimate max-rank enchant 'low rank'."""
+    """Families must all carry the same number of ranks, and at least two.
+
+    The count is per expansion, not fixed: The War Within shipped three
+    crafting ranks, Midnight ships two. So the rule compares each family
+    against the rest of the catalogue instead of a hardcoded number. A family
+    short of the others makes the addon call a legitimate max-rank enchant
+    'low rank', which looks like a data problem to nobody.
+    """
     if not os.path.exists(path):
         return []
     text = open(path, encoding="utf-8", newline="").read()
+    entries = [(name, len([r for r in ranks.split(",") if r.strip()]))
+               for name, _stat, ranks in CATALOGUE_ENTRY.findall(text)]
+    if not entries:
+        return []
+
+    # The fullest family sets the bar. Taking the most common count instead
+    # would pick arbitrarily when two counts tie, and the defect being hunted
+    # is always a family with a rank MISSING.
+    expected = max(count for _name, count in entries)
+
     issues = []
-    for name, _stat, ranks in CATALOGUE_ENTRY.findall(text):
-        count = len([r for r in ranks.split(",") if r.strip()])
-        if count != 3:
-            issues.append(f"enchants.lua: {name} ma {count} rang zamiast 3")
+    if expected < 2:
+        issues.append(f"enchants.lua: najpelniejsza rodzina ma {expected} range - "
+                      "to nie moze byc komplet")
+    for name, count in entries:
+        if count < expected:
+            issues.append(
+                f"enchants.lua: {name} ma {count} rang, komplet to {expected}")
     return issues
 
 
