@@ -13,6 +13,7 @@ the Wowhead scrapers actually produce (see tools/apply_scraped_bis.py):
 Run from the repo root:  python tools/audit_bis_data.py
 Exits non-zero if anything is flagged, so it can gate a release.
 """
+import collections
 import glob
 import os
 import re
@@ -23,7 +24,7 @@ DATA = os.path.join(REPO, "addon", "data")
 
 # Slot 4 does not exist in the WoW API; 17 is optional (2H specs have no off-hand).
 EXPECTED_SLOTS = [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-SKIP = {"mplus_loot.lua", "raid_loot.lua"}
+SKIP = {"mplus_loot.lua", "raid_loot.lua", "enchants.lua", "gems.lua"}
 MODES = ("raid", "mythicplus")
 
 ENTRY = re.compile(
@@ -31,8 +32,89 @@ ENTRY = re.compile(
     r"\s*name\s*=\s*\"([^\"]*)\"\s*,\s*source\s*=\s*\"([^\"]*)\""
 )
 
+ENCHANTS_LUA = os.path.join(DATA, "enchants.lua")
 
-def audit_file(path):
+CATALOGUE_SLOT = re.compile(r"\[(\d+)\]\s*=\s*\{(.*?)\n        \},", re.S)
+CATALOGUE_ENTRY = re.compile(
+    r"\{\s*name\s*=\s*\"([^\"]+)\"\s*,\s*stat\s*=\s*\"([^\"]+)\"\s*,"
+    r"\s*ranks\s*=\s*\{([^}]*)\}"
+)
+OVERRIDE_BLOCK = re.compile(r"enchants\s*=\s*\{(.*?)\}", re.S)
+OVERRIDE_ENTRY = re.compile(r"\[(\d+)\]\s*=\s*\"([^\"]*)\"")
+
+
+def load_enchant_catalogue(path=ENCHANTS_LUA):
+    """{slot_id: {enchant name, ...}} from the generated catalogue."""
+    if not os.path.exists(path):
+        return {}
+    text = open(path, encoding="utf-8", newline="").read()
+    catalogue = {}
+    for slot, body in CATALOGUE_SLOT.findall(text):
+        names = {name for name, _stat, _ranks in CATALOGUE_ENTRY.findall(body)}
+        catalogue[int(slot)] = names
+    return catalogue
+
+
+def audit_catalogue_ranks(path=ENCHANTS_LUA):
+    """Families must all carry the same number of ranks, and at least two.
+
+    The count is per expansion, not fixed: The War Within shipped three
+    crafting ranks, Midnight ships two. So the rule compares each family
+    against the rest of the catalogue instead of a hardcoded number. A family
+    short of the others makes the addon call a legitimate max-rank enchant
+    'low rank', which looks like a data problem to nobody.
+    """
+    if not os.path.exists(path):
+        return []
+    text = open(path, encoding="utf-8", newline="").read()
+    entries = [(name, len([r for r in ranks.split(",") if r.strip()]))
+               for name, _stat, ranks in CATALOGUE_ENTRY.findall(text)]
+    if not entries:
+        return []
+
+    # The fullest family sets the bar. Taking the most common count instead
+    # would pick arbitrarily when two counts tie, and the defect being hunted
+    # is always a family with a rank MISSING.
+    expected = max(count for _name, count in entries)
+
+    issues = []
+    if expected < 2:
+        issues.append(f"enchants.lua: najpelniejsza rodzina ma {expected} range - "
+                      "to nie moze byc komplet")
+    for name, count in entries:
+        if count < expected:
+            issues.append(
+                f"enchants.lua: {name} ma {count} rang, komplet to {expected}")
+    return issues
+
+
+def audit_enchant_overrides(text, catalogue):
+    """Check a spec file's optional enchants = {...} block against the catalogue.
+
+    An override naming an entry outside the catalogue silently falls back to
+    the stat rule in game, so nothing looks broken — only the audit catches it.
+    """
+    block = OVERRIDE_BLOCK.search(text)
+    if not block:
+        return []
+
+    issues = []
+    for slot, name in OVERRIDE_ENTRY.findall(block.group(1)):
+        slot_id = int(slot)
+        key = 11 if slot_id == 12 else slot_id
+        if key not in catalogue:
+            issues.append(
+                f"enchants: slot {slot_id} nie wystepuje w katalogu enchants.lua"
+            )
+        elif name not in catalogue[key]:
+            issues.append(
+                f"enchants: slot {slot_id} wskazuje na \"{name}\", "
+                f"ktorego nie ma w katalogu"
+            )
+    return issues
+
+
+def audit_file(path, catalogue):
     """Return a list of human-readable problems with one spec data file."""
     text = open(path, encoding="utf-8").read()
     issues = []
@@ -81,18 +163,29 @@ def audit_file(path):
     if "|" in text:
         issues.append("zawiera znak | (escape w UI WoW, psuje renderowanie)")
 
+    issues.extend(audit_enchant_overrides(text, catalogue))
+
     return issues
 
 
 def main():
     flagged = 0
     checked = 0
+
+    catalogue = load_enchant_catalogue()
+    rank_issues = audit_catalogue_ranks()
+    if rank_issues:
+        print("\nenchants.lua")
+        for issue in rank_issues:
+            print(f"   {issue}")
+        flagged += 1
+
     for path in sorted(glob.glob(os.path.join(DATA, "*.lua"))):
         name = os.path.basename(path)
         if name in SKIP:
             continue
         checked += 1
-        issues = audit_file(path)
+        issues = audit_file(path, catalogue)
         if issues:
             flagged += 1
             print(f"\n{name}")

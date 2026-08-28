@@ -10,8 +10,8 @@
 - **Raid & Mythic+ modes** — toggle between two curated lists with a single click.
 - **Color-coded rows** — green tint for BiS items equipped, red tint for slots that need an upgrade, grey for unknown.
 - **Enhanced gear columns**
-  - **Enchant** — displays the current enchant with hover tooltip.
-  - **Gems** — shows up to 3 gem icons per item with hover tooltips.
+  - **Enchant** — rates your enchant against the one recommended for your spec: green when it matches at max rank, flagged when it is a lower crafting rank, off-list, or missing. The tooltip names the stat and what the enchant is worth on that item.
+  - **Gems** — one icon per socket, a warning ring on gems that are not the recommended one, and empty sockets drawn as visible placeholders.
   - **Track badge** — shows the upgrade track (Myth / Hero / Champion / …).
   - **iLvl pill** — quick at-a-glance item level for every slot.
 - **Smart tooltips** — hover over item icons, enchants, gems, BiS item names and all header buttons to get instant information.
