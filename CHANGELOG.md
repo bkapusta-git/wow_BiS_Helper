@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.13.0] — 2026-08-28
+
+### Added
+- **Enchant evaluation** — the Enchant column now judges what you are wearing instead of just naming it. A max-rank enchant that suits your spec shows green, a lower crafting rank shows which rank you are on, an off-list enchant is flagged, and an unenchanted slot reads as missing.
+- **Enchant tooltip** — hovering the column gives the enchant's name, its rank out of the family, the stat it grants and how many points it is worth on that specific item, plus the recommended enchant when yours differs. The value is measured from your own item rather than a stored number, so it stays right at any item level.
+- **Gem evaluation** — a socketed gem that is not the recommended one gets a warning ring, and empty sockets are drawn as visible placeholders instead of showing nothing at all.
+- **Enchant and gem catalogues** — `addon/data/enchants.lua` (37 enchants across Helm, Shoulders, Chest, Boots, Ring and Weapon) and `addon/data/gems.lua`, both generated from game data for Midnight Season 2.
+- **Per-spec enchant overrides** — a spec file can pin a chosen enchant per slot through an `enchants = {}` block, which the data audit validates against the catalogue.
+
+### Fixed
+- **Tooltips on the Enchant and BiS columns never appeared** — both hover areas were pinned to the corners of a text label, and a label has no height until it holds text, so the areas could be zero pixels tall and never registered the mouse. Both now set their height outright.
+- **Enchant tooltip raised a hidden error** — the column asked the game for an enchant tooltip, but no such thing exists in the API; the failed call aborted the hover before anything could be drawn.
+
 ## [0.12.1] — 2026-08-22
 
 ### Fixed

@@ -21,6 +21,18 @@ BiS data pre-loaded for all 40 specs in Midnight Season 2 (including Devourer DH
 
 ---
 
+## Enchants & Gems
+
+The Enchant column doesn't just name your enchant, it judges it. Green if you're on the recommended one at max crafting rank, flagged if you're a rank behind, wearing something off-list, or haven't enchanted the slot at all.
+
+Hover it and you get the rank you're on, the stat, and how many points the enchant is actually worth on that item — measured off your own gear, so it's correct at any item level. If yours isn't the recommended one, it tells you which to use.
+
+Gems work the same way: a ring around anything that isn't the recommended gem, and empty sockets show up as placeholders instead of just not being there. No more finding an unsocketed ring three weeks later.
+
+Enchant picks follow your spec's stat priority, and you can pin a specific one per slot if you sim differently.
+
+---
+
 ## Stat Priorities
 
 Stat priorities for Raid and Mythic+ come with each spec. DR cap bars show where you're at relative to Diminishing Returns thresholds.
