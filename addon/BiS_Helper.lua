@@ -910,6 +910,44 @@ local function EvaluateEnchant(slotId, specData)
     return "other", recommended
 end
 
+-- Stat points an enchant is worth, measured by the game rather than computed.
+--
+-- The catalogue deliberately carries no numbers: SpellItemEnchantment.db2 only
+-- stores a scaling coefficient (EffectScalingPoints) whose multiplier lives in
+-- an undocumented scaling table, so deriving a value offline would print
+-- confident numbers that could quietly be wrong. Instead the enchant id is
+-- swapped into the equipped item's own link and the stat tables are diffed --
+-- whatever the game reports is right by definition, and it stays right when
+-- Blizzard rescales an enchant without a patch note.
+--
+-- Returns nil when the diff is empty, which is also what happens if
+-- GetItemStats ignores enchants entirely. Showing nothing is the correct
+-- outcome there; a fabricated number would not be.
+local function EnchantStatValue(slotId, enchantID)
+    if not enchantID or enchantID <= 0 then return nil end
+    local link = GetInventoryItemLink("player", slotId)
+    if not link then return nil end
+
+    -- The enchant id is the field right after the item id in a link.
+    local withEnchant = link:gsub("(item:%d+):%d*", "%1:" .. enchantID, 1)
+    local without     = link:gsub("(item:%d+):%d*", "%1:0", 1)
+
+    local a = C_Item.GetItemStats(withEnchant)
+    local b = C_Item.GetItemStats(without)
+    if not a or not b then return nil end
+
+    -- Largest gain wins: it is the stat the enchant exists for. Sockets are
+    -- skipped because an EMPTY_SOCKET_* count is not a stat.
+    local best
+    for key, value in pairs(a) do
+        if not key:find("EMPTY_SOCKET_") then
+            local delta = value - (b[key] or 0)
+            if delta > 0 and (not best or delta > best) then best = delta end
+        end
+    end
+    return best
+end
+
 -- How many sockets the item has versus how many are filled. Reading the
 -- item link alone only reveals gems already socketed, so an empty socket
 -- is indistinguishable from no socket at all.
@@ -917,21 +955,25 @@ local function GetSocketInfo(slotId)
     local link = GetInventoryItemLink("player", slotId)
     if not link then return 0, 0 end
 
-    local empty = 0
+    -- EMPTY_SOCKET_* counts EVERY socket the item has, filled or not: the key
+    -- names the socket's type, it does not report its state. Adding the gem
+    -- count on top double-counts, which paints an empty-socket placeholder
+    -- next to a gem the player has already socketed.
+    local total = 0
     local stats = C_Item.GetItemStats(link)
     if stats then
         for key, count in pairs(stats) do
-            if key:find("EMPTY_SOCKET_") then empty = empty + count end
+            if key:find("EMPTY_SOCKET_") then total = total + count end
         end
     end
 
     local _, gems = GetItemEnchantAndGems(slotId)
     local filled = gems and #gems or 0
 
-    -- GetItemStats lists only the sockets that are still EMPTY: a socket
-    -- holding a gem contributes that gem's stats instead and never appears
-    -- under an EMPTY_SOCKET_* key. Total is therefore empty plus filled.
-    return empty + filled, filled
+    -- Some item types under-report; never claim fewer sockets than gems present.
+    if total < filled then total = filled end
+
+    return total, filled
 end
 
 local function GetRecommendedGem(specData)
@@ -2961,38 +3003,87 @@ local function CreateRowPool(frame)
         enchantText:SetWordWrap(false)
         row.enchantText = enchantText
 
+        -- WoW has no standalone enchant tooltip. An enchant is neither an item
+        -- nor a spell, so there is nothing to hand SetHyperlink -- the game
+        -- only ever describes one as a line inside the item's own tooltip.
+        -- This builds the enchant's own tooltip from the catalogue instead.
         local function ShowEnchantTooltip(self)
-            if row.enchantID and tonumber(row.enchantID) > 0 then
-                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                -- Try to show the specific enchant tooltip
-                GameTooltip:SetHyperlink("enchant:" .. row.enchantID)
-                -- If the tooltip is empty (some enchants don't have standalone data), fallback to item
-                if GameTooltip:NumLines() <= 1 then
-                    local link = GetInventoryItemLink("player", row.slotId)
-                    if link then GameTooltip:SetHyperlink(link) end
+            local link = GetInventoryItemLink("player", row.slotId)
+            if not link then return end
+
+            local status = row.enchantStatus
+            local rec    = row.enchantRecommended
+            local worn   = row.enchantName
+
+            -- "Special" is the catalogue's marker for a proc enchant: it has no
+            -- secondary stat, so there is nothing to put a number against.
+            local statName = rec and rec.stat ~= "Special" and rec.stat or nil
+
+            local function StatLine(enchantID)
+                local value = EnchantStatValue(row.slotId, enchantID)
+                if value and statName then return "+" .. value .. " " .. statName end
+                if value then return "+" .. value end
+                return statName
+            end
+
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:AddLine("Enchant", P.gold[1], P.gold[2], P.gold[3])
+
+            if status == "none" then
+                GameTooltip:AddLine("Not enchanted",
+                    P.neonRed[1], P.neonRed[2], P.neonRed[3])
+            elseif worn then
+                local c = (status == "match") and P.neonGreen or P.warn
+                GameTooltip:AddLine(worn, c[1], c[2], c[3])
+
+                local wornLine = StatLine(tonumber(link:match("item:%d+:(%d+)")))
+                if wornLine then
+                    GameTooltip:AddLine(wornLine,
+                        P.textDim[1], P.textDim[2], P.textDim[3])
                 end
-                local rec = row.enchantRecommended
-                if rec and row.enchantStatus ~= "na" then
-                    GameTooltip:AddLine(" ")
-                    if row.enchantStatus == "match" then
-                        GameTooltip:AddLine("Zgodny z rekomendacja", P.neonGreen[1], P.neonGreen[2], P.neonGreen[3])
-                    else
-                        GameTooltip:AddLine("Zalecane: " .. rec.name .. " (Rank " ..
-                            tostring(#rec.ranks) .. ")", P.warn[1], P.warn[2], P.warn[3])
+            elseif status == "na" then
+                GameTooltip:AddLine("This slot takes no enchant",
+                    P.textDim[1], P.textDim[2], P.textDim[3])
+            end
+
+            -- Rank only means something for an enchant we can place in a family.
+            if rec and (status == "match" or status == "lowrank") then
+                GameTooltip:AddLine(
+                    "Rank " .. tostring(rec.rank or #rec.ranks) .. " of " .. tostring(#rec.ranks),
+                    P.textDim[1], P.textDim[2], P.textDim[3])
+            end
+
+            if rec and status ~= "na" then
+                GameTooltip:AddLine(" ")
+                if status == "match" then
+                    GameTooltip:AddLine("Matches recommendation",
+                        P.neonGreen[1], P.neonGreen[2], P.neonGreen[3])
+                else
+                    GameTooltip:AddLine("Recommended: " .. rec.name .. " (Rank " ..
+                        tostring(#rec.ranks) .. ")", P.warn[1], P.warn[2], P.warn[3])
+                    local recLine = StatLine(rec.targetID)
+                    if recLine then
+                        GameTooltip:AddLine(recLine,
+                            P.textDim[1], P.textDim[2], P.textDim[3])
                     end
                 end
-                GameTooltip:Show()
-            else
-                ShowItemTooltip(self)
             end
+
+            GameTooltip:Show()
         end
 
+        -- Sized explicitly rather than anchored to enchantText. A FontString
+        -- has no height of its own until it holds text, so a frame pinned to
+        -- its corners can end up 0px tall and never receive OnEnter. Every
+        -- hover in this row that works (icon, equipped name, gems) has an
+        -- explicit size; this mirrors enchantText's own column geometry.
         local enchantHover = CreateFrame("Frame", nil, row)
-        enchantHover:SetPoint("TOPLEFT", enchantText, "TOPLEFT")
-        enchantHover:SetPoint("BOTTOMRIGHT", enchantText, "BOTTOMRIGHT")
+        enchantHover:SetSize(130, 20)
+        enchantHover:SetPoint("LEFT", row, "LEFT", 246, 0)
         enchantHover:EnableMouse(true)
         enchantHover:SetScript("OnEnter", ShowEnchantTooltip)
         enchantHover:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        row.enchantHover = enchantHover
 
         local gemContainer = CreateFrame("Frame", nil, row)
         gemContainer:SetSize(44, 18)
@@ -3020,12 +3111,12 @@ local function CreateRowPool(frame)
                     GameTooltip:SetHyperlink(self.gemLink)
                     if self.border:IsShown() then
                         GameTooltip:AddLine(" ")
-                        GameTooltip:AddLine("Inny niz zalecany", P.warn[1], P.warn[2], P.warn[3])
+                        GameTooltip:AddLine("Not the recommended gem", P.warn[1], P.warn[2], P.warn[3])
                     end
                     GameTooltip:Show()
                 elseif self.emptySocket then
                     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                    GameTooltip:AddLine("Puste gniazdo", P.neonRed[1], P.neonRed[2], P.neonRed[3])
+                    GameTooltip:AddLine("Empty socket", P.neonRed[1], P.neonRed[2], P.neonRed[3])
                     GameTooltip:Show()
                 end
             end)
@@ -3053,8 +3144,13 @@ local function CreateRowPool(frame)
         row.bisName = bisName
 
         local bisHover = CreateFrame("Frame", nil, row)
-        bisHover:SetPoint("TOPLEFT", bisName, "TOPLEFT")
-        bisHover:SetPoint("BOTTOMRIGHT", bisName, "BOTTOMRIGHT")
+        -- Same fix as enchantHover: a frame pinned to a FontString's corners
+        -- inherits its 0px height and never fires OnEnter. The column stretches
+        -- with the window, so the width still comes from anchors -- only the
+        -- height is stated outright, mirroring bisName's own geometry.
+        bisHover:SetHeight(20)
+        bisHover:SetPoint("LEFT", row, "LEFT", 558, 0)
+        bisHover:SetPoint("RIGHT", sourceText, "LEFT", -10, 0)
         bisHover:EnableMouse(true)
         bisHover:SetScript("OnEnter", function(self)
             if self.bisItemID then
@@ -4040,6 +4136,7 @@ local function UpdateRow(rowIndex, slotId)
     local enchantStatus, recommended = EvaluateEnchant(slotId, specData)
     row.enchantStatus = enchantStatus
     row.enchantRecommended = recommended
+    row.enchantName = enchant
 
     if not link then
         row.enchantText:SetText("")
@@ -4052,18 +4149,11 @@ local function UpdateRow(rowIndex, slotId)
         -- Off-catalogue enchant: we have an ID but no name we can trust.
         row.enchantText:SetText(P.tWarn .. (enchant or "?") .. "|r")
     elseif enchantStatus == "none" then
-        row.enchantText:SetText(P.tMissing .. "brak|r")
+        row.enchantText:SetText(P.tMissing .. "none|r")
     else
         -- "na": slot takes no enchant, or we have no catalogue entry for it
         row.enchantText:SetText(enchant and (P.tCream .. enchant .. "|r")
                                         or (P.tDim .. "—|r"))
-    end
-
-    -- Store enchantID for the tooltip
-    if link then
-        row.enchantID = tonumber(link:match("item:%d+:(%d+)"))
-    else
-        row.enchantID = nil
     end
 
     local socketTotal = GetSocketInfo(slotId)
