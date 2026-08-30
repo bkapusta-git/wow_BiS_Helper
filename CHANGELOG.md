@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.13.1] — 2026-08-30
+
+### Fixed
+- **Enchants were called wrong on five slots out of six** — the recommendation is picked by matching an enchant's stat against your spec's stat priority, but Midnight puts Speed, Leech and Avoidance on Helm, Shoulders and Boots, primary stats on Chest, and procs on Weapon, and a stat priority lists none of those. The match only ever succeeded on Rings; every other slot quietly fell back to the first entry in the catalogue and then flagged whatever you were actually wearing. Those slots now show your enchant plainly instead of warning about it, and the tooltip says there is no spec-based pick rather than naming a default as though it were advice.
+- **Rings flagged half of the correct choices** — Midnight ships two enchant families for every secondary stat, and the tie-break between them was alphabetical order, so wearing the sibling of an equally good enchant read as a mistake. Families sitting at the same place in your stat priority now count as a match.
+- **Rank was reported only for the recommended enchant** — sitting on a lower crafting rank is worth knowing whichever family you picked. The rank line and the (R1) suffix now follow the enchant you are wearing.
+- **Tooltip put the wrong stat name on your enchant** — the label came from the recommended enchant, so an enchant from a different family had someone else's stat printed beside its value.
+
 ## [0.13.0] — 2026-08-28
 
 ### Added

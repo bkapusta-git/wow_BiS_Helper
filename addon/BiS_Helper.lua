@@ -866,7 +866,8 @@ local function GetRecommendedEnchant(slotId, specData)
         for _, entry in ipairs(options) do
             if entry.name == override and entry.ranks then
                 return { name = entry.name, stat = entry.stat,
-                         ranks = entry.ranks, targetID = entry.ranks[#entry.ranks] }
+                         ranks = entry.ranks, targetID = entry.ranks[#entry.ranks],
+                         confident = true, statRank = StatRank(entry.stat, specData) }
             end
         end
         -- Override naming an entry outside the catalogue: fall through to the
@@ -882,32 +883,67 @@ local function GetRecommendedEnchant(slotId, specData)
         end
     end
 
-    -- 3. No option matches any listed stat — first catalogue entry is the
-    -- least-wrong answer and still beats leaving the row unevaluated.
+    -- 3. No option matches any listed stat. This is the normal outcome on
+    -- every slot but Ring: Midnight puts tertiary stats on Helm, Shoulders and
+    -- Boots, primaries on Chest and procs on Weapon, and statPriority lists
+    -- none of those. The first catalogue entry is a sane thing to show, but it
+    -- is NOT a spec-derived answer, so confident stays false and nothing the
+    -- player wears gets called wrong on the strength of a guess.
+    local confident = best ~= nil
     best = best or options[1]
 
     return { name = best.name, stat = best.stat,
-             ranks = best.ranks, targetID = best.ranks[#best.ranks] }
+             ranks = best.ranks, targetID = best.ranks[#best.ranks],
+             confident = confident, statRank = bestRank }
+end
+
+-- The catalogue family an equipped enchant belongs to, with its rank inside
+-- that family. Looked up independently of what is being recommended, because
+-- rank is family-internal and stays meaningful either way.
+local function FindWornEnchant(slotId, enchantID)
+    local catalogue = BiSHelper_Enchants and BiSHelper_Enchants.slots
+    local options = catalogue and catalogue[EnchantSlotKey(slotId)]
+    if not options then return nil end
+
+    for _, entry in ipairs(options) do
+        local rank = RankInFamily(entry, enchantID)
+        if rank then
+            return { name = entry.name, stat = entry.stat,
+                     ranks = entry.ranks, rank = rank }
+        end
+    end
+    return nil
 end
 
 local function EvaluateEnchant(slotId, specData)
     local recommended = GetRecommendedEnchant(slotId, specData)
-    if not recommended then return "na", nil end
+    if not recommended then return "na", nil, nil end
 
     local link = GetInventoryItemLink("player", slotId)
-    if not link then return "na", recommended end
+    if not link then return "na", recommended, nil end
 
     local enchantID = tonumber(link:match("item:%d+:(%d+)"))
-    if not enchantID or enchantID == 0 then return "none", recommended end
+    if not enchantID or enchantID == 0 then return "none", recommended, nil end
 
-    local rank = RankInFamily(recommended, enchantID)
-    if rank then
-        if rank == #recommended.ranks then return "match", recommended end
-        recommended.rank = rank
-        return "lowrank", recommended
+    local worn = FindWornEnchant(slotId, enchantID)
+    if not worn then return "other", recommended, nil end
+
+    local equallyGood = worn.name == recommended.name or not recommended.confident
+    if not equallyGood then
+        -- A family sitting at the same spot in the stat priority is worth the
+        -- same. Midnight ships two ring families per secondary stat and the
+        -- tie-break between them is plain alphabetical order, so without this
+        -- half of the correct choices would read as wrong.
+        equallyGood = StatRank(worn.stat, specData) == recommended.statRank
     end
+    if not equallyGood then return "other", recommended, worn end
 
-    return "other", recommended
+    if worn.rank < #worn.ranks then return "lowrank", recommended, worn end
+
+    -- Max rank of a family we have no grounds to argue with. Green is kept for
+    -- a pick the stat rule actually made; "ok" is the weaker, honest claim.
+    if recommended.confident then return "match", recommended, worn end
+    return "ok", recommended, worn
 end
 
 -- Stat points an enchant is worth, measured by the game rather than computed.
@@ -3011,15 +3047,22 @@ local function CreateRowPool(frame)
             local link = GetInventoryItemLink("player", row.slotId)
             if not link then return end
 
-            local status = row.enchantStatus
-            local rec    = row.enchantRecommended
-            local worn   = row.enchantName
+            local status    = row.enchantStatus
+            local rec       = row.enchantRecommended
+            local wornName  = row.enchantName
+            local wornEntry = row.enchantWorn
 
             -- "Special" is the catalogue's marker for a proc enchant: it has no
             -- secondary stat, so there is nothing to put a number against.
-            local statName = rec and rec.stat ~= "Special" and rec.stat or nil
+            local function StatName(entry)
+                return entry and entry.stat ~= "Special" and entry.stat or nil
+            end
 
-            local function StatLine(enchantID)
+            -- The label comes from the entry the number belongs to. Reusing the
+            -- recommended stat for the worn line would put the wrong name on it
+            -- whenever the two are different families.
+            local function StatLine(enchantID, entry)
+                local statName = StatName(entry)
                 local value = EnchantStatValue(row.slotId, enchantID)
                 if value and statName then return "+" .. value .. " " .. statName end
                 if value then return "+" .. value end
@@ -3032,11 +3075,13 @@ local function CreateRowPool(frame)
             if status == "none" then
                 GameTooltip:AddLine("Not enchanted",
                     P.neonRed[1], P.neonRed[2], P.neonRed[3])
-            elseif worn then
-                local c = (status == "match") and P.neonGreen or P.warn
-                GameTooltip:AddLine(worn, c[1], c[2], c[3])
+            elseif wornName then
+                local c = P.warn
+                if status == "match" then c = P.neonGreen
+                elseif status == "ok" then c = P.cream end
+                GameTooltip:AddLine(wornName, c[1], c[2], c[3])
 
-                local wornLine = StatLine(tonumber(link:match("item:%d+:(%d+)")))
+                local wornLine = StatLine(tonumber(link:match("item:%d+:(%d+)")), wornEntry)
                 if wornLine then
                     GameTooltip:AddLine(wornLine,
                         P.textDim[1], P.textDim[2], P.textDim[3])
@@ -3046,10 +3091,11 @@ local function CreateRowPool(frame)
                     P.textDim[1], P.textDim[2], P.textDim[3])
             end
 
-            -- Rank only means something for an enchant we can place in a family.
-            if rec and (status == "match" or status == "lowrank") then
+            -- Rank is family-internal, so it is worth showing for whatever the
+            -- player actually wears, not only for the recommended family.
+            if wornEntry then
                 GameTooltip:AddLine(
-                    "Rank " .. tostring(rec.rank or #rec.ranks) .. " of " .. tostring(#rec.ranks),
+                    "Rank " .. tostring(wornEntry.rank) .. " of " .. tostring(#wornEntry.ranks),
                     P.textDim[1], P.textDim[2], P.textDim[3])
             end
 
@@ -3058,14 +3104,23 @@ local function CreateRowPool(frame)
                 if status == "match" then
                     GameTooltip:AddLine("Matches recommendation",
                         P.neonGreen[1], P.neonGreen[2], P.neonGreen[3])
-                else
+                elseif rec.confident then
                     GameTooltip:AddLine("Recommended: " .. rec.name .. " (Rank " ..
                         tostring(#rec.ranks) .. ")", P.warn[1], P.warn[2], P.warn[3])
-                    local recLine = StatLine(rec.targetID)
+                    local recLine = StatLine(rec.targetID, rec)
                     if recLine then
                         GameTooltip:AddLine(recLine,
                             P.textDim[1], P.textDim[2], P.textDim[3])
                     end
+                elseif status == "none" then
+                    -- Still unenchanted, so the default is worth naming. It is
+                    -- labelled a default rather than a recommendation because
+                    -- no stat on this slot appears in the priority list.
+                    GameTooltip:AddLine("Catalogue default: " .. rec.name,
+                        P.textDim[1], P.textDim[2], P.textDim[3])
+                else
+                    GameTooltip:AddLine("No spec-based pick for this slot",
+                        P.textDim[1], P.textDim[2], P.textDim[3])
                 end
             end
 
@@ -4133,18 +4188,23 @@ local function UpdateRow(rowIndex, slotId)
     end
 
     local enchant, gems = GetItemEnchantAndGems(slotId)
-    local enchantStatus, recommended = EvaluateEnchant(slotId, specData)
+    local enchantStatus, recommended, wornEnchant = EvaluateEnchant(slotId, specData)
     row.enchantStatus = enchantStatus
     row.enchantRecommended = recommended
+    row.enchantWorn = wornEnchant
     row.enchantName = enchant
 
     if not link then
         row.enchantText:SetText("")
     elseif enchantStatus == "match" then
         row.enchantText:SetText(P.tBiS .. (enchant or recommended.name) .. "|r")
+    elseif enchantStatus == "ok" then
+        -- A catalogue enchant on a slot the stat rule cannot judge. Shown
+        -- plainly: a warning would be a guess, green would be a claim.
+        row.enchantText:SetText(P.tCream .. (enchant or wornEnchant.name) .. "|r")
     elseif enchantStatus == "lowrank" then
-        row.enchantText:SetText(P.tWarn .. (enchant or recommended.name) ..
-            " (R" .. tostring(recommended.rank) .. ")|r")
+        row.enchantText:SetText(P.tWarn .. (enchant or wornEnchant.name) ..
+            " (R" .. tostring(wornEnchant.rank) .. ")|r")
     elseif enchantStatus == "other" then
         -- Off-catalogue enchant: we have an ID but no name we can trust.
         row.enchantText:SetText(P.tWarn .. (enchant or "?") .. "|r")
